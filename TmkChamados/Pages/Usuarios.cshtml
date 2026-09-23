@@ -1,0 +1,65 @@
+@page
+@model UsuariosModel
+@{
+    ViewData["Title"] = "Usuários";
+}
+
+<h1>Usuários</h1>
+
+@if (!string.IsNullOrEmpty(Model.ErroExclusao))
+{
+    <div class="alert alert-danger">@Model.ErroExclusao</div>
+}
+
+<form method="post" asp-page-handler="@(Model.EmEdicao ? "Atualizar" : "Adicionar")" class="mb-4">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" asp-for="Form.Id" />
+
+    <div class="mb-2">
+        <label asp-for="Form.Nome" class="form-label">Nome</label>
+        <input asp-for="Form.Nome" class="form-control" />
+        <span asp-validation-for="Form.Nome" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        @(Model.EmEdicao ? "Atualizar" : "Adicionar")
+    </button>
+    @if (Model.EmEdicao)
+    {
+        <a href="/Usuarios" class="btn btn-secondary">Cancelar</a>
+    }
+</form>
+
+<h2>Lista de Usuários</h2>
+
+@if (!Model.Usuarios.Any())
+{
+    <p>Nenhum usuário cadastrado.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nome</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var usuario in Model.Usuarios)
+            {
+                <tr>
+                    <td>@usuario.Id</td>
+                    <td>@usuario.Nome</td>
+                    <td>
+                        <a href="/Usuarios?editId=@usuario.Id" class="btn btn-sm btn-outline-primary">Editar</a>
+                        <form method="post" asp-page-handler="Excluir" asp-route-id="@usuario.Id" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

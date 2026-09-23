@@ -28,6 +28,30 @@
                 asp-items="Html.GetEnumSelectList<StatusChamado>()"></select>
     </div>
 
+    <div class="mb-2">
+        <label asp-for="Form.CriadoPorId" class="form-label">Criado por</label>
+        <select asp-for="Form.CriadoPorId" class="form-select">
+            <option value="">-- Selecione --</option>
+            @foreach (var usuario in Model.Usuarios)
+            {
+                <option value="@usuario.Id">@usuario.Nome</option>
+            }
+        </select>
+        <span asp-validation-for="Form.CriadoPorId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-2">
+        <label asp-for="Form.ResponsavelId" class="form-label">Responsável</label>
+        <select asp-for="Form.ResponsavelId" class="form-select">
+            <option value="">-- Selecione --</option>
+            @foreach (var usuario in Model.Usuarios)
+            {
+                <option value="@usuario.Id">@usuario.Nome</option>
+            }
+        </select>
+        <span asp-validation-for="Form.ResponsavelId" class="text-danger"></span>
+    </div>
+
     <button type="submit" class="btn btn-primary">
         @(Model.EmEdicao ? "Atualizar" : "Adicionar")
     </button>
@@ -35,6 +59,42 @@
     {
         <a href="/Index" class="btn btn-secondary">Cancelar</a>
     }
+</form>
+
+<h2>Filtrar Chamados</h2>
+
+<form method="get" class="mb-4">
+    <div class="row g-2 align-items-end">
+        <div class="col-auto">
+            <label asp-for="Filtro.Status" class="form-label">Status</label>
+            <select asp-for="Filtro.Status" class="form-select">
+                <option value="">Todos</option>
+                <option value="Aberto">Aberto</option>
+                <option value="EmAndamento">EmAndamento</option>
+                <option value="Concluido">Concluido</option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <label asp-for="Filtro.CriadoDe" class="form-label">Criado de</label>
+            <input asp-for="Filtro.CriadoDe" type="date" class="form-control" />
+        </div>
+        <div class="col-auto">
+            <label asp-for="Filtro.CriadoAte" class="form-label">Criado até</label>
+            <input asp-for="Filtro.CriadoAte" type="date" class="form-control" />
+        </div>
+        <div class="col-auto">
+            <label asp-for="Filtro.ModificadoDe" class="form-label">Modificado de</label>
+            <input asp-for="Filtro.ModificadoDe" type="date" class="form-control" />
+        </div>
+        <div class="col-auto">
+            <label asp-for="Filtro.ModificadoAte" class="form-label">Modificado até</label>
+            <input asp-for="Filtro.ModificadoAte" type="date" class="form-control" />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+            <a href="/Index" class="btn btn-secondary">Limpar filtros</a>
+        </div>
+    </div>
 </form>
 
 <h2>Lista de Chamados</h2>
@@ -51,6 +111,10 @@ else
                 <th>Título</th>
                 <th>Descrição</th>
                 <th>Status</th>
+                <th>Criado por</th>
+                <th>Responsável</th>
+                <th>Criado em</th>
+                <th>Última modificação</th>
                 <th></th>
             </tr>
         </thead>
@@ -61,6 +125,10 @@ else
                     <td>@chamado.Titulo</td>
                     <td>@chamado.Descricao</td>
                     <td>@chamado.Status</td>
+                    <td>@(Model.NomesPorId.TryGetValue(chamado.CriadoPorId, out var criadoPorNome) ? criadoPorNome : "-")</td>
+                    <td>@(Model.NomesPorId.TryGetValue(chamado.ResponsavelId, out var responsavelNome) ? responsavelNome : "-")</td>
+                    <td>@chamado.DataCriacao.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@chamado.DataUltimaModificacao.ToString("dd/MM/yyyy HH:mm")</td>
                     <td>
                         <a href="/Index?editId=@chamado.Id" class="btn btn-sm btn-outline-primary">Editar</a>
                         <form method="post" asp-page-handler="Excluir" asp-route-id="@chamado.Id" class="d-inline">

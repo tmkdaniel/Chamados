@@ -19,5 +19,13 @@ namespace TmkChamados.Models
         public string Descricao { get; set; } = string.Empty;
 
         public StatusChamado Status { get; set; } = StatusChamado.Aberto;
+
+        public DateTime DataCriacao { get; set; }
+
+        public DateTime DataUltimaModificacao { get; set; }
+
+        public int CriadoPorId { get; set; }
+
+        public int ResponsavelId { get; set; }
     }
 }
