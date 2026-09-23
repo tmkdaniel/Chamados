@@ -1,0 +1,67 @@
+@page
+@using TmkChamados.Models
+@model ChamadosFormModel
+@{
+    ViewData["Title"] = Model.EmEdicao ? "Editar Chamado" : "Novo Chamado";
+}
+
+<h1>@(Model.EmEdicao ? "Editar Chamado" : "Novo Chamado")</h1>
+
+<form method="post" asp-page-handler="@(Model.EmEdicao ? "Atualizar" : "Adicionar")" class="mb-4">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" asp-for="Form.Id" />
+
+    @if (Model.EmEdicao)
+    {
+        <div class="mb-2">
+            <label class="form-label">Id</label>
+            <input type="text" value="@Model.Form.Id" class="form-control" readonly />
+        </div>
+    }
+
+    <div class="mb-2">
+        <label asp-for="Form.Titulo" class="form-label">Título</label>
+        <input asp-for="Form.Titulo" class="form-control" />
+        <span asp-validation-for="Form.Titulo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-2">
+        <label asp-for="Form.Descricao" class="form-label">Descrição</label>
+        <textarea asp-for="Form.Descricao" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-2">
+        <label asp-for="Form.Status" class="form-label">Status</label>
+        <select asp-for="Form.Status" class="form-select"
+                asp-items="Html.GetEnumSelectList<StatusChamado>()"></select>
+    </div>
+
+    <div class="mb-2">
+        <label asp-for="Form.CriadoPorId" class="form-label">Criado por</label>
+        <select asp-for="Form.CriadoPorId" class="form-select">
+            <option value="">-- Selecione --</option>
+            @foreach (var usuario in Model.Usuarios)
+            {
+                <option value="@usuario.Id">@usuario.Nome</option>
+            }
+        </select>
+        <span asp-validation-for="Form.CriadoPorId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-2">
+        <label asp-for="Form.ResponsavelId" class="form-label">Responsável</label>
+        <select asp-for="Form.ResponsavelId" class="form-select">
+            <option value="">-- Selecione --</option>
+            @foreach (var usuario in Model.Usuarios)
+            {
+                <option value="@usuario.Id">@usuario.Nome</option>
+            }
+        </select>
+        <span asp-validation-for="Form.ResponsavelId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        @(Model.EmEdicao ? "Atualizar" : "Adicionar")
+    </button>
+    <a href="/Index" class="btn btn-secondary">Cancelar</a>
+</form>

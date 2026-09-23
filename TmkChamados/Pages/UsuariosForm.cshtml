@@ -1,0 +1,31 @@
+@page
+@model UsuariosFormModel
+@{
+    ViewData["Title"] = Model.EmEdicao ? "Editar Usuário" : "Novo Usuário";
+}
+
+<h1>@(Model.EmEdicao ? "Editar Usuário" : "Novo Usuário")</h1>
+
+<form method="post" asp-page-handler="@(Model.EmEdicao ? "Atualizar" : "Adicionar")" class="mb-4">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <input type="hidden" asp-for="Form.Id" />
+
+    @if (Model.EmEdicao)
+    {
+        <div class="mb-2">
+            <label class="form-label">Id</label>
+            <input type="text" value="@Model.Form.Id" class="form-control" readonly />
+        </div>
+    }
+
+    <div class="mb-2">
+        <label asp-for="Form.Nome" class="form-label">Nome</label>
+        <input asp-for="Form.Nome" class="form-control" />
+        <span asp-validation-for="Form.Nome" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        @(Model.EmEdicao ? "Atualizar" : "Adicionar")
+    </button>
+    <a href="/Usuarios" class="btn btn-secondary">Cancelar</a>
+</form>

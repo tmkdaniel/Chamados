@@ -16,9 +16,6 @@ namespace TmkChamados.Pages
             _usuarioService = usuarioService;
         }
 
-        [BindProperty]
-        public ChamadoFormModel Form { get; set; } = new();
-
         [BindProperty(SupportsGet = true)]
         public FiltroFormModel Filtro { get; set; } = new();
 
@@ -28,85 +25,17 @@ namespace TmkChamados.Pages
 
         public Dictionary<int, string> NomesPorId { get; private set; } = new();
 
-        public bool EmEdicao => Form.Id.HasValue;
-
-        public void OnGet(int? editId)
+        public void OnGet()
         {
             Chamados = _chamadoService.Listar(ConstruirFiltro());
             Usuarios = _usuarioService.Listar();
             NomesPorId = Usuarios.ToDictionary(u => u.Id, u => u.Nome);
-
-            if (editId.HasValue)
-            {
-                var chamado = _chamadoService.Obter(editId.Value);
-                if (chamado is not null)
-                {
-                    Form = new ChamadoFormModel
-                    {
-                        Id = chamado.Id,
-                        Titulo = chamado.Titulo,
-                        Descricao = chamado.Descricao,
-                        Status = chamado.Status,
-                        CriadoPorId = chamado.CriadoPorId,
-                        ResponsavelId = chamado.ResponsavelId
-                    };
-                }
-            }
-        }
-
-        public IActionResult OnPostAdicionar()
-        {
-            ValidarUsuariosSelecionados();
-
-            if (!ModelState.IsValid)
-            {
-                Chamados = _chamadoService.Listar(ConstruirFiltro());
-                Usuarios = _usuarioService.Listar();
-                NomesPorId = Usuarios.ToDictionary(u => u.Id, u => u.Nome);
-                return Page();
-            }
-
-            _chamadoService.Criar(Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, Form.CriadoPorId!.Value, Form.ResponsavelId!.Value);
-            return RedirectToPage();
-        }
-
-        public IActionResult OnPostAtualizar()
-        {
-            ValidarUsuariosSelecionados();
-
-            if (!ModelState.IsValid)
-            {
-                Chamados = _chamadoService.Listar(ConstruirFiltro());
-                Usuarios = _usuarioService.Listar();
-                NomesPorId = Usuarios.ToDictionary(u => u.Id, u => u.Nome);
-                return Page();
-            }
-
-            if (Form.Id.HasValue)
-            {
-                _chamadoService.Atualizar(Form.Id.Value, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, Form.CriadoPorId!.Value, Form.ResponsavelId!.Value);
-            }
-
-            return RedirectToPage();
         }
 
         public IActionResult OnPostExcluir(int id)
         {
             _chamadoService.Excluir(id);
             return RedirectToPage();
-        }
-
-        private void ValidarUsuariosSelecionados()
-        {
-            if (!Form.CriadoPorId.HasValue)
-            {
-                ModelState.AddModelError(nameof(Form.CriadoPorId), "Selecione o usuário Criado por.");
-            }
-
-            if (!Form.ResponsavelId.HasValue)
-            {
-                ModelState.AddModelError(nameof(Form.ResponsavelId), "Selecione o usuário Responsável.");
-            }
         }
 
         private FiltroChamados ConstruirFiltro()
@@ -122,22 +51,6 @@ namespace TmkChamados.Pages
                 ModificadoAte = Filtro.ModificadoAte
             };
         }
-    }
-
-    public class ChamadoFormModel
-    {
-        public int? Id { get; set; }
-
-        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "O título é obrigatório.")]
-        public string Titulo { get; set; } = string.Empty;
-
-        public string? Descricao { get; set; } = string.Empty;
-
-        public StatusChamado Status { get; set; } = StatusChamado.Aberto;
-
-        public int? CriadoPorId { get; set; }
-
-        public int? ResponsavelId { get; set; }
     }
 
     public class FiltroFormModel

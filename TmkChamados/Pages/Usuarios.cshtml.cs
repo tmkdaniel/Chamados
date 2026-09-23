@@ -16,60 +16,14 @@ namespace TmkChamados.Pages
             _chamadoService = chamadoService;
         }
 
-        [BindProperty]
-        public UsuarioFormModel Form { get; set; } = new();
-
         public IReadOnlyList<Usuario> Usuarios { get; private set; } = Array.Empty<Usuario>();
-
-        public bool EmEdicao => Form.Id.HasValue;
 
         [TempData]
         public string? ErroExclusao { get; set; }
 
-        public void OnGet(int? editId)
+        public void OnGet()
         {
             Usuarios = _usuarioService.Listar();
-
-            if (editId.HasValue)
-            {
-                var usuario = _usuarioService.Obter(editId.Value);
-                if (usuario is not null)
-                {
-                    Form = new UsuarioFormModel
-                    {
-                        Id = usuario.Id,
-                        Nome = usuario.Nome
-                    };
-                }
-            }
-        }
-
-        public IActionResult OnPostAdicionar()
-        {
-            if (!ModelState.IsValid)
-            {
-                Usuarios = _usuarioService.Listar();
-                return Page();
-            }
-
-            _usuarioService.Criar(Form.Nome);
-            return RedirectToPage();
-        }
-
-        public IActionResult OnPostAtualizar()
-        {
-            if (!ModelState.IsValid)
-            {
-                Usuarios = _usuarioService.Listar();
-                return Page();
-            }
-
-            if (Form.Id.HasValue)
-            {
-                _usuarioService.Atualizar(Form.Id.Value, Form.Nome);
-            }
-
-            return RedirectToPage();
         }
 
         public IActionResult OnPostExcluir(int id)
@@ -86,13 +40,5 @@ namespace TmkChamados.Pages
 
             return RedirectToPage();
         }
-    }
-
-    public class UsuarioFormModel
-    {
-        public int? Id { get; set; }
-
-        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "O nome é obrigatório.")]
-        public string Nome { get; set; } = string.Empty;
     }
 }
