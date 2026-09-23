@@ -27,6 +27,16 @@ namespace TmkChamados.Services
                     query = query.Where(c => c.Status == filtro.Status.Value);
                 }
 
+                if (filtro.CriadoPorId.HasValue)
+                {
+                    query = query.Where(c => c.CriadoPorId == filtro.CriadoPorId.Value);
+                }
+
+                if (filtro.ResponsavelId.HasValue)
+                {
+                    query = query.Where(c => c.ResponsavelId == filtro.ResponsavelId.Value);
+                }
+
                 if (filtro.CriadoDe.HasValue)
                 {
                     query = query.Where(c => c.DataCriacao.Date >= filtro.CriadoDe.Value.Date);

@@ -114,6 +114,8 @@ namespace TmkChamados.Pages
             return new FiltroChamados
             {
                 Status = Filtro.Status,
+                CriadoPorId = Filtro.CriadoPorId,
+                ResponsavelId = Filtro.ResponsavelId,
                 CriadoDe = Filtro.CriadoDe,
                 CriadoAte = Filtro.CriadoAte,
                 ModificadoDe = Filtro.ModificadoDe,
@@ -141,6 +143,10 @@ namespace TmkChamados.Pages
     public class FiltroFormModel
     {
         public StatusChamado? Status { get; set; }
+
+        public int? CriadoPorId { get; set; }
+
+        public int? ResponsavelId { get; set; }
 
         [System.ComponentModel.DataAnnotations.DataType(System.ComponentModel.DataAnnotations.DataType.Date)]
         public DateTime? CriadoDe { get; set; }

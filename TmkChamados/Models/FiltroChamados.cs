@@ -4,6 +4,10 @@ namespace TmkChamados.Models
     {
         public StatusChamado? Status { get; set; }
 
+        public int? CriadoPorId { get; set; }
+
+        public int? ResponsavelId { get; set; }
+
         public DateTime? CriadoDe { get; set; }
 
         public DateTime? CriadoAte { get; set; }

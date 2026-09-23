@@ -15,6 +15,14 @@
     <div asp-validation-summary="All" class="text-danger"></div>
     <input type="hidden" asp-for="Form.Id" />
 
+    @if (Model.EmEdicao)
+    {
+        <div class="mb-2">
+            <label class="form-label">Id</label>
+            <input type="text" value="@Model.Form.Id" class="form-control" readonly />
+        </div>
+    }
+
     <div class="mb-2">
         <label asp-for="Form.Nome" class="form-label">Nome</label>
         <input asp-for="Form.Nome" class="form-control" />
@@ -54,12 +62,33 @@ else
                     <td>@usuario.Nome</td>
                     <td>
                         <a href="/Usuarios?editId=@usuario.Id" class="btn btn-sm btn-outline-primary">Editar</a>
-                        <form method="post" asp-page-handler="Excluir" asp-route-id="@usuario.Id" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Excluir</button>
-                        </form>
+                        <form method="post" asp-page-handler="Excluir" asp-route-id="@usuario.Id" id="excluir-usuario-@usuario.Id" class="d-inline"></form>
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                data-bs-toggle="modal" data-bs-target="#modalConfirmarExclusao"
+                                onclick="document.getElementById('btnConfirmarExclusao').setAttribute('form', 'excluir-usuario-@usuario.Id')">
+                            Excluir
+                        </button>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
 }
+
+<div class="modal fade" id="modalConfirmarExclusao" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cancelar"></button>
+            </div>
+            <div class="modal-body">
+                Tem certeza que deseja excluir este usuário?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" id="btnConfirmarExclusao" class="btn btn-danger" data-bs-dismiss="modal">Confirmar exclusão</button>
+            </div>
+        </div>
+    </div>
+</div>
