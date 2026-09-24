@@ -24,6 +24,16 @@
         <span asp-validation-for="Form.Nome" class="text-danger"></span>
     </div>
 
+    <div class="mb-2">
+        <label asp-for="Form.Senha" class="form-label">Senha</label>
+        <input asp-for="Form.Senha" type="password" class="form-control" />
+        <span asp-validation-for="Form.Senha" class="text-danger"></span>
+        @if (Model.EmEdicao)
+        {
+            <div class="form-text">Deixe em branco para manter a senha atual.</div>
+        }
+    </div>
+
     <button type="submit" class="btn btn-primary">
         @(Model.EmEdicao ? "Atualizar" : "Adicionar")
     </button>

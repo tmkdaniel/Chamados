@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using TmkChamados.Models;
 
 namespace TmkChamados.Services
@@ -7,6 +8,7 @@ namespace TmkChamados.Services
         private readonly List<Usuario> _usuarios = new();
         private int _proximoId = 1;
         private readonly object _lock = new();
+        private readonly PasswordHasher<Usuario> _hasher = new();
 
         public IReadOnlyList<Usuario> Listar()
         {
@@ -24,7 +26,17 @@ namespace TmkChamados.Services
             }
         }
 
-        public Usuario Criar(string nome)
+        public bool NomeEmUso(string nome, int? ignorarId = null)
+        {
+            lock (_lock)
+            {
+                return _usuarios.Any(u =>
+                    u.Id != ignorarId &&
+                    string.Equals(u.Nome, nome, StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
+        public Usuario Criar(string nome, string senha)
         {
             lock (_lock)
             {
@@ -33,12 +45,13 @@ namespace TmkChamados.Services
                     Id = _proximoId++,
                     Nome = nome
                 };
+                usuario.SenhaHash = _hasher.HashPassword(usuario, senha);
                 _usuarios.Add(usuario);
                 return usuario;
             }
         }
 
-        public bool Atualizar(int id, string nome)
+        public bool Atualizar(int id, string nome, string? senha)
         {
             lock (_lock)
             {
@@ -49,6 +62,11 @@ namespace TmkChamados.Services
                 }
 
                 usuario.Nome = nome;
+                if (!string.IsNullOrEmpty(senha))
+                {
+                    usuario.SenhaHash = _hasher.HashPassword(usuario, senha);
+                }
+
                 return true;
             }
         }
@@ -64,6 +82,21 @@ namespace TmkChamados.Services
                 }
 
                 return _usuarios.Remove(usuario);
+            }
+        }
+
+        public Usuario? ValidarCredenciais(string nome, string senha)
+        {
+            lock (_lock)
+            {
+                var usuario = _usuarios.FirstOrDefault(u => string.Equals(u.Nome, nome, StringComparison.OrdinalIgnoreCase));
+                if (usuario is null)
+                {
+                    return null;
+                }
+
+                var resultado = _hasher.VerifyHashedPassword(usuario, usuario.SenhaHash, senha);
+                return resultado == PasswordVerificationResult.Success ? usuario : null;
             }
         }
     }

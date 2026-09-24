@@ -1,3 +1,6 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using TmkChamados.Models;
@@ -38,14 +41,13 @@ namespace TmkChamados.Pages
                         Titulo = chamado.Titulo,
                         Descricao = chamado.Descricao,
                         Status = chamado.Status,
-                        CriadoPorId = chamado.CriadoPorId,
                         ResponsavelId = chamado.ResponsavelId
                     };
                 }
             }
         }
 
-        public IActionResult OnPostAdicionar()
+        public async Task<IActionResult> OnPostAdicionarAsync()
         {
             ValidarUsuariosSelecionados();
 
@@ -55,7 +57,14 @@ namespace TmkChamados.Pages
                 return Page();
             }
 
-            _chamadoService.Criar(Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, Form.CriadoPorId!.Value, Form.ResponsavelId!.Value);
+            var usuarioAutenticado = ObterUsuarioAutenticado();
+            if (usuarioAutenticado is null)
+            {
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return RedirectToPage("/Login");
+            }
+
+            _chamadoService.Criar(Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, usuarioAutenticado.Id, Form.ResponsavelId!.Value);
             return RedirectToPage("/Index");
         }
 
@@ -71,19 +80,29 @@ namespace TmkChamados.Pages
 
             if (Form.Id.HasValue)
             {
-                _chamadoService.Atualizar(Form.Id.Value, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, Form.CriadoPorId!.Value, Form.ResponsavelId!.Value);
+                var chamadoExistente = _chamadoService.Obter(Form.Id.Value);
+                if (chamadoExistente is not null)
+                {
+                    _chamadoService.Atualizar(Form.Id.Value, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, chamadoExistente.CriadoPorId, Form.ResponsavelId!.Value);
+                }
             }
 
             return RedirectToPage("/Index");
         }
 
-        private void ValidarUsuariosSelecionados()
+        private Usuario? ObterUsuarioAutenticado()
         {
-            if (!Form.CriadoPorId.HasValue)
+            var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (idClaim is null || !int.TryParse(idClaim, out var id))
             {
-                ModelState.AddModelError(nameof(Form.CriadoPorId), "Selecione o usuário Criado por.");
+                return null;
             }
 
+            return _usuarioService.Obter(id);
+        }
+
+        private void ValidarUsuariosSelecionados()
+        {
             if (!Form.ResponsavelId.HasValue)
             {
                 ModelState.AddModelError(nameof(Form.ResponsavelId), "Selecione o usuário Responsável.");
@@ -101,8 +120,6 @@ namespace TmkChamados.Pages
         public string? Descricao { get; set; } = string.Empty;
 
         public StatusChamado Status { get; set; } = StatusChamado.Aberto;
-
-        public int? CriadoPorId { get; set; }
 
         public int? ResponsavelId { get; set; }
     }

@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using TmkChamados.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +8,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddSingleton<IChamadoService, ChamadoService>();
 builder.Services.AddSingleton<IUsuarioService, UsuarioService>();
+
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Login";
+        options.AccessDeniedPath = "/Login";
+    });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 var app = builder.Build();
 
@@ -22,8 +39,18 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
+
+using (var scope = app.Services.CreateScope())
+{
+    var usuarioService = scope.ServiceProvider.GetRequiredService<IUsuarioService>();
+    if (!usuarioService.NomeEmUso("tmk"))
+    {
+        usuarioService.Criar("tmk", "a");
+    }
+}
 
 app.Run();

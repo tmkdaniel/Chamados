@@ -37,18 +37,6 @@
     </div>
 
     <div class="mb-2">
-        <label asp-for="Form.CriadoPorId" class="form-label">Criado por</label>
-        <select asp-for="Form.CriadoPorId" class="form-select">
-            <option value="">-- Selecione --</option>
-            @foreach (var usuario in Model.Usuarios)
-            {
-                <option value="@usuario.Id">@usuario.Nome</option>
-            }
-        </select>
-        <span asp-validation-for="Form.CriadoPorId" class="text-danger"></span>
-    </div>
-
-    <div class="mb-2">
         <label asp-for="Form.ResponsavelId" class="form-label">Responsável</label>
         <select asp-for="Form.ResponsavelId" class="form-select">
             <option value="">-- Selecione --</option>

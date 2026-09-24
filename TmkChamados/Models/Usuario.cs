@@ -8,5 +8,7 @@ namespace TmkChamados.Models
 
         [Required(ErrorMessage = "O nome é obrigatório.")]
         public string Nome { get; set; } = string.Empty;
+
+        public string SenhaHash { get; set; } = string.Empty;
     }
 }

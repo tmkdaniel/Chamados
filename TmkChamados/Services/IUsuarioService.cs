@@ -8,10 +8,14 @@ namespace TmkChamados.Services
 
         Usuario? Obter(int id);
 
-        Usuario Criar(string nome);
+        bool NomeEmUso(string nome, int? ignorarId = null);
 
-        bool Atualizar(int id, string nome);
+        Usuario Criar(string nome, string senha);
+
+        bool Atualizar(int id, string nome, string? senha);
 
         bool Excluir(int id);
+
+        Usuario? ValidarCredenciais(string nome, string senha);
     }
 }

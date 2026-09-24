@@ -1,0 +1,49 @@
+@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - TmkChamados</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="container" style="max-width: 400px; margin-top: 80px;">
+        <h1 class="mb-4">TmkChamados</h1>
+
+        @if (!string.IsNullOrEmpty(Model.ErroLogin))
+        {
+            <div class="alert alert-danger">@Model.ErroLogin</div>
+        }
+
+        <form method="post" asp-page-handler="Entrar">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="ReturnUrl" />
+
+            <div class="mb-2">
+                <label asp-for="Form.Nome" class="form-label">Nome</label>
+                <input asp-for="Form.Nome" class="form-control" />
+                <span asp-validation-for="Form.Nome" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Form.Senha" class="form-label">Senha</label>
+                <input asp-for="Form.Senha" type="password" class="form-control" />
+                <span asp-validation-for="Form.Senha" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Entrar</button>
+        </form>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

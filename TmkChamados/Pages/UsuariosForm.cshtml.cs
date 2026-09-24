@@ -36,17 +36,22 @@ namespace TmkChamados.Pages
 
         public IActionResult OnPostAdicionar()
         {
+            ValidarSenhaObrigatoria();
+            ValidarNomeUnico(ignorarId: null);
+
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            _usuarioService.Criar(Form.Nome);
+            _usuarioService.Criar(Form.Nome, Form.Senha!);
             return RedirectToPage("/Usuarios");
         }
 
         public IActionResult OnPostAtualizar()
         {
+            ValidarNomeUnico(ignorarId: Form.Id);
+
             if (!ModelState.IsValid)
             {
                 return Page();
@@ -54,10 +59,26 @@ namespace TmkChamados.Pages
 
             if (Form.Id.HasValue)
             {
-                _usuarioService.Atualizar(Form.Id.Value, Form.Nome);
+                _usuarioService.Atualizar(Form.Id.Value, Form.Nome, Form.Senha);
             }
 
             return RedirectToPage("/Usuarios");
+        }
+
+        private void ValidarSenhaObrigatoria()
+        {
+            if (string.IsNullOrEmpty(Form.Senha))
+            {
+                ModelState.AddModelError(nameof(Form.Senha), "A senha é obrigatória.");
+            }
+        }
+
+        private void ValidarNomeUnico(int? ignorarId)
+        {
+            if (!string.IsNullOrEmpty(Form.Nome) && _usuarioService.NomeEmUso(Form.Nome, ignorarId))
+            {
+                ModelState.AddModelError(nameof(Form.Nome), "Esse nome já está em uso por outro usuário.");
+            }
         }
     }
 
@@ -67,5 +88,7 @@ namespace TmkChamados.Pages
 
         [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "O nome é obrigatório.")]
         public string Nome { get; set; } = string.Empty;
+
+        public string? Senha { get; set; }
     }
 }

@@ -29,9 +29,15 @@ namespace TmkChamados.Pages
         public IActionResult OnPostExcluir(int id)
         {
             var emUso = _chamadoService.Listar().Any(c => c.CriadoPorId == id || c.ResponsavelId == id);
+            var ultimoUsuario = _usuarioService.Listar().Count <= 1;
+
             if (emUso)
             {
                 ErroExclusao = "Não é possível excluir este usuário: ele está em uso como Criado por ou Responsável em algum chamado.";
+            }
+            else if (ultimoUsuario)
+            {
+                ErroExclusao = "Não é possível excluir este usuário: deve existir pelo menos um usuário cadastrado no sistema.";
             }
             else
             {
