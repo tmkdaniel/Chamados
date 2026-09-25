@@ -1,135 +1,64 @@
 @page
-@using TmkChamados.Models
 @model IndexModel
 @{
-    ViewData["Title"] = "Chamados";
+    ViewData["Title"] = "Home";
+    var opcoesJson = new System.Text.Json.JsonSerializerOptions
+    {
+        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+    };
 }
 
-<h1>Chamados</h1>
+<h1>Resumo dos Chamados</h1>
 
-<p>
-    <a href="/ChamadosForm" class="btn btn-primary">Novo Chamado</a>
-</p>
-
-<h2>Filtrar Chamados</h2>
-
-<form method="get" class="mb-4">
-    <div class="row g-2 align-items-end">
-        <div class="col-auto">
-            <label asp-for="Filtro.Status" class="form-label">Status</label>
-            <select asp-for="Filtro.Status" class="form-select">
-                <option value="">Todos</option>
-                <option value="Aberto">Aberto</option>
-                <option value="EmAndamento">EmAndamento</option>
-                <option value="Concluido">Concluido</option>
-            </select>
-        </div>
-        <div class="col-auto">
-            <label asp-for="Filtro.CriadoPorId" class="form-label">Criado por</label>
-            <select asp-for="Filtro.CriadoPorId" class="form-select">
-                <option value="">Todos</option>
-                @foreach (var usuario in Model.Usuarios)
-                {
-                    <option value="@usuario.Id">@usuario.Nome</option>
-                }
-            </select>
-        </div>
-        <div class="col-auto">
-            <label asp-for="Filtro.ResponsavelId" class="form-label">Responsável</label>
-            <select asp-for="Filtro.ResponsavelId" class="form-select">
-                <option value="">Todos</option>
-                @foreach (var usuario in Model.Usuarios)
-                {
-                    <option value="@usuario.Id">@usuario.Nome</option>
-                }
-            </select>
-        </div>
-        <div class="col-auto">
-            <label asp-for="Filtro.CriadoDe" class="form-label">Criado de</label>
-            <input asp-for="Filtro.CriadoDe" type="date" class="form-control" />
-        </div>
-        <div class="col-auto">
-            <label asp-for="Filtro.CriadoAte" class="form-label">Criado até</label>
-            <input asp-for="Filtro.CriadoAte" type="date" class="form-control" />
-        </div>
-        <div class="col-auto">
-            <label asp-for="Filtro.ModificadoDe" class="form-label">Modificado de</label>
-            <input asp-for="Filtro.ModificadoDe" type="date" class="form-control" />
-        </div>
-        <div class="col-auto">
-            <label asp-for="Filtro.ModificadoAte" class="form-label">Modificado até</label>
-            <input asp-for="Filtro.ModificadoAte" type="date" class="form-control" />
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary">Filtrar</button>
-            <a href="/Index" class="btn btn-secondary">Limpar filtros</a>
-        </div>
+<div class="row g-4">
+    <div class="col-12 col-lg-6">
+        <h2>Como Responsável</h2>
+        @await Html.PartialAsync("_ResumoChamadosSecao", Model.ResumoResponsavel, new ViewDataDictionary(ViewData) { { "Prefixo", "responsavel" } })
     </div>
-</form>
-
-<h2>Lista de Chamados</h2>
-
-@if (!Model.Chamados.Any())
-{
-    <p>Nenhum chamado cadastrado.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Título</th>
-                <th>Descrição</th>
-                <th>Status</th>
-                <th>Criado por</th>
-                <th>Responsável</th>
-                <th>Criado em</th>
-                <th>Última modificação</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var chamado in Model.Chamados)
-            {
-                <tr>
-                    <td>@chamado.Id</td>
-                    <td>@chamado.Titulo</td>
-                    <td>@chamado.Descricao</td>
-                    <td>@chamado.Status</td>
-                    <td>@(Model.NomesPorId.TryGetValue(chamado.CriadoPorId, out var criadoPorNome) ? criadoPorNome : "-")</td>
-                    <td>@(Model.NomesPorId.TryGetValue(chamado.ResponsavelId, out var responsavelNome) ? responsavelNome : "-")</td>
-                    <td>@chamado.DataCriacao.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>@chamado.DataUltimaModificacao.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>
-                        <a href="/ChamadosForm?editId=@chamado.Id" class="btn btn-sm btn-outline-primary">Editar</a>
-                        <form method="post" asp-page-handler="Excluir" asp-route-id="@chamado.Id" id="excluir-chamado-@chamado.Id" class="d-inline"></form>
-                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                data-bs-toggle="modal" data-bs-target="#modalConfirmarExclusao"
-                                onclick="document.getElementById('btnConfirmarExclusao').setAttribute('form', 'excluir-chamado-@chamado.Id')">
-                            Excluir
-                        </button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-<div class="modal fade" id="modalConfirmarExclusao" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirmar exclusão</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cancelar"></button>
-            </div>
-            <div class="modal-body">
-                Tem certeza que deseja excluir este chamado?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" id="btnConfirmarExclusao" class="btn btn-danger" data-bs-dismiss="modal">Confirmar exclusão</button>
-            </div>
-        </div>
+    <div class="col-12 col-lg-6">
+        <h2>Como Criador</h2>
+        @await Html.PartialAsync("_ResumoChamadosSecao", Model.ResumoCriador, new ViewDataDictionary(ViewData) { { "Prefixo", "criador" } })
     </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script>
+        function montarGraficosResumo(prefixo, dados) {
+            new Chart(document.getElementById('pizza-' + prefixo), {
+                type: 'pie',
+                data: {
+                    labels: ['Aberto', 'Em Andamento', 'Concluído'],
+                    datasets: [{
+                        data: [dados.pizzaAbertos, dados.pizzaEmAndamento, dados.pizzaConcluidos],
+                        backgroundColor: ['#0d6efd', '#ffc107', '#198754']
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false
+                }
+            });
+
+            new Chart(document.getElementById('histograma-' + prefixo), {
+                type: 'bar',
+                data: {
+                    labels: dados.histogramaRotulos,
+                    datasets: [{
+                        label: 'Chamados criados',
+                        data: dados.histogramaValores,
+                        backgroundColor: '#0d6efd'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } }
+                    }
+                }
+            });
+        }
+
+        montarGraficosResumo('responsavel', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ResumoResponsavel, opcoesJson)));
+        montarGraficosResumo('criador', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ResumoCriador, opcoesJson)));
+    </script>
+}

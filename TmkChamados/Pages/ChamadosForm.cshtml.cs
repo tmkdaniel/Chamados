@@ -65,7 +65,7 @@ namespace TmkChamados.Pages
             }
 
             _chamadoService.Criar(Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, usuarioAutenticado.Id, Form.ResponsavelId!.Value);
-            return RedirectToPage("/Index");
+            return RedirectToPage("/Chamados");
         }
 
         public IActionResult OnPostAtualizar()
@@ -87,7 +87,7 @@ namespace TmkChamados.Pages
                 }
             }
 
-            return RedirectToPage("/Index");
+            return RedirectToPage("/Chamados");
         }
 
         private Usuario? ObterUsuarioAutenticado()

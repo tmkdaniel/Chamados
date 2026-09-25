@@ -1,3 +1,6 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using TmkChamados.Models;
@@ -7,6 +10,8 @@ namespace TmkChamados.Pages
 {
     public class IndexModel : PageModel
     {
+        private const int DiasJanela = 30;
+
         private readonly IChamadoService _chamadoService;
         private readonly IUsuarioService _usuarioService;
 
@@ -16,61 +21,81 @@ namespace TmkChamados.Pages
             _usuarioService = usuarioService;
         }
 
-        [BindProperty(SupportsGet = true)]
-        public FiltroFormModel Filtro { get; set; } = new();
+        public ResumoChamados ResumoResponsavel { get; private set; } = ResumoChamados.Vazio();
 
-        public IReadOnlyList<Chamado> Chamados { get; private set; } = Array.Empty<Chamado>();
+        public ResumoChamados ResumoCriador { get; private set; } = ResumoChamados.Vazio();
 
-        public IReadOnlyList<Usuario> Usuarios { get; private set; } = Array.Empty<Usuario>();
-
-        public Dictionary<int, string> NomesPorId { get; private set; } = new();
-
-        public void OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
-            Chamados = _chamadoService.Listar(ConstruirFiltro());
-            Usuarios = _usuarioService.Listar();
-            NomesPorId = Usuarios.ToDictionary(u => u.Id, u => u.Nome);
-        }
-
-        public IActionResult OnPostExcluir(int id)
-        {
-            _chamadoService.Excluir(id);
-            return RedirectToPage();
-        }
-
-        private FiltroChamados ConstruirFiltro()
-        {
-            return new FiltroChamados
+            var usuarioAutenticado = ObterUsuarioAutenticado();
+            if (usuarioAutenticado is null)
             {
-                Status = Filtro.Status,
-                CriadoPorId = Filtro.CriadoPorId,
-                ResponsavelId = Filtro.ResponsavelId,
-                CriadoDe = Filtro.CriadoDe,
-                CriadoAte = Filtro.CriadoAte,
-                ModificadoDe = Filtro.ModificadoDe,
-                ModificadoAte = Filtro.ModificadoAte
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return RedirectToPage("/Login");
+            }
+
+            var chamados = _chamadoService.Listar();
+
+            var comoResponsavel = chamados.Where(c => c.ResponsavelId == usuarioAutenticado.Id).ToList();
+            var comoCriador = chamados.Where(c => c.CriadoPorId == usuarioAutenticado.Id).ToList();
+
+            ResumoResponsavel = ConstruirResumo(comoResponsavel);
+            ResumoCriador = ConstruirResumo(comoCriador);
+
+            return Page();
+        }
+
+        private static ResumoChamados ConstruirResumo(IReadOnlyList<Chamado> chamados)
+        {
+            var inicioJanela = DateTime.Now.Date.AddDays(-(DiasJanela - 1));
+            var chamadosNaJanela = chamados.Where(c => c.DataCriacao.Date >= inicioJanela).ToList();
+
+            var diasHistograma = Enumerable.Range(0, DiasJanela)
+                .Select(offset => inicioJanela.AddDays(offset))
+                .ToList();
+
+            return new ResumoChamados
+            {
+                QuantidadeAbertos = chamados.Count(c => c.Status == StatusChamado.Aberto),
+                QuantidadeEmAndamento = chamados.Count(c => c.Status == StatusChamado.EmAndamento),
+                PizzaAbertos = chamadosNaJanela.Count(c => c.Status == StatusChamado.Aberto),
+                PizzaEmAndamento = chamadosNaJanela.Count(c => c.Status == StatusChamado.EmAndamento),
+                PizzaConcluidos = chamadosNaJanela.Count(c => c.Status == StatusChamado.Concluido),
+                HistogramaRotulos = diasHistograma.Select(d => d.ToString("dd/MM")).ToList(),
+                HistogramaValores = diasHistograma
+                    .Select(dia => chamadosNaJanela.Count(c => c.DataCriacao.Date == dia))
+                    .ToList()
             };
+        }
+
+        private Usuario? ObterUsuarioAutenticado()
+        {
+            var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (idClaim is null || !int.TryParse(idClaim, out var id))
+            {
+                return null;
+            }
+
+            return _usuarioService.Obter(id);
         }
     }
 
-    public class FiltroFormModel
+    public class ResumoChamados
     {
-        public StatusChamado? Status { get; set; }
+        public int QuantidadeAbertos { get; set; }
 
-        public int? CriadoPorId { get; set; }
+        public int QuantidadeEmAndamento { get; set; }
 
-        public int? ResponsavelId { get; set; }
+        public int PizzaAbertos { get; set; }
 
-        [System.ComponentModel.DataAnnotations.DataType(System.ComponentModel.DataAnnotations.DataType.Date)]
-        public DateTime? CriadoDe { get; set; }
+        public int PizzaEmAndamento { get; set; }
 
-        [System.ComponentModel.DataAnnotations.DataType(System.ComponentModel.DataAnnotations.DataType.Date)]
-        public DateTime? CriadoAte { get; set; }
+        public int PizzaConcluidos { get; set; }
 
-        [System.ComponentModel.DataAnnotations.DataType(System.ComponentModel.DataAnnotations.DataType.Date)]
-        public DateTime? ModificadoDe { get; set; }
+        public List<string> HistogramaRotulos { get; set; } = new();
 
-        [System.ComponentModel.DataAnnotations.DataType(System.ComponentModel.DataAnnotations.DataType.Date)]
-        public DateTime? ModificadoAte { get; set; }
+        public List<int> HistogramaValores { get; set; } = new();
+
+        public static ResumoChamados Vazio() => new();
     }
 }

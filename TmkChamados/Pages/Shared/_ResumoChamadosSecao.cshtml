@@ -1,0 +1,28 @@
+@model TmkChamados.Pages.ResumoChamados
+@{
+    var prefixo = (string)ViewData["Prefixo"]!;
+}
+
+<div class="row g-2 mb-3">
+    <div class="col-6">
+        <div class="border rounded p-3 text-center">
+            <div class="fs-4 fw-bold">@Model.QuantidadeAbertos</div>
+            <div class="text-muted">Abertos</div>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="border rounded p-3 text-center">
+            <div class="fs-4 fw-bold">@Model.QuantidadeEmAndamento</div>
+            <div class="text-muted">Em Andamento</div>
+        </div>
+    </div>
+</div>
+
+<p class="text-muted small">Gráficos considerando chamados criados nos últimos 30 dias</p>
+
+<div class="mb-3" style="height: 250px;">
+    <canvas id="pizza-@prefixo"></canvas>
+</div>
+<div class="mb-3" style="height: 250px;">
+    <canvas id="histograma-@prefixo"></canvas>
+</div>
