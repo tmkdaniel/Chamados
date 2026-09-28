@@ -6,6 +6,8 @@ using TmkChamados.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.UseWindowsService();
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<TmkChamadosDbContext>(options =>
