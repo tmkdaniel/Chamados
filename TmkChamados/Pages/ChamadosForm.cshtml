@@ -30,14 +30,14 @@
         <textarea asp-for="Form.Descricao" class="form-control"></textarea>
     </div>
 
-    <div class="mb-2">
-        <label asp-for="Form.Status" class="form-label">Status</label>
-        <select asp-for="Form.Status" class="form-select"
-                asp-items="Html.GetEnumSelectList<StatusChamado>()"></select>
-    </div>
-
     @if (Model.EmEdicao)
     {
+        <div class="mb-2">
+            <label asp-for="Form.Status" class="form-label">Status</label>
+            <select asp-for="Form.Status" class="form-select"
+                    asp-items="Html.GetEnumSelectList<StatusChamado>()"></select>
+        </div>
+
         <div class="mb-2">
             <label asp-for="Form.ResponsavelId" class="form-label">Responsável</label>
             <select asp-for="Form.ResponsavelId" class="form-select">

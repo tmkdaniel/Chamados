@@ -4,6 +4,8 @@ namespace TmkChamados.Models
     {
         public StatusChamado? Status { get; set; }
 
+        public bool StatusAbertoOuEmAndamento { get; set; }
+
         public int? CriadoPorId { get; set; }
 
         public int? EmpresaId { get; set; }

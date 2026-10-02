@@ -31,7 +31,11 @@ namespace TmkChamados.Services
                 query = query.Where(c => c.CriadoPorId == usuarioId);
             }
 
-            if (filtro.Status.HasValue)
+            if (filtro.StatusAbertoOuEmAndamento)
+            {
+                query = query.Where(c => c.Status == StatusChamado.Aberto || c.Status == StatusChamado.EmAndamento);
+            }
+            else if (filtro.Status.HasValue)
             {
                 query = query.Where(c => c.Status == filtro.Status.Value);
             }
@@ -83,14 +87,14 @@ namespace TmkChamados.Services
             return _dbContext.Chamados.FirstOrDefault(c => c.Id == id);
         }
 
-        public Chamado Criar(string titulo, string descricao, StatusChamado status, int criadoPorId)
+        public Chamado Criar(string titulo, string descricao, int criadoPorId)
         {
             var agora = DateTime.Now;
             var chamado = new Chamado
             {
                 Titulo = titulo,
                 Descricao = descricao,
-                Status = status,
+                Status = StatusChamado.Aberto,
                 DataCriacao = agora,
                 DataUltimaModificacao = agora,
                 CriadoPorId = criadoPorId,

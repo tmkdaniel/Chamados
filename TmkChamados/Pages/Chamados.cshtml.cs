@@ -10,6 +10,7 @@ namespace TmkChamados.Pages
     public class ChamadosModel : PageModel
     {
         private const string FiltroResponsavelSemResponsavel = "none";
+        private const string FiltroStatusAbertoOuEmAndamento = "AbertoEmAndamento";
 
         private readonly IChamadoService _chamadoService;
         private readonly IUsuarioService _usuarioService;
@@ -32,6 +33,8 @@ namespace TmkChamados.Pages
         public IReadOnlyList<Usuario> UsuariosMaster { get; private set; } = Array.Empty<Usuario>();
 
         public IReadOnlyList<Usuario> UsuariosDaEmpresa { get; private set; } = Array.Empty<Usuario>();
+
+        public IReadOnlyList<Usuario> UsuariosParaFiltroCriadoPorMaster { get; private set; } = Array.Empty<Usuario>();
 
         public IReadOnlyList<Empresa> Empresas { get; private set; } = Array.Empty<Empresa>();
 
@@ -58,10 +61,18 @@ namespace TmkChamados.Pages
             IsMaster = tipoUsuario.Value == TipoUsuario.Master;
             IsGerente = tipoUsuario.Value == TipoUsuario.Gerente;
 
+            if (!Request.Query.ContainsKey("Filtro.StatusFiltro"))
+            {
+                Filtro.StatusFiltro = FiltroStatusAbertoOuEmAndamento;
+            }
+
             Chamados = _chamadoService.Listar(ConstruirFiltro(), tipoUsuario.Value, usuarioId.Value, empresaId.Value);
             Usuarios = _usuarioService.Listar();
             UsuariosMaster = Usuarios.Where(u => u.Tipo == TipoUsuario.Master).ToList();
             UsuariosDaEmpresa = Usuarios.Where(u => u.EmpresaId == empresaId.Value).ToList();
+            UsuariosParaFiltroCriadoPorMaster = Filtro.EmpresaId.HasValue
+                ? Usuarios.Where(u => u.EmpresaId == Filtro.EmpresaId.Value).ToList()
+                : Usuarios;
             Empresas = _empresaService.Listar();
             NomesPorId = Usuarios.ToDictionary(u => u.Id, u => u.Nome);
             EmpresaPorUsuarioId = Usuarios.ToDictionary(u => u.Id, u => u.Empresa?.Nome ?? "-");
@@ -70,6 +81,11 @@ namespace TmkChamados.Pages
 
         public IActionResult OnPostExcluir(int id)
         {
+            if (!User.EhMaster())
+            {
+                return Forbid();
+            }
+
             _chamadoService.Excluir(id);
             return RedirectToPage();
         }
@@ -78,7 +94,6 @@ namespace TmkChamados.Pages
         {
             var filtro = new FiltroChamados
             {
-                Status = Filtro.Status,
                 CriadoPorId = Filtro.CriadoPorId,
                 EmpresaId = Filtro.EmpresaId,
                 CriadoDe = Filtro.CriadoDe,
@@ -86,6 +101,15 @@ namespace TmkChamados.Pages
                 ModificadoDe = Filtro.ModificadoDe,
                 ModificadoAte = Filtro.ModificadoAte
             };
+
+            if (string.Equals(Filtro.StatusFiltro, FiltroStatusAbertoOuEmAndamento, StringComparison.OrdinalIgnoreCase))
+            {
+                filtro.StatusAbertoOuEmAndamento = true;
+            }
+            else if (!string.IsNullOrEmpty(Filtro.StatusFiltro) && Enum.TryParse<StatusChamado>(Filtro.StatusFiltro, out var status))
+            {
+                filtro.Status = status;
+            }
 
             if (string.Equals(Filtro.ResponsavelFiltro, FiltroResponsavelSemResponsavel, StringComparison.OrdinalIgnoreCase))
             {
@@ -102,7 +126,7 @@ namespace TmkChamados.Pages
 
     public class FiltroFormModel
     {
-        public StatusChamado? Status { get; set; }
+        public string? StatusFiltro { get; set; }
 
         public int? CriadoPorId { get; set; }
 

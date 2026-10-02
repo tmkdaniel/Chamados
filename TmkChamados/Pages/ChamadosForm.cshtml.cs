@@ -61,7 +61,7 @@ namespace TmkChamados.Pages
                 return RedirectToPage("/Login");
             }
 
-            _chamadoService.Criar(Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, usuarioAutenticado.Id);
+            _chamadoService.Criar(Form.Titulo, Form.Descricao ?? string.Empty, usuarioAutenticado.Id);
             return RedirectToPage("/Chamados");
         }
 

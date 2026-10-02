@@ -16,9 +16,10 @@
 <form method="get" class="mb-4">
     <div class="row g-2 align-items-end">
         <div class="col-auto">
-            <label asp-for="Filtro.Status" class="form-label">Status</label>
-            <select asp-for="Filtro.Status" class="form-select">
+            <label asp-for="Filtro.StatusFiltro" class="form-label">Status</label>
+            <select asp-for="Filtro.StatusFiltro" class="form-select">
                 <option value="">Todos</option>
+                <option value="AbertoEmAndamento">Aberto e Em Andamento</option>
                 <option value="Aberto">Aberto</option>
                 <option value="EmAndamento">EmAndamento</option>
                 <option value="Concluido">Concluido</option>
@@ -33,6 +34,16 @@
                     @foreach (var empresa in Model.Empresas)
                     {
                         <option value="@empresa.Id">@empresa.Nome</option>
+                    }
+                </select>
+            </div>
+            <div class="col-auto">
+                <label asp-for="Filtro.CriadoPorId" class="form-label">Criado por</label>
+                <select asp-for="Filtro.CriadoPorId" class="form-select">
+                    <option value="">Todos</option>
+                    @foreach (var usuario in Model.UsuariosParaFiltroCriadoPorMaster)
+                    {
+                        <option value="@usuario.Id">@usuario.Nome</option>
                     }
                 </select>
             </div>
@@ -128,12 +139,15 @@ else
                     <td>@chamado.DataUltimaModificacao.ToString("dd/MM/yyyy HH:mm")</td>
                     <td>
                         <a href="/ChamadosForm?editId=@chamado.Id" class="btn btn-sm btn-outline-primary">Editar</a>
-                        <form method="post" asp-page-handler="Excluir" asp-route-id="@chamado.Id" id="excluir-chamado-@chamado.Id" class="d-inline"></form>
-                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                data-bs-toggle="modal" data-bs-target="#modalConfirmarExclusao"
-                                onclick="document.getElementById('btnConfirmarExclusao').setAttribute('form', 'excluir-chamado-@chamado.Id')">
-                            Excluir
-                        </button>
+                        @if (Model.IsMaster)
+                        {
+                            <form method="post" asp-page-handler="Excluir" asp-route-id="@chamado.Id" id="excluir-chamado-@chamado.Id" class="d-inline"></form>
+                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal" data-bs-target="#modalConfirmarExclusao"
+                                    onclick="document.getElementById('btnConfirmarExclusao').setAttribute('form', 'excluir-chamado-@chamado.Id')">
+                                Excluir
+                            </button>
+                        }
                     </td>
                 </tr>
             }
