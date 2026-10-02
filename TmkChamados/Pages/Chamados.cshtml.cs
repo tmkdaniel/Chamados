@@ -9,13 +9,17 @@ namespace TmkChamados.Pages
 {
     public class ChamadosModel : PageModel
     {
+        private const string FiltroResponsavelSemResponsavel = "none";
+
         private readonly IChamadoService _chamadoService;
         private readonly IUsuarioService _usuarioService;
+        private readonly IEmpresaService _empresaService;
 
-        public ChamadosModel(IChamadoService chamadoService, IUsuarioService usuarioService)
+        public ChamadosModel(IChamadoService chamadoService, IUsuarioService usuarioService, IEmpresaService empresaService)
         {
             _chamadoService = chamadoService;
             _usuarioService = usuarioService;
+            _empresaService = empresaService;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -27,11 +31,17 @@ namespace TmkChamados.Pages
 
         public IReadOnlyList<Usuario> UsuariosMaster { get; private set; } = Array.Empty<Usuario>();
 
+        public IReadOnlyList<Usuario> UsuariosDaEmpresa { get; private set; } = Array.Empty<Usuario>();
+
+        public IReadOnlyList<Empresa> Empresas { get; private set; } = Array.Empty<Empresa>();
+
         public Dictionary<int, string> NomesPorId { get; private set; } = new();
 
         public Dictionary<int, string> EmpresaPorUsuarioId { get; private set; } = new();
 
         public bool IsMaster { get; private set; }
+
+        public bool IsGerente { get; private set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -46,10 +56,13 @@ namespace TmkChamados.Pages
             }
 
             IsMaster = tipoUsuario.Value == TipoUsuario.Master;
+            IsGerente = tipoUsuario.Value == TipoUsuario.Gerente;
 
             Chamados = _chamadoService.Listar(ConstruirFiltro(), tipoUsuario.Value, usuarioId.Value, empresaId.Value);
             Usuarios = _usuarioService.Listar();
             UsuariosMaster = Usuarios.Where(u => u.Tipo == TipoUsuario.Master).ToList();
+            UsuariosDaEmpresa = Usuarios.Where(u => u.EmpresaId == empresaId.Value).ToList();
+            Empresas = _empresaService.Listar();
             NomesPorId = Usuarios.ToDictionary(u => u.Id, u => u.Nome);
             EmpresaPorUsuarioId = Usuarios.ToDictionary(u => u.Id, u => u.Empresa?.Nome ?? "-");
             return Page();
@@ -63,16 +76,27 @@ namespace TmkChamados.Pages
 
         private FiltroChamados ConstruirFiltro()
         {
-            return new FiltroChamados
+            var filtro = new FiltroChamados
             {
                 Status = Filtro.Status,
                 CriadoPorId = Filtro.CriadoPorId,
-                ResponsavelId = Filtro.ResponsavelId,
+                EmpresaId = Filtro.EmpresaId,
                 CriadoDe = Filtro.CriadoDe,
                 CriadoAte = Filtro.CriadoAte,
                 ModificadoDe = Filtro.ModificadoDe,
                 ModificadoAte = Filtro.ModificadoAte
             };
+
+            if (string.Equals(Filtro.ResponsavelFiltro, FiltroResponsavelSemResponsavel, StringComparison.OrdinalIgnoreCase))
+            {
+                filtro.SemResponsavel = true;
+            }
+            else if (!string.IsNullOrEmpty(Filtro.ResponsavelFiltro) && int.TryParse(Filtro.ResponsavelFiltro, out var responsavelId))
+            {
+                filtro.ResponsavelId = responsavelId;
+            }
+
+            return filtro;
         }
     }
 
@@ -82,7 +106,9 @@ namespace TmkChamados.Pages
 
         public int? CriadoPorId { get; set; }
 
-        public int? ResponsavelId { get; set; }
+        public int? EmpresaId { get; set; }
+
+        public string? ResponsavelFiltro { get; set; }
 
         [System.ComponentModel.DataAnnotations.DataType(System.ComponentModel.DataAnnotations.DataType.Date)]
         public DateTime? CriadoDe { get; set; }

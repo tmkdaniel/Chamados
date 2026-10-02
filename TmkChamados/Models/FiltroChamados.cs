@@ -6,7 +6,11 @@ namespace TmkChamados.Models
 
         public int? CriadoPorId { get; set; }
 
+        public int? EmpresaId { get; set; }
+
         public int? ResponsavelId { get; set; }
+
+        public bool SemResponsavel { get; set; }
 
         public DateTime? CriadoDe { get; set; }
 

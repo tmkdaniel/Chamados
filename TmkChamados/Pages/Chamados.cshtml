@@ -24,20 +24,37 @@
                 <option value="Concluido">Concluido</option>
             </select>
         </div>
+        @if (Model.IsMaster)
+        {
+            <div class="col-auto">
+                <label asp-for="Filtro.EmpresaId" class="form-label">Empresa</label>
+                <select asp-for="Filtro.EmpresaId" class="form-select">
+                    <option value="">Todas</option>
+                    @foreach (var empresa in Model.Empresas)
+                    {
+                        <option value="@empresa.Id">@empresa.Nome</option>
+                    }
+                </select>
+            </div>
+        }
+        @if (Model.IsGerente)
+        {
+            <div class="col-auto">
+                <label asp-for="Filtro.CriadoPorId" class="form-label">Criado por</label>
+                <select asp-for="Filtro.CriadoPorId" class="form-select">
+                    <option value="">Todos</option>
+                    @foreach (var usuario in Model.UsuariosDaEmpresa)
+                    {
+                        <option value="@usuario.Id">@usuario.Nome</option>
+                    }
+                </select>
+            </div>
+        }
         <div class="col-auto">
-            <label asp-for="Filtro.CriadoPorId" class="form-label">Criado por</label>
-            <select asp-for="Filtro.CriadoPorId" class="form-select">
+            <label asp-for="Filtro.ResponsavelFiltro" class="form-label">Responsável</label>
+            <select asp-for="Filtro.ResponsavelFiltro" class="form-select">
                 <option value="">Todos</option>
-                @foreach (var usuario in Model.Usuarios)
-                {
-                    <option value="@usuario.Id">@usuario.Nome</option>
-                }
-            </select>
-        </div>
-        <div class="col-auto">
-            <label asp-for="Filtro.ResponsavelId" class="form-label">Responsável</label>
-            <select asp-for="Filtro.ResponsavelId" class="form-select">
-                <option value="">Todos</option>
+                <option value="none">Sem Responsável</option>
                 @foreach (var usuario in Model.UsuariosMaster)
                 {
                     <option value="@usuario.Id">@usuario.Nome</option>

@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -21,26 +20,55 @@ namespace TmkChamados.Pages
             _usuarioService = usuarioService;
         }
 
-        public ResumoChamados ResumoResponsavel { get; private set; } = ResumoChamados.Vazio();
+        public string TituloSecao { get; private set; } = string.Empty;
 
-        public ResumoChamados ResumoCriador { get; private set; } = ResumoChamados.Vazio();
+        public ResumoChamados Resumo { get; private set; } = ResumoChamados.Vazio();
+
+        public bool IsMaster { get; private set; }
+
+        public GraficoEmpresa GraficoAbertosPorEmpresa { get; private set; } = GraficoEmpresa.Vazio();
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var usuarioAutenticado = ObterUsuarioAutenticado();
-            if (usuarioAutenticado is null)
+            var tipoUsuario = User.ObterTipoUsuario();
+            var usuarioId = User.ObterUsuarioId();
+            var empresaId = User.ObterEmpresaId();
+
+            if (tipoUsuario is null || usuarioId is null || empresaId is null)
             {
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                 return RedirectToPage("/Login");
             }
 
-            var chamados = _chamadoService.Listar();
+            IsMaster = tipoUsuario.Value == TipoUsuario.Master;
 
-            var comoResponsavel = chamados.Where(c => c.ResponsavelId == usuarioAutenticado.Id).ToList();
-            var comoCriador = chamados.Where(c => c.CriadoPorId == usuarioAutenticado.Id).ToList();
+            IReadOnlyList<Chamado> chamadosDaSecao;
+            switch (tipoUsuario.Value)
+            {
+                case TipoUsuario.Master:
+                    TituloSecao = "Como Responsável";
+                    chamadosDaSecao = _chamadoService.Listar(
+                        new FiltroChamados { ResponsavelId = usuarioId.Value },
+                        TipoUsuario.Master, usuarioId.Value, empresaId.Value);
+                    break;
+                case TipoUsuario.Gerente:
+                    TituloSecao = "Chamados da Empresa";
+                    chamadosDaSecao = _chamadoService.Listar(
+                        new FiltroChamados(), TipoUsuario.Gerente, usuarioId.Value, empresaId.Value);
+                    break;
+                default:
+                    TituloSecao = "Como Criador";
+                    chamadosDaSecao = _chamadoService.Listar(
+                        new FiltroChamados(), TipoUsuario.Usuario, usuarioId.Value, empresaId.Value);
+                    break;
+            }
 
-            ResumoResponsavel = ConstruirResumo(comoResponsavel);
-            ResumoCriador = ConstruirResumo(comoCriador);
+            Resumo = ConstruirResumo(chamadosDaSecao);
+
+            if (IsMaster)
+            {
+                GraficoAbertosPorEmpresa = ConstruirGraficoAbertosPorEmpresa(usuarioId.Value, empresaId.Value);
+            }
 
             return Page();
         }
@@ -68,15 +96,25 @@ namespace TmkChamados.Pages
             };
         }
 
-        private Usuario? ObterUsuarioAutenticado()
+        private GraficoEmpresa ConstruirGraficoAbertosPorEmpresa(int usuarioId, int empresaId)
         {
-            var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (idClaim is null || !int.TryParse(idClaim, out var id))
-            {
-                return null;
-            }
+            var todosAbertos = _chamadoService.Listar(
+                new FiltroChamados { Status = StatusChamado.Aberto },
+                TipoUsuario.Master, usuarioId, empresaId);
 
-            return _usuarioService.Obter(id);
+            var empresaPorUsuarioId = _usuarioService.Listar()
+                .ToDictionary(u => u.Id, u => u.Empresa?.Nome ?? "-");
+
+            var agrupado = todosAbertos
+                .GroupBy(c => empresaPorUsuarioId.TryGetValue(c.CriadoPorId, out var nome) ? nome : "-")
+                .OrderBy(g => g.Key)
+                .ToList();
+
+            return new GraficoEmpresa
+            {
+                Rotulos = agrupado.Select(g => g.Key).ToList(),
+                Valores = agrupado.Select(g => g.Count()).ToList()
+            };
         }
     }
 
@@ -97,5 +135,14 @@ namespace TmkChamados.Pages
         public List<int> HistogramaValores { get; set; } = new();
 
         public static ResumoChamados Vazio() => new();
+    }
+
+    public class GraficoEmpresa
+    {
+        public List<string> Rotulos { get; set; } = new();
+
+        public List<int> Valores { get; set; } = new();
+
+        public static GraficoEmpresa Vazio() => new();
     }
 }

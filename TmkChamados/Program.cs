@@ -59,7 +59,7 @@ using (var scope = app.Services.CreateScope())
 
     var usuarioService = scope.ServiceProvider.GetRequiredService<IUsuarioService>();
     var empresaService = scope.ServiceProvider.GetRequiredService<IEmpresaService>();
-    if (!usuarioService.NomeEmUso("tmk"))
+    if (!usuarioService.Listar().Any())
     {
         var empresaPadrao = empresaService.Criar("Padrão");
         usuarioService.Criar("tmk", "a", TipoUsuario.Master, empresaPadrao.Id);

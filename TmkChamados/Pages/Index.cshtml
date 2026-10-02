@@ -12,13 +12,18 @@
 
 <div class="row g-4">
     <div class="col-12 col-lg-6">
-        <h2>Como Responsável</h2>
-        @await Html.PartialAsync("_ResumoChamadosSecao", Model.ResumoResponsavel, new ViewDataDictionary(ViewData) { { "Prefixo", "responsavel" } })
+        <h2>@Model.TituloSecao</h2>
+        @await Html.PartialAsync("_ResumoChamadosSecao", Model.Resumo, new ViewDataDictionary(ViewData) { { "Prefixo", "secao" } })
     </div>
-    <div class="col-12 col-lg-6">
-        <h2>Como Criador</h2>
-        @await Html.PartialAsync("_ResumoChamadosSecao", Model.ResumoCriador, new ViewDataDictionary(ViewData) { { "Prefixo", "criador" } })
-    </div>
+    @if (Model.IsMaster)
+    {
+        <div class="col-12 col-lg-6">
+            <h2>Abertos por Empresa</h2>
+            <div class="mb-3" style="height: 250px;">
+                <canvas id="pizza-empresa"></canvas>
+            </div>
+        </div>
+    }
 </div>
 
 @section Scripts {
@@ -58,7 +63,25 @@
             });
         }
 
-        montarGraficosResumo('responsavel', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ResumoResponsavel, opcoesJson)));
-        montarGraficosResumo('criador', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ResumoCriador, opcoesJson)));
+        function montarGraficoEmpresa(dados) {
+            new Chart(document.getElementById('pizza-empresa'), {
+                type: 'pie',
+                data: {
+                    labels: dados.rotulos,
+                    datasets: [{
+                        data: dados.valores
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        montarGraficosResumo('secao', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Resumo, opcoesJson)));
+        @if (Model.IsMaster)
+        {
+            @:montarGraficoEmpresa(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoAbertosPorEmpresa, opcoesJson)));
+        }
     </script>
 }

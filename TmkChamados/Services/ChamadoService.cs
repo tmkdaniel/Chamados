@@ -41,7 +41,16 @@ namespace TmkChamados.Services
                 query = query.Where(c => c.CriadoPorId == filtro.CriadoPorId.Value);
             }
 
-            if (filtro.ResponsavelId.HasValue)
+            if (filtro.EmpresaId.HasValue)
+            {
+                query = query.Where(c => _dbContext.Usuarios.Any(u => u.Id == c.CriadoPorId && u.EmpresaId == filtro.EmpresaId.Value));
+            }
+
+            if (filtro.SemResponsavel)
+            {
+                query = query.Where(c => c.ResponsavelId == null);
+            }
+            else if (filtro.ResponsavelId.HasValue)
             {
                 query = query.Where(c => c.ResponsavelId == filtro.ResponsavelId.Value);
             }
