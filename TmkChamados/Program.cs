@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using TmkChamados.Data;
+using TmkChamados.Models;
 using TmkChamados.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,7 @@ builder.Services.AddDbContext<TmkChamadosDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("TmkChamados")));
 builder.Services.AddScoped<IChamadoService, ChamadoService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddScoped<IEmpresaService, EmpresaService>();
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -56,9 +58,11 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.Migrate();
 
     var usuarioService = scope.ServiceProvider.GetRequiredService<IUsuarioService>();
+    var empresaService = scope.ServiceProvider.GetRequiredService<IEmpresaService>();
     if (!usuarioService.NomeEmUso("tmk"))
     {
-        usuarioService.Criar("tmk", "a");
+        var empresaPadrao = empresaService.Criar("Padrão");
+        usuarioService.Criar("tmk", "a", TipoUsuario.Master, empresaPadrao.Id);
     }
 }
 

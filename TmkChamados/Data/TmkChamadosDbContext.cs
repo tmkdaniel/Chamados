@@ -13,11 +13,19 @@ namespace TmkChamados.Data
 
         public DbSet<Chamado> Chamados => Set<Chamado>();
 
+        public DbSet<Empresa> Empresas => Set<Empresa>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Usuario>()
                 .HasIndex(u => u.Nome)
                 .IsUnique();
+
+            modelBuilder.Entity<Usuario>()
+                .HasOne(u => u.Empresa)
+                .WithMany()
+                .HasForeignKey(u => u.EmpresaId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Chamado>()
                 .HasOne<Usuario>()

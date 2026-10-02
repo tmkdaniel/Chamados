@@ -17,7 +17,7 @@ namespace TmkChamados.Services
 
         public IReadOnlyList<Usuario> Listar()
         {
-            return _dbContext.Usuarios.OrderBy(u => u.Id).ToList();
+            return _dbContext.Usuarios.Include(u => u.Empresa).OrderBy(u => u.Id).ToList();
         }
 
         public Usuario? Obter(int id)
@@ -32,11 +32,13 @@ namespace TmkChamados.Services
                 u.Nome.ToLower() == nome.ToLower());
         }
 
-        public Usuario Criar(string nome, string senha)
+        public Usuario Criar(string nome, string senha, TipoUsuario tipo, int empresaId)
         {
             var usuario = new Usuario
             {
-                Nome = nome
+                Nome = nome,
+                Tipo = tipo,
+                EmpresaId = empresaId
             };
             usuario.SenhaHash = _hasher.HashPassword(usuario, senha);
 
@@ -45,7 +47,7 @@ namespace TmkChamados.Services
             return usuario;
         }
 
-        public bool Atualizar(int id, string nome, string? senha)
+        public bool Atualizar(int id, string nome, string? senha, TipoUsuario tipo, int empresaId)
         {
             var usuario = _dbContext.Usuarios.FirstOrDefault(u => u.Id == id);
             if (usuario is null)
@@ -54,6 +56,8 @@ namespace TmkChamados.Services
             }
 
             usuario.Nome = nome;
+            usuario.Tipo = tipo;
+            usuario.EmpresaId = empresaId;
             if (!string.IsNullOrEmpty(senha))
             {
                 usuario.SenhaHash = _hasher.HashPassword(usuario, senha);

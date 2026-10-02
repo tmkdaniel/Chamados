@@ -18,9 +18,18 @@ namespace TmkChamados.Services
             return _dbContext.Chamados.OrderBy(c => c.Id).ToList();
         }
 
-        public IReadOnlyList<Chamado> Listar(FiltroChamados filtro)
+        public IReadOnlyList<Chamado> Listar(FiltroChamados filtro, TipoUsuario tipoUsuario, int usuarioId, int empresaId)
         {
             IQueryable<Chamado> query = _dbContext.Chamados;
+
+            if (tipoUsuario == TipoUsuario.Gerente)
+            {
+                query = query.Where(c => _dbContext.Usuarios.Any(u => u.Id == c.CriadoPorId && u.EmpresaId == empresaId));
+            }
+            else if (tipoUsuario == TipoUsuario.Usuario)
+            {
+                query = query.Where(c => c.CriadoPorId == usuarioId);
+            }
 
             if (filtro.Status.HasValue)
             {

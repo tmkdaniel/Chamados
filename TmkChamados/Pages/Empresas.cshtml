@@ -1,10 +1,10 @@
 @page
-@model UsuariosModel
+@model EmpresasModel
 @{
-    ViewData["Title"] = "Usuários";
+    ViewData["Title"] = "Empresas";
 }
 
-<h1>Usuários</h1>
+<h1>Empresas</h1>
 
 @if (!string.IsNullOrEmpty(Model.ErroExclusao))
 {
@@ -12,14 +12,14 @@
 }
 
 <p>
-    <a href="/UsuariosForm" class="btn btn-primary">Novo Usuário</a>
+    <a href="/EmpresasForm" class="btn btn-primary">Nova Empresa</a>
 </p>
 
-<h2>Lista de Usuários</h2>
+<h2>Lista de Empresas</h2>
 
-@if (!Model.Usuarios.Any())
+@if (!Model.Empresas.Any())
 {
-    <p>Nenhum usuário cadastrado.</p>
+    <p>Nenhuma empresa cadastrada.</p>
 }
 else
 {
@@ -28,25 +28,21 @@ else
             <tr>
                 <th>Id</th>
                 <th>Nome</th>
-                <th>Tipo</th>
-                <th>Empresa</th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var usuario in Model.Usuarios)
+            @foreach (var empresa in Model.Empresas)
             {
                 <tr>
-                    <td>@usuario.Id</td>
-                    <td>@usuario.Nome</td>
-                    <td>@usuario.Tipo</td>
-                    <td>@(usuario.Empresa?.Nome ?? "-")</td>
+                    <td>@empresa.Id</td>
+                    <td>@empresa.Nome</td>
                     <td>
-                        <a href="/UsuariosForm?editId=@usuario.Id" class="btn btn-sm btn-outline-primary">Editar</a>
-                        <form method="post" asp-page-handler="Excluir" asp-route-id="@usuario.Id" id="excluir-usuario-@usuario.Id" class="d-inline"></form>
+                        <a href="/EmpresasForm?editId=@empresa.Id" class="btn btn-sm btn-outline-primary">Editar</a>
+                        <form method="post" asp-page-handler="Excluir" asp-route-id="@empresa.Id" id="excluir-empresa-@empresa.Id" class="d-inline"></form>
                         <button type="button" class="btn btn-sm btn-outline-danger"
                                 data-bs-toggle="modal" data-bs-target="#modalConfirmarExclusao"
-                                onclick="document.getElementById('btnConfirmarExclusao').setAttribute('form', 'excluir-usuario-@usuario.Id')">
+                                onclick="document.getElementById('btnConfirmarExclusao').setAttribute('form', 'excluir-empresa-@empresa.Id')">
                             Excluir
                         </button>
                     </td>
@@ -64,7 +60,7 @@ else
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cancelar"></button>
             </div>
             <div class="modal-body">
-                Tem certeza que deseja excluir este usuário?
+                Tem certeza que deseja excluir esta empresa?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

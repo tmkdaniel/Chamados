@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using TmkChamados.Models;
 using TmkChamados.Services;
 
 namespace TmkChamados.Pages
@@ -7,19 +8,25 @@ namespace TmkChamados.Pages
     public class UsuariosFormModel : PageModel
     {
         private readonly IUsuarioService _usuarioService;
+        private readonly IEmpresaService _empresaService;
 
-        public UsuariosFormModel(IUsuarioService usuarioService)
+        public UsuariosFormModel(IUsuarioService usuarioService, IEmpresaService empresaService)
         {
             _usuarioService = usuarioService;
+            _empresaService = empresaService;
         }
 
         [BindProperty]
         public UsuarioFormModel Form { get; set; } = new();
 
+        public IReadOnlyList<Empresa> Empresas { get; private set; } = Array.Empty<Empresa>();
+
         public bool EmEdicao => Form.Id.HasValue;
 
         public void OnGet(int? editId)
         {
+            Empresas = _empresaService.Listar();
+
             if (editId.HasValue)
             {
                 var usuario = _usuarioService.Obter(editId.Value);
@@ -28,7 +35,9 @@ namespace TmkChamados.Pages
                     Form = new UsuarioFormModel
                     {
                         Id = usuario.Id,
-                        Nome = usuario.Nome
+                        Nome = usuario.Nome,
+                        Tipo = usuario.Tipo,
+                        EmpresaId = usuario.EmpresaId
                     };
                 }
             }
@@ -41,10 +50,11 @@ namespace TmkChamados.Pages
 
             if (!ModelState.IsValid)
             {
+                Empresas = _empresaService.Listar();
                 return Page();
             }
 
-            _usuarioService.Criar(Form.Nome, Form.Senha!);
+            _usuarioService.Criar(Form.Nome, Form.Senha!, Form.Tipo!.Value, Form.EmpresaId!.Value);
             return RedirectToPage("/Usuarios");
         }
 
@@ -54,12 +64,13 @@ namespace TmkChamados.Pages
 
             if (!ModelState.IsValid)
             {
+                Empresas = _empresaService.Listar();
                 return Page();
             }
 
             if (Form.Id.HasValue)
             {
-                _usuarioService.Atualizar(Form.Id.Value, Form.Nome, Form.Senha);
+                _usuarioService.Atualizar(Form.Id.Value, Form.Nome, Form.Senha, Form.Tipo!.Value, Form.EmpresaId!.Value);
             }
 
             return RedirectToPage("/Usuarios");
@@ -90,5 +101,11 @@ namespace TmkChamados.Pages
         public string Nome { get; set; } = string.Empty;
 
         public string? Senha { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "O tipo é obrigatório.")]
+        public TipoUsuario? Tipo { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "A empresa é obrigatória.")]
+        public int? EmpresaId { get; set; }
     }
 }

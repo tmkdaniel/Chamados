@@ -48,7 +48,9 @@ namespace TmkChamados.Pages
             var claims = new List<Claim>
             {
                 new(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-                new(ClaimTypes.Name, usuario.Nome)
+                new(ClaimTypes.Name, usuario.Nome),
+                new(ClaimsPrincipalExtensions.TipoClaimType, usuario.Tipo.ToString()),
+                new(ClaimsPrincipalExtensions.EmpresaClaimType, usuario.EmpresaId.ToString())
             };
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);

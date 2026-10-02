@@ -34,6 +34,29 @@
         }
     </div>
 
+    <div class="mb-2">
+        <label asp-for="Form.Tipo" class="form-label">Tipo</label>
+        <select asp-for="Form.Tipo" class="form-select">
+            <option value="">Selecione</option>
+            <option value="Master">Master</option>
+            <option value="Gerente">Gerente</option>
+            <option value="Usuario">Usuario</option>
+        </select>
+        <span asp-validation-for="Form.Tipo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-2">
+        <label asp-for="Form.EmpresaId" class="form-label">Empresa</label>
+        <select asp-for="Form.EmpresaId" class="form-select">
+            <option value="">Selecione</option>
+            @foreach (var empresa in Model.Empresas)
+            {
+                <option value="@empresa.Id">@empresa.Nome</option>
+            }
+        </select>
+        <span asp-validation-for="Form.EmpresaId" class="text-danger"></span>
+    </div>
+
     <button type="submit" class="btn btn-primary">
         @(Model.EmEdicao ? "Atualizar" : "Adicionar")
     </button>

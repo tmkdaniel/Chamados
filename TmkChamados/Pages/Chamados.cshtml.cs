@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using TmkChamados.Models;
@@ -25,11 +27,22 @@ namespace TmkChamados.Pages
 
         public Dictionary<int, string> NomesPorId { get; private set; } = new();
 
-        public void OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
-            Chamados = _chamadoService.Listar(ConstruirFiltro());
+            var tipoUsuario = User.ObterTipoUsuario();
+            var usuarioId = User.ObterUsuarioId();
+            var empresaId = User.ObterEmpresaId();
+
+            if (tipoUsuario is null || usuarioId is null || empresaId is null)
+            {
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return RedirectToPage("/Login");
+            }
+
+            Chamados = _chamadoService.Listar(ConstruirFiltro(), tipoUsuario.Value, usuarioId.Value, empresaId.Value);
             Usuarios = _usuarioService.Listar();
             NomesPorId = Usuarios.ToDictionary(u => u.Id, u => u.Nome);
+            return Page();
         }
 
         public IActionResult OnPostExcluir(int id)

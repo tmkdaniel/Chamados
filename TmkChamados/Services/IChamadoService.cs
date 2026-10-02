@@ -6,7 +6,7 @@ namespace TmkChamados.Services
     {
         IReadOnlyList<Chamado> Listar();
 
-        IReadOnlyList<Chamado> Listar(FiltroChamados filtro);
+        IReadOnlyList<Chamado> Listar(FiltroChamados filtro, TipoUsuario tipoUsuario, int usuarioId, int empresaId);
 
         Chamado? Obter(int id);
 

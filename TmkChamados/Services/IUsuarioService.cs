@@ -10,9 +10,9 @@ namespace TmkChamados.Services
 
         bool NomeEmUso(string nome, int? ignorarId = null);
 
-        Usuario Criar(string nome, string senha);
+        Usuario Criar(string nome, string senha, TipoUsuario tipo, int empresaId);
 
-        bool Atualizar(int id, string nome, string? senha);
+        bool Atualizar(int id, string nome, string? senha, TipoUsuario tipo, int empresaId);
 
         bool Excluir(int id);
 
