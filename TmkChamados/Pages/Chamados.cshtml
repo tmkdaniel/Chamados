@@ -38,7 +38,7 @@
             <label asp-for="Filtro.ResponsavelId" class="form-label">Responsável</label>
             <select asp-for="Filtro.ResponsavelId" class="form-select">
                 <option value="">Todos</option>
-                @foreach (var usuario in Model.Usuarios)
+                @foreach (var usuario in Model.UsuariosMaster)
                 {
                     <option value="@usuario.Id">@usuario.Nome</option>
                 }
@@ -83,6 +83,10 @@ else
                 <th>Descrição</th>
                 <th>Status</th>
                 <th>Criado por</th>
+                @if (Model.IsMaster)
+                {
+                    <th>Empresa</th>
+                }
                 <th>Responsável</th>
                 <th>Criado em</th>
                 <th>Última modificação</th>
@@ -98,7 +102,11 @@ else
                     <td>@chamado.Descricao</td>
                     <td>@chamado.Status</td>
                     <td>@(Model.NomesPorId.TryGetValue(chamado.CriadoPorId, out var criadoPorNome) ? criadoPorNome : "-")</td>
-                    <td>@(Model.NomesPorId.TryGetValue(chamado.ResponsavelId, out var responsavelNome) ? responsavelNome : "-")</td>
+                    @if (Model.IsMaster)
+                    {
+                        <td>@(Model.EmpresaPorUsuarioId.TryGetValue(chamado.CriadoPorId, out var empresaNome) ? empresaNome : "-")</td>
+                    }
+                    <td>@(chamado.ResponsavelId.HasValue && Model.NomesPorId.TryGetValue(chamado.ResponsavelId.Value, out var responsavelNome) ? responsavelNome : "Nenhum")</td>
                     <td>@chamado.DataCriacao.ToString("dd/MM/yyyy HH:mm")</td>
                     <td>@chamado.DataUltimaModificacao.ToString("dd/MM/yyyy HH:mm")</td>
                     <td>

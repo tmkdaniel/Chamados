@@ -74,7 +74,7 @@ namespace TmkChamados.Services
             return _dbContext.Chamados.FirstOrDefault(c => c.Id == id);
         }
 
-        public Chamado Criar(string titulo, string descricao, StatusChamado status, int criadoPorId, int responsavelId)
+        public Chamado Criar(string titulo, string descricao, StatusChamado status, int criadoPorId)
         {
             var agora = DateTime.Now;
             var chamado = new Chamado
@@ -85,7 +85,7 @@ namespace TmkChamados.Services
                 DataCriacao = agora,
                 DataUltimaModificacao = agora,
                 CriadoPorId = criadoPorId,
-                ResponsavelId = responsavelId
+                ResponsavelId = null
             };
 
             _dbContext.Chamados.Add(chamado);
@@ -93,7 +93,7 @@ namespace TmkChamados.Services
             return chamado;
         }
 
-        public bool Atualizar(int id, string titulo, string descricao, StatusChamado status, int criadoPorId, int responsavelId)
+        public bool Atualizar(int id, string titulo, string descricao, StatusChamado status, int criadoPorId, int? responsavelId)
         {
             var chamado = _dbContext.Chamados.FirstOrDefault(c => c.Id == id);
             if (chamado is null)

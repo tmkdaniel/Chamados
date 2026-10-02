@@ -36,17 +36,20 @@
                 asp-items="Html.GetEnumSelectList<StatusChamado>()"></select>
     </div>
 
-    <div class="mb-2">
-        <label asp-for="Form.ResponsavelId" class="form-label">Responsável</label>
-        <select asp-for="Form.ResponsavelId" class="form-select">
-            <option value="">-- Selecione --</option>
-            @foreach (var usuario in Model.Usuarios)
-            {
-                <option value="@usuario.Id">@usuario.Nome</option>
-            }
-        </select>
-        <span asp-validation-for="Form.ResponsavelId" class="text-danger"></span>
-    </div>
+    @if (Model.EmEdicao)
+    {
+        <div class="mb-2">
+            <label asp-for="Form.ResponsavelId" class="form-label">Responsável</label>
+            <select asp-for="Form.ResponsavelId" class="form-select">
+                <option value="">Nenhum</option>
+                @foreach (var usuario in Model.UsuariosMaster)
+                {
+                    <option value="@usuario.Id">@usuario.Nome</option>
+                }
+            </select>
+            <span asp-validation-for="Form.ResponsavelId" class="text-danger"></span>
+        </div>
+    }
 
     <button type="submit" class="btn btn-primary">
         @(Model.EmEdicao ? "Atualizar" : "Adicionar")

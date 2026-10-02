@@ -23,8 +23,13 @@ namespace TmkChamados.Pages
 
         public bool EmEdicao => Form.Id.HasValue;
 
-        public void OnGet(int? editId)
+        public IActionResult OnGet(int? editId)
         {
+            if (!User.EhMaster())
+            {
+                return Forbid();
+            }
+
             Empresas = _empresaService.Listar();
 
             if (editId.HasValue)
@@ -41,10 +46,17 @@ namespace TmkChamados.Pages
                     };
                 }
             }
+
+            return Page();
         }
 
         public IActionResult OnPostAdicionar()
         {
+            if (!User.EhMaster())
+            {
+                return Forbid();
+            }
+
             ValidarSenhaObrigatoria();
             ValidarNomeUnico(ignorarId: null);
 
@@ -60,6 +72,11 @@ namespace TmkChamados.Pages
 
         public IActionResult OnPostAtualizar()
         {
+            if (!User.EhMaster())
+            {
+                return Forbid();
+            }
+
             ValidarNomeUnico(ignorarId: Form.Id);
 
             if (!ModelState.IsValid)

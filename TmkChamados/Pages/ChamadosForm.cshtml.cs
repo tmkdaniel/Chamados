@@ -22,13 +22,13 @@ namespace TmkChamados.Pages
         [BindProperty]
         public ChamadoFormModel Form { get; set; } = new();
 
-        public IReadOnlyList<Usuario> Usuarios { get; private set; } = Array.Empty<Usuario>();
+        public IReadOnlyList<Usuario> UsuariosMaster { get; private set; } = Array.Empty<Usuario>();
 
         public bool EmEdicao => Form.Id.HasValue;
 
         public void OnGet(int? editId)
         {
-            Usuarios = _usuarioService.Listar();
+            UsuariosMaster = _usuarioService.Listar().Where(u => u.Tipo == TipoUsuario.Master).ToList();
 
             if (editId.HasValue)
             {
@@ -49,11 +49,8 @@ namespace TmkChamados.Pages
 
         public async Task<IActionResult> OnPostAdicionarAsync()
         {
-            ValidarUsuariosSelecionados();
-
             if (!ModelState.IsValid)
             {
-                Usuarios = _usuarioService.Listar();
                 return Page();
             }
 
@@ -64,17 +61,17 @@ namespace TmkChamados.Pages
                 return RedirectToPage("/Login");
             }
 
-            _chamadoService.Criar(Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, usuarioAutenticado.Id, Form.ResponsavelId!.Value);
+            _chamadoService.Criar(Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, usuarioAutenticado.Id);
             return RedirectToPage("/Chamados");
         }
 
         public IActionResult OnPostAtualizar()
         {
-            ValidarUsuariosSelecionados();
+            ValidarResponsavelMaster();
 
             if (!ModelState.IsValid)
             {
-                Usuarios = _usuarioService.Listar();
+                UsuariosMaster = _usuarioService.Listar().Where(u => u.Tipo == TipoUsuario.Master).ToList();
                 return Page();
             }
 
@@ -83,7 +80,7 @@ namespace TmkChamados.Pages
                 var chamadoExistente = _chamadoService.Obter(Form.Id.Value);
                 if (chamadoExistente is not null)
                 {
-                    _chamadoService.Atualizar(Form.Id.Value, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, chamadoExistente.CriadoPorId, Form.ResponsavelId!.Value);
+                    _chamadoService.Atualizar(Form.Id.Value, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, chamadoExistente.CriadoPorId, Form.ResponsavelId);
                 }
             }
 
@@ -101,11 +98,17 @@ namespace TmkChamados.Pages
             return _usuarioService.Obter(id);
         }
 
-        private void ValidarUsuariosSelecionados()
+        private void ValidarResponsavelMaster()
         {
             if (!Form.ResponsavelId.HasValue)
             {
-                ModelState.AddModelError(nameof(Form.ResponsavelId), "Selecione o usuário Responsável.");
+                return;
+            }
+
+            var responsavel = _usuarioService.Obter(Form.ResponsavelId.Value);
+            if (responsavel is null || responsavel.Tipo != TipoUsuario.Master)
+            {
+                ModelState.AddModelError(nameof(Form.ResponsavelId), "O Responsável deve ser um usuário do tipo Master.");
             }
         }
     }

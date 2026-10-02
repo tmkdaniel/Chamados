@@ -25,7 +25,13 @@ namespace TmkChamados.Pages
 
         public IReadOnlyList<Usuario> Usuarios { get; private set; } = Array.Empty<Usuario>();
 
+        public IReadOnlyList<Usuario> UsuariosMaster { get; private set; } = Array.Empty<Usuario>();
+
         public Dictionary<int, string> NomesPorId { get; private set; } = new();
+
+        public Dictionary<int, string> EmpresaPorUsuarioId { get; private set; } = new();
+
+        public bool IsMaster { get; private set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -39,9 +45,13 @@ namespace TmkChamados.Pages
                 return RedirectToPage("/Login");
             }
 
+            IsMaster = tipoUsuario.Value == TipoUsuario.Master;
+
             Chamados = _chamadoService.Listar(ConstruirFiltro(), tipoUsuario.Value, usuarioId.Value, empresaId.Value);
             Usuarios = _usuarioService.Listar();
+            UsuariosMaster = Usuarios.Where(u => u.Tipo == TipoUsuario.Master).ToList();
             NomesPorId = Usuarios.ToDictionary(u => u.Id, u => u.Nome);
+            EmpresaPorUsuarioId = Usuarios.ToDictionary(u => u.Id, u => u.Empresa?.Nome ?? "-");
             return Page();
         }
 

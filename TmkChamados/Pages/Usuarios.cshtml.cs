@@ -21,13 +21,24 @@ namespace TmkChamados.Pages
         [TempData]
         public string? ErroExclusao { get; set; }
 
-        public void OnGet()
+        public IActionResult OnGet()
         {
+            if (!User.EhMaster())
+            {
+                return Forbid();
+            }
+
             Usuarios = _usuarioService.Listar();
+            return Page();
         }
 
         public IActionResult OnPostExcluir(int id)
         {
+            if (!User.EhMaster())
+            {
+                return Forbid();
+            }
+
             var emUso = _chamadoService.Listar().Any(c => c.CriadoPorId == id || c.ResponsavelId == id);
             var ultimoUsuario = _usuarioService.Listar().Count <= 1;
 
