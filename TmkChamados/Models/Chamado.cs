@@ -9,6 +9,13 @@ namespace TmkChamados.Models
         Concluido
     }
 
+    public enum PrioridadeChamado
+    {
+        Normal,
+        Alta,
+        Urgente
+    }
+
     public class Chamado
     {
         public int Id { get; set; }
@@ -19,6 +26,8 @@ namespace TmkChamados.Models
         public string Descricao { get; set; } = string.Empty;
 
         public StatusChamado Status { get; set; } = StatusChamado.Aberto;
+
+        public PrioridadeChamado Prioridade { get; set; } = PrioridadeChamado.Normal;
 
         public DateTime DataCriacao { get; set; }
 

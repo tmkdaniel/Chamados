@@ -40,6 +40,11 @@ namespace TmkChamados.Services
                 query = query.Where(c => c.Status == filtro.Status.Value);
             }
 
+            if (filtro.Prioridade.HasValue)
+            {
+                query = query.Where(c => c.Prioridade == filtro.Prioridade.Value);
+            }
+
             if (filtro.CriadoPorId.HasValue)
             {
                 query = query.Where(c => c.CriadoPorId == filtro.CriadoPorId.Value);
@@ -87,7 +92,7 @@ namespace TmkChamados.Services
             return _dbContext.Chamados.FirstOrDefault(c => c.Id == id);
         }
 
-        public Chamado Criar(string titulo, string descricao, int criadoPorId)
+        public Chamado Criar(string titulo, string descricao, PrioridadeChamado prioridade, int criadoPorId)
         {
             var agora = DateTime.Now;
             var chamado = new Chamado
@@ -95,6 +100,7 @@ namespace TmkChamados.Services
                 Titulo = titulo,
                 Descricao = descricao,
                 Status = StatusChamado.Aberto,
+                Prioridade = prioridade,
                 DataCriacao = agora,
                 DataUltimaModificacao = agora,
                 CriadoPorId = criadoPorId,
@@ -106,7 +112,7 @@ namespace TmkChamados.Services
             return chamado;
         }
 
-        public bool Atualizar(int id, string titulo, string descricao, StatusChamado status, int criadoPorId, int? responsavelId)
+        public bool Atualizar(int id, string titulo, string descricao, StatusChamado status, PrioridadeChamado prioridade, int criadoPorId, int? responsavelId)
         {
             var chamado = _dbContext.Chamados.FirstOrDefault(c => c.Id == id);
             if (chamado is null)
@@ -117,6 +123,7 @@ namespace TmkChamados.Services
             chamado.Titulo = titulo;
             chamado.Descricao = descricao;
             chamado.Status = status;
+            chamado.Prioridade = prioridade;
             chamado.CriadoPorId = criadoPorId;
             chamado.ResponsavelId = responsavelId;
             chamado.DataUltimaModificacao = DateTime.Now;

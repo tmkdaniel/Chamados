@@ -6,6 +6,8 @@ namespace TmkChamados.Models
 
         public bool StatusAbertoOuEmAndamento { get; set; }
 
+        public PrioridadeChamado? Prioridade { get; set; }
+
         public int? CriadoPorId { get; set; }
 
         public int? EmpresaId { get; set; }

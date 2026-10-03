@@ -24,6 +24,12 @@
             </div>
         </div>
     }
+    <div class="col-12 col-lg-6">
+        <h2>Abertos e Em Andamento por Prioridade</h2>
+        <div class="mb-3" style="height: 250px;">
+            <canvas id="pizza-prioridade"></canvas>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -63,8 +69,8 @@
             });
         }
 
-        function montarGraficoEmpresa(dados) {
-            new Chart(document.getElementById('pizza-empresa'), {
+        function montarGraficoPorRotulos(elementId, dados) {
+            new Chart(document.getElementById(elementId), {
                 type: 'pie',
                 data: {
                     labels: dados.rotulos,
@@ -81,7 +87,8 @@
         montarGraficosResumo('secao', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Resumo, opcoesJson)));
         @if (Model.IsMaster)
         {
-            @:montarGraficoEmpresa(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoAbertosPorEmpresa, opcoesJson)));
+            @:montarGraficoPorRotulos('pizza-empresa', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoAbertosPorEmpresa, opcoesJson)));
         }
+        montarGraficoPorRotulos('pizza-prioridade', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoPorPrioridade, opcoesJson)));
     </script>
 }

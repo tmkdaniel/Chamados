@@ -25,6 +25,15 @@
                 <option value="Concluido">Concluido</option>
             </select>
         </div>
+        <div class="col-auto">
+            <label asp-for="Filtro.Prioridade" class="form-label">Prioridade</label>
+            <select asp-for="Filtro.Prioridade" class="form-select">
+                <option value="">Todas</option>
+                <option value="Normal">Normal</option>
+                <option value="Alta">Alta</option>
+                <option value="Urgente">Urgente</option>
+            </select>
+        </div>
         @if (Model.IsMaster)
         {
             <div class="col-auto">
@@ -110,6 +119,7 @@ else
                 <th>Título</th>
                 <th>Descrição</th>
                 <th>Status</th>
+                <th>Prioridade</th>
                 <th>Criado por</th>
                 @if (Model.IsMaster)
                 {
@@ -129,6 +139,7 @@ else
                     <td>@chamado.Titulo</td>
                     <td>@chamado.Descricao</td>
                     <td>@chamado.Status</td>
+                    <td>@chamado.Prioridade</td>
                     <td>@(Model.NomesPorId.TryGetValue(chamado.CriadoPorId, out var criadoPorNome) ? criadoPorNome : "-")</td>
                     @if (Model.IsMaster)
                     {

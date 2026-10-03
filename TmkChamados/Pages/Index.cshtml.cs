@@ -28,6 +28,8 @@ namespace TmkChamados.Pages
 
         public GraficoEmpresa GraficoAbertosPorEmpresa { get; private set; } = GraficoEmpresa.Vazio();
 
+        public GraficoPrioridade GraficoPorPrioridade { get; private set; } = GraficoPrioridade.Vazio();
+
         public async Task<IActionResult> OnGetAsync()
         {
             var tipoUsuario = User.ObterTipoUsuario();
@@ -69,6 +71,8 @@ namespace TmkChamados.Pages
             {
                 GraficoAbertosPorEmpresa = ConstruirGraficoAbertosPorEmpresa(usuarioId.Value, empresaId.Value);
             }
+
+            GraficoPorPrioridade = ConstruirGraficoPorPrioridade(tipoUsuario.Value, usuarioId.Value, empresaId.Value);
 
             return Page();
         }
@@ -116,6 +120,21 @@ namespace TmkChamados.Pages
                 Valores = agrupado.Select(g => g.Count()).ToList()
             };
         }
+
+        private GraficoPrioridade ConstruirGraficoPorPrioridade(TipoUsuario tipoUsuario, int usuarioId, int empresaId)
+        {
+            var abertosOuEmAndamento = _chamadoService.Listar(
+                new FiltroChamados { StatusAbertoOuEmAndamento = true },
+                tipoUsuario, usuarioId, empresaId);
+
+            var prioridades = Enum.GetValues<PrioridadeChamado>();
+
+            return new GraficoPrioridade
+            {
+                Rotulos = prioridades.Select(p => p.ToString()).ToList(),
+                Valores = prioridades.Select(p => abertosOuEmAndamento.Count(c => c.Prioridade == p)).ToList()
+            };
+        }
     }
 
     public class ResumoChamados
@@ -144,5 +163,14 @@ namespace TmkChamados.Pages
         public List<int> Valores { get; set; } = new();
 
         public static GraficoEmpresa Vazio() => new();
+    }
+
+    public class GraficoPrioridade
+    {
+        public List<string> Rotulos { get; set; } = new();
+
+        public List<int> Valores { get; set; } = new();
+
+        public static GraficoPrioridade Vazio() => new();
     }
 }

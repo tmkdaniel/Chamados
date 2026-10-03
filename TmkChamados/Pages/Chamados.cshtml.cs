@@ -94,6 +94,7 @@ namespace TmkChamados.Pages
         {
             var filtro = new FiltroChamados
             {
+                Prioridade = Filtro.Prioridade,
                 CriadoPorId = Filtro.CriadoPorId,
                 EmpresaId = Filtro.EmpresaId,
                 CriadoDe = Filtro.CriadoDe,
@@ -127,6 +128,8 @@ namespace TmkChamados.Pages
     public class FiltroFormModel
     {
         public string? StatusFiltro { get; set; }
+
+        public PrioridadeChamado? Prioridade { get; set; }
 
         public int? CriadoPorId { get; set; }
 

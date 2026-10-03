@@ -10,9 +10,9 @@ namespace TmkChamados.Services
 
         Chamado? Obter(int id);
 
-        Chamado Criar(string titulo, string descricao, int criadoPorId);
+        Chamado Criar(string titulo, string descricao, PrioridadeChamado prioridade, int criadoPorId);
 
-        bool Atualizar(int id, string titulo, string descricao, StatusChamado status, int criadoPorId, int? responsavelId);
+        bool Atualizar(int id, string titulo, string descricao, StatusChamado status, PrioridadeChamado prioridade, int criadoPorId, int? responsavelId);
 
         bool Excluir(int id);
     }

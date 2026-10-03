@@ -30,6 +30,17 @@
         <textarea asp-for="Form.Descricao" class="form-control"></textarea>
     </div>
 
+    <div class="mb-2">
+        <label asp-for="Form.Prioridade" class="form-label">Prioridade</label>
+        <select asp-for="Form.Prioridade" class="form-select">
+            <option value="">Selecione</option>
+            <option value="Normal">Normal</option>
+            <option value="Alta">Alta</option>
+            <option value="Urgente">Urgente</option>
+        </select>
+        <span asp-validation-for="Form.Prioridade" class="text-danger"></span>
+    </div>
+
     @if (Model.EmEdicao)
     {
         <div class="mb-2">
