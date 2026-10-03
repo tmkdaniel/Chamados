@@ -6,7 +6,8 @@ namespace TmkChamados.Models
     {
         Aberto,
         EmAndamento,
-        Concluido
+        Concluido,
+        Cancelado
     }
 
     public enum PrioridadeChamado
@@ -32,6 +33,10 @@ namespace TmkChamados.Models
         public DateTime DataCriacao { get; set; }
 
         public DateTime DataUltimaModificacao { get; set; }
+
+        public DateTime? DataPrazo { get; set; }
+
+        public DateTime? DataConclusao { get; set; }
 
         public int CriadoPorId { get; set; }
 

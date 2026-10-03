@@ -90,6 +90,18 @@ namespace TmkChamados.Pages
             return RedirectToPage();
         }
 
+        public string ClasseCorStatus(StatusChamado status)
+        {
+            return status switch
+            {
+                StatusChamado.Aberto => "bg-danger",
+                StatusChamado.EmAndamento => "bg-warning text-dark",
+                StatusChamado.Concluido => "bg-success",
+                StatusChamado.Cancelado => "bg-secondary",
+                _ => "bg-light text-dark"
+            };
+        }
+
         private FiltroChamados ConstruirFiltro()
         {
             var filtro = new FiltroChamados

@@ -42,6 +42,7 @@ namespace TmkChamados.Pages
                         Descricao = chamado.Descricao,
                         Status = chamado.Status,
                         Prioridade = chamado.Prioridade,
+                        DataPrazo = chamado.DataPrazo,
                         ResponsavelId = chamado.ResponsavelId
                     };
                 }
@@ -62,7 +63,7 @@ namespace TmkChamados.Pages
                 return RedirectToPage("/Login");
             }
 
-            _chamadoService.Criar(Form.Titulo, Form.Descricao ?? string.Empty, Form.Prioridade!.Value, usuarioAutenticado.Id);
+            _chamadoService.Criar(Form.Titulo, Form.Descricao ?? string.Empty, Form.Prioridade!.Value, Form.DataPrazo, usuarioAutenticado.Id);
             return RedirectToPage("/Chamados");
         }
 
@@ -81,7 +82,7 @@ namespace TmkChamados.Pages
                 var chamadoExistente = _chamadoService.Obter(Form.Id.Value);
                 if (chamadoExistente is not null)
                 {
-                    _chamadoService.Atualizar(Form.Id.Value, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, Form.Prioridade!.Value, chamadoExistente.CriadoPorId, Form.ResponsavelId);
+                    _chamadoService.Atualizar(Form.Id.Value, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, Form.Prioridade!.Value, Form.DataPrazo, chamadoExistente.CriadoPorId, Form.ResponsavelId);
                 }
             }
 
@@ -127,6 +128,9 @@ namespace TmkChamados.Pages
 
         [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "A prioridade é obrigatória.")]
         public PrioridadeChamado? Prioridade { get; set; }
+
+        [System.ComponentModel.DataAnnotations.DataType(System.ComponentModel.DataAnnotations.DataType.Date)]
+        public DateTime? DataPrazo { get; set; }
 
         public int? ResponsavelId { get; set; }
     }

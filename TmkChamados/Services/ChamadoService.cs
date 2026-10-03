@@ -92,7 +92,7 @@ namespace TmkChamados.Services
             return _dbContext.Chamados.FirstOrDefault(c => c.Id == id);
         }
 
-        public Chamado Criar(string titulo, string descricao, PrioridadeChamado prioridade, int criadoPorId)
+        public Chamado Criar(string titulo, string descricao, PrioridadeChamado prioridade, DateTime? dataPrazo, int criadoPorId)
         {
             var agora = DateTime.Now;
             var chamado = new Chamado
@@ -101,6 +101,7 @@ namespace TmkChamados.Services
                 Descricao = descricao,
                 Status = StatusChamado.Aberto,
                 Prioridade = prioridade,
+                DataPrazo = dataPrazo,
                 DataCriacao = agora,
                 DataUltimaModificacao = agora,
                 CriadoPorId = criadoPorId,
@@ -112,7 +113,7 @@ namespace TmkChamados.Services
             return chamado;
         }
 
-        public bool Atualizar(int id, string titulo, string descricao, StatusChamado status, PrioridadeChamado prioridade, int criadoPorId, int? responsavelId)
+        public bool Atualizar(int id, string titulo, string descricao, StatusChamado status, PrioridadeChamado prioridade, DateTime? dataPrazo, int criadoPorId, int? responsavelId)
         {
             var chamado = _dbContext.Chamados.FirstOrDefault(c => c.Id == id);
             if (chamado is null)
@@ -120,16 +121,34 @@ namespace TmkChamados.Services
                 return false;
             }
 
+            var eraTerminal = EhStatusTerminal(chamado.Status);
+            var seraTerminal = EhStatusTerminal(status);
+
+            if (seraTerminal && !eraTerminal)
+            {
+                chamado.DataConclusao = DateTime.Now;
+            }
+            else if (!seraTerminal && eraTerminal)
+            {
+                chamado.DataConclusao = null;
+            }
+
             chamado.Titulo = titulo;
             chamado.Descricao = descricao;
             chamado.Status = status;
             chamado.Prioridade = prioridade;
+            chamado.DataPrazo = dataPrazo;
             chamado.CriadoPorId = criadoPorId;
             chamado.ResponsavelId = responsavelId;
             chamado.DataUltimaModificacao = DateTime.Now;
 
             _dbContext.SaveChanges();
             return true;
+        }
+
+        private static bool EhStatusTerminal(StatusChamado status)
+        {
+            return status == StatusChamado.Concluido || status == StatusChamado.Cancelado;
         }
 
         public bool Excluir(int id)
