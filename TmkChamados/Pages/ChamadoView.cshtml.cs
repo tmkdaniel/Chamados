@@ -26,11 +26,16 @@ namespace TmkChamados.Pages
         [BindProperty]
         public string? NovoAndamentoTexto { get; set; }
 
+        [BindProperty]
+        public ChamadoEdicaoFormModel Form { get; set; } = new();
+
         public Chamado? Chamado { get; private set; }
 
         public IReadOnlyList<Andamento> Andamentos { get; private set; } = Array.Empty<Andamento>();
 
         public Dictionary<int, string> NomesPorId { get; private set; } = new();
+
+        public IReadOnlyList<Usuario> UsuariosMaster { get; private set; } = Array.Empty<Usuario>();
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -41,6 +46,7 @@ namespace TmkChamados.Pages
             }
 
             CarregarDados();
+            PreencherFormDeEdicao();
             return Page();
         }
 
@@ -54,14 +60,41 @@ namespace TmkChamados.Pages
 
             var usuarioId = User.ObterUsuarioId()!.Value;
 
+            // O formulário de Andamento não envia os campos de Form (Título, Prioridade, etc.),
+            // então a validação automática do model binding acusaria erros irrelevantes a esta ação.
+            ModelState.Clear();
+
             if (string.IsNullOrWhiteSpace(NovoAndamentoTexto))
             {
                 ModelState.AddModelError(nameof(NovoAndamentoTexto), "O texto do andamento é obrigatório.");
                 CarregarDados();
+                PreencherFormDeEdicao();
                 return Page();
             }
 
             _andamentoService.Criar(Id, NovoAndamentoTexto, usuarioId);
+            return RedirectToPage(new { Id });
+        }
+
+        public async Task<IActionResult> OnPostAtualizarAsync()
+        {
+            var acesso = await VerificarAcessoAsync();
+            if (acesso is not null)
+            {
+                return acesso;
+            }
+
+            ValidarResponsavelMaster();
+
+            if (!ModelState.IsValid)
+            {
+                CarregarDados();
+                return Page();
+            }
+
+            var chamadoExistente = _chamadoService.Obter(Id)!;
+            _chamadoService.Atualizar(Id, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, Form.Prioridade!.Value, Form.DataPrazo, chamadoExistente.CriadoPorId, Form.ResponsavelId);
+
             return RedirectToPage(new { Id });
         }
 
@@ -105,6 +138,57 @@ namespace TmkChamados.Pages
 
             var usuarios = _usuarioService.Listar();
             NomesPorId = usuarios.ToDictionary(u => u.Id, u => u.Nome);
+            UsuariosMaster = usuarios.Where(u => u.Tipo == TipoUsuario.Master).ToList();
         }
+
+        private void PreencherFormDeEdicao()
+        {
+            if (Chamado is null)
+            {
+                return;
+            }
+
+            Form = new ChamadoEdicaoFormModel
+            {
+                Titulo = Chamado.Titulo,
+                Descricao = Chamado.Descricao,
+                Status = Chamado.Status,
+                Prioridade = Chamado.Prioridade,
+                DataPrazo = Chamado.DataPrazo,
+                ResponsavelId = Chamado.ResponsavelId
+            };
+        }
+
+        private void ValidarResponsavelMaster()
+        {
+            if (!Form.ResponsavelId.HasValue)
+            {
+                return;
+            }
+
+            var responsavel = _usuarioService.Obter(Form.ResponsavelId.Value);
+            if (responsavel is null || responsavel.Tipo != TipoUsuario.Master)
+            {
+                ModelState.AddModelError(nameof(Form.ResponsavelId), "O Responsável deve ser um usuário do tipo Master.");
+            }
+        }
+    }
+
+    public class ChamadoEdicaoFormModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "O título é obrigatório.")]
+        public string Titulo { get; set; } = string.Empty;
+
+        public string? Descricao { get; set; } = string.Empty;
+
+        public StatusChamado Status { get; set; } = StatusChamado.Aberto;
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "A prioridade é obrigatória.")]
+        public PrioridadeChamado? Prioridade { get; set; }
+
+        [System.ComponentModel.DataAnnotations.DataType(System.ComponentModel.DataAnnotations.DataType.Date)]
+        public DateTime? DataPrazo { get; set; }
+
+        public int? ResponsavelId { get; set; }
     }
 }

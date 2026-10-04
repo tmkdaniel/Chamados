@@ -13,43 +13,86 @@ else
 {
     var chamado = Model.Chamado;
 
-    <h1>Chamado #@chamado.Id</h1>
+    <h1>@chamado.Titulo</h1>
 
-    <dl class="row">
-        <dt class="col-sm-2">Título</dt>
-        <dd class="col-sm-10">@chamado.Titulo</dd>
+    <form method="post" asp-page-handler="Atualizar" class="mb-4">
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="All" class="text-danger"></div>
 
-        <dt class="col-sm-2">Descrição</dt>
-        <dd class="col-sm-10">@chamado.Descricao</dd>
+        <div class="mb-2">
+            <label class="form-label">Id</label>
+            <input type="text" value="@chamado.Id" class="form-control" readonly />
+        </div>
 
-        <dt class="col-sm-2">Status</dt>
-        <dd class="col-sm-10"><span class="badge @Model.ClasseCorStatus(chamado.Status)">@chamado.Status</span></dd>
+        <div class="mb-2">
+            <label asp-for="Form.Titulo" class="form-label">Título</label>
+            <input asp-for="Form.Titulo" class="form-control" />
+            <span asp-validation-for="Form.Titulo" class="text-danger"></span>
+        </div>
 
-        <dt class="col-sm-2">Prioridade</dt>
-        <dd class="col-sm-10">@chamado.Prioridade</dd>
+        <div class="mb-2">
+            <label asp-for="Form.Descricao" class="form-label">Descrição</label>
+            <textarea asp-for="Form.Descricao" class="form-control"></textarea>
+        </div>
 
-        <dt class="col-sm-2">Criado por</dt>
-        <dd class="col-sm-10">@(Model.NomesPorId.TryGetValue(chamado.CriadoPorId, out var criadoPorNome) ? criadoPorNome : "-")</dd>
+        <div class="mb-2">
+            <label asp-for="Form.Status" class="form-label">Status</label>
+            <select asp-for="Form.Status" class="form-select"
+                    asp-items="Html.GetEnumSelectList<StatusChamado>()"></select>
+        </div>
 
-        <dt class="col-sm-2">Responsável</dt>
-        <dd class="col-sm-10">@(chamado.ResponsavelId.HasValue && Model.NomesPorId.TryGetValue(chamado.ResponsavelId.Value, out var responsavelNome) ? responsavelNome : "Nenhum")</dd>
+        <div class="mb-2">
+            <label asp-for="Form.Prioridade" class="form-label">Prioridade</label>
+            <select asp-for="Form.Prioridade" class="form-select">
+                <option value="">Selecione</option>
+                <option value="Normal">Normal</option>
+                <option value="Alta">Alta</option>
+                <option value="Urgente">Urgente</option>
+            </select>
+            <span asp-validation-for="Form.Prioridade" class="text-danger"></span>
+        </div>
 
-        <dt class="col-sm-2">Criado em</dt>
-        <dd class="col-sm-10">@chamado.DataCriacao.ToString("dd/MM/yyyy HH:mm")</dd>
+        <div class="mb-2">
+            <label asp-for="Form.DataPrazo" class="form-label">Data de Prazo</label>
+            <input asp-for="Form.DataPrazo" type="date" class="form-control" />
+            <span asp-validation-for="Form.DataPrazo" class="text-danger"></span>
+        </div>
 
-        <dt class="col-sm-2">Última modificação</dt>
-        <dd class="col-sm-10">@chamado.DataUltimaModificacao.ToString("dd/MM/yyyy HH:mm")</dd>
+        <div class="mb-2">
+            <label asp-for="Form.ResponsavelId" class="form-label">Responsável</label>
+            <select asp-for="Form.ResponsavelId" class="form-select">
+                <option value="">Nenhum</option>
+                @foreach (var usuario in Model.UsuariosMaster)
+                {
+                    <option value="@usuario.Id">@usuario.Nome</option>
+                }
+            </select>
+            <span asp-validation-for="Form.ResponsavelId" class="text-danger"></span>
+        </div>
 
-        <dt class="col-sm-2">Prazo</dt>
-        <dd class="col-sm-10">@(chamado.DataPrazo.HasValue ? chamado.DataPrazo.Value.ToString("dd/MM/yyyy") : "-")</dd>
+        <div class="mb-2">
+            <label class="form-label">Criado por</label>
+            <input type="text" value="@(Model.NomesPorId.TryGetValue(chamado.CriadoPorId, out var criadoPorNome) ? criadoPorNome : "-")" class="form-control" readonly />
+        </div>
 
-        <dt class="col-sm-2">Conclusão</dt>
-        <dd class="col-sm-10">@(chamado.DataConclusao.HasValue ? chamado.DataConclusao.Value.ToString("dd/MM/yyyy HH:mm") : "-")</dd>
-    </dl>
+        <div class="mb-2">
+            <label class="form-label">Criado em</label>
+            <input type="text" value="@chamado.DataCriacao.ToString("dd/MM/yyyy HH:mm")" class="form-control" readonly />
+        </div>
 
-    <p>
+        <div class="mb-2">
+            <label class="form-label">Última modificação</label>
+            <input type="text" value="@chamado.DataUltimaModificacao.ToString("dd/MM/yyyy HH:mm")" class="form-control" readonly />
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label">Conclusão</label>
+            <input type="text" value="@(chamado.DataConclusao.HasValue ? chamado.DataConclusao.Value.ToString("dd/MM/yyyy HH:mm") : "-")" class="form-control" readonly />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Salvar</button>
         <a href="/Chamados" class="btn btn-secondary">Voltar à listagem</a>
-    </p>
+    </form>
 
     <h2>Andamentos</h2>
 

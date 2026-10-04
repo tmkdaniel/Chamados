@@ -154,8 +154,7 @@ else
                     <td>@(chamado.DataPrazo.HasValue ? chamado.DataPrazo.Value.ToString("dd/MM/yyyy") : "-")</td>
                     <td>@(chamado.DataConclusao.HasValue ? chamado.DataConclusao.Value.ToString("dd/MM/yyyy HH:mm") : "-")</td>
                     <td>
-                        <a href="/ChamadoView?id=@chamado.Id" class="btn btn-sm btn-outline-secondary">Visualizar</a>
-                        <a href="/ChamadosForm?editId=@chamado.Id" class="btn btn-sm btn-outline-primary">Editar</a>
+                        <a href="/ChamadoView?id=@chamado.Id" class="btn btn-sm btn-outline-primary">Visualizar</a>
                         @if (Model.IsMaster)
                         {
                             <form method="post" asp-page-handler="Excluir" asp-route-id="@chamado.Id" id="excluir-chamado-@chamado.Id" class="d-inline"></form>

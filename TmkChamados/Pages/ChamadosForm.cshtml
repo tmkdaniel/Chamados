@@ -2,22 +2,13 @@
 @using TmkChamados.Models
 @model ChamadosFormModel
 @{
-    ViewData["Title"] = Model.EmEdicao ? "Editar Chamado" : "Novo Chamado";
+    ViewData["Title"] = "Novo Chamado";
 }
 
-<h1>@(Model.EmEdicao ? "Editar Chamado" : "Novo Chamado")</h1>
+<h1>Novo Chamado</h1>
 
-<form method="post" asp-page-handler="@(Model.EmEdicao ? "Atualizar" : "Adicionar")" class="mb-4">
+<form method="post" asp-page-handler="Adicionar" class="mb-4">
     <div asp-validation-summary="All" class="text-danger"></div>
-    <input type="hidden" asp-for="Form.Id" />
-
-    @if (Model.EmEdicao)
-    {
-        <div class="mb-2">
-            <label class="form-label">Id</label>
-            <input type="text" value="@Model.Form.Id" class="form-control" readonly />
-        </div>
-    }
 
     <div class="mb-2">
         <label asp-for="Form.Titulo" class="form-label">Título</label>
@@ -47,29 +38,6 @@
         <span asp-validation-for="Form.DataPrazo" class="text-danger"></span>
     </div>
 
-    @if (Model.EmEdicao)
-    {
-        <div class="mb-2">
-            <label asp-for="Form.Status" class="form-label">Status</label>
-            <select asp-for="Form.Status" class="form-select"
-                    asp-items="Html.GetEnumSelectList<StatusChamado>()"></select>
-        </div>
-
-        <div class="mb-2">
-            <label asp-for="Form.ResponsavelId" class="form-label">Responsável</label>
-            <select asp-for="Form.ResponsavelId" class="form-select">
-                <option value="">Nenhum</option>
-                @foreach (var usuario in Model.UsuariosMaster)
-                {
-                    <option value="@usuario.Id">@usuario.Nome</option>
-                }
-            </select>
-            <span asp-validation-for="Form.ResponsavelId" class="text-danger"></span>
-        </div>
-    }
-
-    <button type="submit" class="btn btn-primary">
-        @(Model.EmEdicao ? "Atualizar" : "Adicionar")
-    </button>
+    <button type="submit" class="btn btn-primary">Adicionar</button>
     <a href="/Chamados" class="btn btn-secondary">Cancelar</a>
 </form>
