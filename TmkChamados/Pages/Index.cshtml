@@ -8,31 +8,32 @@
     };
 }
 
+<div class="tmk-eyebrow">Dashboard</div>
 <h1>Resumo dos Chamados</h1>
 
 <div class="row g-4">
     <div class="col-12 col-lg-6">
-        <h2>@Model.TituloSecao</h2>
+        <div class="tmk-eyebrow">@Model.TituloSecao</div>
         @await Html.PartialAsync("_ResumoChamadosSecao", Model.Resumo, new ViewDataDictionary(ViewData) { { "Prefixo", "secao" } })
     </div>
     @if (Model.IsMaster)
     {
         <div class="col-12 col-lg-6">
-            <h2>Abertos por Empresa</h2>
-            <div class="mb-3" style="height: 250px;">
+            <div class="tmk-eyebrow">Abertos por Empresa</div>
+            <div class="tmk-card mb-3" style="height: 250px;">
                 <canvas id="pizza-empresa"></canvas>
             </div>
         </div>
     }
     <div class="col-12 col-lg-6">
-        <h2>Abertos e Em Andamento por Prioridade</h2>
-        <div class="mb-3" style="height: 250px;">
+        <div class="tmk-eyebrow">Abertos e Em Andamento por Prioridade</div>
+        <div class="tmk-card mb-3" style="height: 250px;">
             <canvas id="pizza-prioridade"></canvas>
         </div>
     </div>
     <div class="col-12 col-lg-6">
-        <h2>Abertos e Em Andamento por Dias até o Prazo</h2>
-        <div class="mb-3" style="height: 250px;">
+        <div class="tmk-eyebrow">Abertos e Em Andamento por Dias até o Prazo</div>
+        <div class="tmk-card mb-3" style="height: 250px;">
             <canvas id="histograma-prazo"></canvas>
         </div>
     </div>
@@ -41,6 +42,16 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <script>
+        var TMK_PALETA = ['#F2C230', '#2A2A2E', '#C9A227', '#C9CAD2', '#F7DA7A', '#5B5C66'];
+
+        function tmkCores(quantidade) {
+            var cores = [];
+            for (var i = 0; i < quantidade; i++) {
+                cores.push(TMK_PALETA[i % TMK_PALETA.length]);
+            }
+            return cores;
+        }
+
         function montarGraficosResumo(prefixo, dados) {
             new Chart(document.getElementById('pizza-' + prefixo), {
                 type: 'pie',
@@ -48,7 +59,7 @@
                     labels: ['Aberto', 'Em Andamento', 'Concluído'],
                     datasets: [{
                         data: [dados.pizzaAbertos, dados.pizzaEmAndamento, dados.pizzaConcluidos],
-                        backgroundColor: ['#0d6efd', '#ffc107', '#198754']
+                        backgroundColor: tmkCores(3)
                     }]
                 },
                 options: {
@@ -63,7 +74,7 @@
                     datasets: [{
                         label: 'Chamados criados',
                         data: dados.histogramaValores,
-                        backgroundColor: '#0d6efd'
+                        backgroundColor: '#F2C230'
                     }]
                 },
                 options: {
@@ -81,7 +92,8 @@
                 data: {
                     labels: dados.rotulos,
                     datasets: [{
-                        data: dados.valores
+                        data: dados.valores,
+                        backgroundColor: tmkCores(dados.valores.length)
                     }]
                 },
                 options: {
@@ -98,7 +110,7 @@
                     datasets: [{
                         label: label,
                         data: dados.valores,
-                        backgroundColor: '#0d6efd'
+                        backgroundColor: '#F2C230'
                     }]
                 },
                 options: {

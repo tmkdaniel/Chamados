@@ -13,34 +13,38 @@
     <title>Login - TmkChamados</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/tmk-theme.css" asp-append-version="true" />
 </head>
 <body>
-    <div class="container" style="max-width: 400px; margin-top: 80px;">
-        <h1 class="mb-4">TmkChamados - Login</h1>
+    <div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+        <div class="tmk-card" style="max-width: 400px; width: 100%;">
+            <div class="tmk-eyebrow">Acesso ao sistema</div>
+            <h1 class="mb-4" style="text-shadow: 0 0 18px rgba(242,194,48,0.4);">TmkChamados</h1>
 
-        @if (!string.IsNullOrEmpty(Model.ErroLogin))
-        {
-            <div class="alert alert-danger">@Model.ErroLogin</div>
-        }
+            @if (!string.IsNullOrEmpty(Model.ErroLogin))
+            {
+                <div class="alert alert-danger">@Model.ErroLogin</div>
+            }
 
-        <form method="post" asp-page-handler="Entrar">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <input type="hidden" asp-for="ReturnUrl" />
+            <form method="post" asp-page-handler="Entrar">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <input type="hidden" asp-for="ReturnUrl" />
 
-            <div class="mb-2">
-                <label asp-for="Form.Nome" class="form-label">Nome</label>
-                <input asp-for="Form.Nome" class="form-control" />
-                <span asp-validation-for="Form.Nome" class="text-danger"></span>
-            </div>
+                <div class="mb-2">
+                    <label asp-for="Form.Nome" class="form-label">Nome</label>
+                    <input asp-for="Form.Nome" class="form-control" />
+                    <span asp-validation-for="Form.Nome" class="text-danger"></span>
+                </div>
 
-            <div class="mb-3">
-                <label asp-for="Form.Senha" class="form-label">Senha</label>
-                <input asp-for="Form.Senha" type="password" class="form-control" />
-                <span asp-validation-for="Form.Senha" class="text-danger"></span>
-            </div>
+                <div class="mb-3">
+                    <label asp-for="Form.Senha" class="form-label">Senha</label>
+                    <input asp-for="Form.Senha" type="password" class="form-control" />
+                    <span asp-validation-for="Form.Senha" class="text-danger"></span>
+                </div>
 
-            <button type="submit" class="btn btn-primary w-100">Entrar</button>
-        </form>
+                <button type="submit" class="btn btn-primary w-100">Entrar</button>
+            </form>
+        </div>
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

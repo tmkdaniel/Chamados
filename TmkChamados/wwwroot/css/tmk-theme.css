@@ -1,0 +1,260 @@
+/* =========================================================================
+   TMK Light — tema visual da TMK Tecnologia adaptado para fundo claro.
+   Paleta e decisões em openspec/changes/aplicar-identidade-visual-tmk/design.md
+   ========================================================================= */
+
+:root {
+    --tmk-bg: #FFFFFF;
+    --tmk-bg-alt: #F7F7F8;
+
+    --tmk-gold: #F2C230;
+    --tmk-gold-text: #9C7A10;
+    --tmk-gold-rgb: 242, 194, 48;
+
+    --tmk-titulo: #1A1A1E;
+    --tmk-subtitulo: #51525C;
+    --tmk-corpo: #5B5C66;
+    --tmk-rotulo: #5B5C66;
+
+    --tmk-cartao-bg: rgba(13, 13, 15, 0.03);
+    --tmk-cartao-borda: rgba(13, 13, 15, 0.08);
+
+    --tmk-chip-bg: rgba(var(--tmk-gold-rgb), 0.10);
+    --tmk-chip-borda: rgba(var(--tmk-gold-rgb), 0.45);
+    --tmk-realce: rgba(var(--tmk-gold-rgb), 0.13);
+
+    --tmk-fonte: "Segoe UI", system-ui, -apple-system, sans-serif;
+
+    /* Escala monocromática para gráficos (Chart.js) — grafite -> dourado */
+    --tmk-chart-1: #2A2A2E;
+    --tmk-chart-2: #5B5C66;
+    --tmk-chart-3: #C9A227;
+    --tmk-chart-4: #F2C230;
+    --tmk-chart-5: #F7DA7A;
+    --tmk-chart-6: #C9CAD2;
+}
+
+/* -------------------------------------------------------------------------
+   Base / tipografia
+   ------------------------------------------------------------------------- */
+
+html, body {
+    background-color: var(--tmk-bg);
+    font-family: var(--tmk-fonte);
+    color: var(--tmk-corpo);
+}
+
+body {
+    position: relative;
+    background-image:
+        radial-gradient(circle at bottom right, rgba(var(--tmk-gold-rgb), 0.08), transparent 45%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23F2C230' stroke-width='1' opacity='0.06'%3E%3Cpath d='M0 20H40V60H120'/%3E%3Cpath d='M0 90H60V40H120'/%3E%3Ccircle cx='40' cy='20' r='2.4' fill='%23F2C230'/%3E%3Ccircle cx='40' cy='60' r='2.4' fill='%23F2C230'/%3E%3Ccircle cx='60' cy='90' r='2.4' fill='%23F2C230'/%3E%3Ccircle cx='60' cy='40' r='2.4' fill='%23F2C230'/%3E%3C/g%3E%3C/svg%3E");
+    background-attachment: fixed;
+    background-size: auto, 120px 120px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--tmk-titulo);
+    font-weight: 600;
+}
+
+p, label, .form-label, td, th {
+    color: var(--tmk-corpo);
+}
+
+/* -------------------------------------------------------------------------
+   Elementos de identidade
+   ------------------------------------------------------------------------- */
+
+.tmk-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--tmk-fonte);
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--tmk-gold-text);
+    margin-bottom: 0.5rem;
+}
+
+.tmk-eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 34px;
+    height: 2.4px;
+    background-color: var(--tmk-gold);
+    flex-shrink: 0;
+}
+
+.tmk-numero-destaque {
+    font-weight: 600;
+    color: var(--tmk-gold-text);
+    font-size: 1.75rem;
+    line-height: 1;
+}
+
+.tmk-numeracao-item {
+    font-weight: 600;
+    color: var(--tmk-gold-text);
+}
+
+.tmk-card {
+    background-color: var(--tmk-cartao-bg);
+    border: 0.8px solid var(--tmk-cartao-borda);
+    border-radius: 10px;
+    padding: 1.25rem;
+}
+
+.tmk-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background-color: var(--tmk-chip-bg);
+    border: 0.8px solid var(--tmk-chip-borda);
+    border-radius: 999px;
+    padding: 0.2rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--tmk-gold-text);
+}
+
+/* -------------------------------------------------------------------------
+   Navbar / rodapé
+   ------------------------------------------------------------------------- */
+
+header .navbar {
+    background-color: var(--tmk-bg) !important;
+    border-bottom: 1px solid var(--tmk-cartao-borda) !important;
+    box-shadow: none !important;
+}
+
+header .navbar-brand {
+    font-weight: 600;
+    color: var(--tmk-titulo) !important;
+    text-shadow: 0 0 14px rgba(var(--tmk-gold-rgb), 0.35);
+}
+
+header .nav-link {
+    color: var(--tmk-corpo) !important;
+    transition: color 0.15s ease;
+}
+
+header .nav-link:hover,
+header .nav-link:focus {
+    color: var(--tmk-gold-text) !important;
+}
+
+header .nav-link.active {
+    color: var(--tmk-gold-text) !important;
+    border-bottom: 2px solid var(--tmk-gold);
+}
+
+footer.footer {
+    background-color: transparent;
+    border-top: 1px solid var(--tmk-cartao-borda) !important;
+    color: var(--tmk-rotulo);
+    font-size: 0.85rem;
+}
+
+footer.footer a {
+    color: var(--tmk-corpo);
+}
+
+footer.footer a:hover {
+    color: var(--tmk-gold-text);
+}
+
+/* -------------------------------------------------------------------------
+   Componentes Bootstrap
+   ------------------------------------------------------------------------- */
+
+.btn-primary {
+    background-color: var(--tmk-gold);
+    border-color: var(--tmk-gold);
+    color: #1A1A1E;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: #D9A813;
+    border-color: #D9A813;
+    color: #1A1A1E;
+}
+
+.btn-outline-primary {
+    color: var(--tmk-gold-text);
+    border-color: var(--tmk-gold);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+    background-color: var(--tmk-gold);
+    border-color: var(--tmk-gold);
+    color: #1A1A1E;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus,
+.form-control:focus, .form-select:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.15rem rgba(var(--tmk-gold-rgb), 0.35) !important;
+    border-color: var(--tmk-gold) !important;
+}
+
+.card {
+    background-color: var(--tmk-cartao-bg);
+    border: 0.8px solid var(--tmk-cartao-borda);
+    border-radius: 10px;
+    box-shadow: none;
+}
+
+.table {
+    color: var(--tmk-corpo);
+}
+
+.table > thead {
+    color: var(--tmk-titulo);
+    border-bottom: 2px solid var(--tmk-cartao-borda);
+}
+
+.table-hover > tbody > tr:hover > * {
+    background-color: var(--tmk-realce);
+    color: var(--tmk-titulo);
+}
+
+.form-control, .form-select {
+    background-color: var(--tmk-bg);
+    border: 1px solid var(--tmk-cartao-borda);
+    color: var(--tmk-titulo);
+}
+
+/* Estados de sistema (status de chamado) em tons dessaturados, mantendo o
+   dourado como único acento decorativo fora desses estados. */
+.badge.bg-danger {
+    background-color: #C96B63 !important;
+}
+
+.badge.bg-warning {
+    background-color: #D9B35B !important;
+    color: #1A1A1E !important;
+}
+
+.badge.bg-success {
+    background-color: #6FA583 !important;
+}
+
+.badge.bg-secondary {
+    background-color: #9496A1 !important;
+}
+
+.text-danger {
+    color: #B5564D !important;
+}
+
+.alert-danger {
+    background-color: rgba(181, 86, 77, 0.10);
+    border-color: rgba(181, 86, 77, 0.35);
+    color: #8C4038;
+}

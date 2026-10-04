@@ -4,9 +4,10 @@
     ViewData["Title"] = Model.EmEdicao ? "Editar Empresa" : "Nova Empresa";
 }
 
+<div class="tmk-eyebrow">Administração</div>
 <h1>@(Model.EmEdicao ? "Editar Empresa" : "Nova Empresa")</h1>
 
-<form method="post" asp-page-handler="@(Model.EmEdicao ? "Atualizar" : "Adicionar")" class="mb-4">
+<form method="post" asp-page-handler="@(Model.EmEdicao ? "Atualizar" : "Adicionar")" class="tmk-card mb-4">
     <div asp-validation-summary="All" class="text-danger"></div>
     <input type="hidden" asp-for="Form.Id" />
 

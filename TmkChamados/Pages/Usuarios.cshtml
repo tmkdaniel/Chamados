@@ -4,6 +4,7 @@
     ViewData["Title"] = "Usuários";
 }
 
+<div class="tmk-eyebrow">Administração</div>
 <h1>Usuários</h1>
 
 @if (!string.IsNullOrEmpty(Model.ErroExclusao))
@@ -15,7 +16,7 @@
     <a href="/UsuariosForm" class="btn btn-primary">Novo Usuário</a>
 </p>
 
-<h2>Lista de Usuários</h2>
+<div class="tmk-eyebrow">Lista de Usuários</div>
 
 @if (!Model.Usuarios.Any())
 {
@@ -23,7 +24,8 @@
 }
 else
 {
-    <table class="table">
+    <div class="tmk-card p-0">
+    <table class="table mb-0">
         <thead>
             <tr>
                 <th>Id</th>
@@ -54,6 +56,7 @@ else
             }
         </tbody>
     </table>
+    </div>
 }
 
 <div class="modal fade" id="modalConfirmarExclusao" tabindex="-1" aria-hidden="true">

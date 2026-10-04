@@ -5,15 +5,16 @@
     ViewData["Title"] = "Chamados";
 }
 
+<div class="tmk-eyebrow">Gestão</div>
 <h1>Chamados</h1>
 
 <p>
     <a href="/ChamadosForm" class="btn btn-primary">Novo Chamado</a>
 </p>
 
-<h2>Filtrar Chamados</h2>
+<div class="tmk-eyebrow">Filtrar Chamados</div>
 
-<form method="get" class="mb-4">
+<form method="get" class="tmk-card mb-4">
     <div class="row g-2 align-items-end">
         <div class="col-auto">
             <label asp-for="Filtro.StatusFiltro" class="form-label">Status</label>
@@ -105,7 +106,7 @@
     </div>
 </form>
 
-<h2>Lista de Chamados</h2>
+<div class="tmk-eyebrow">Lista de Chamados</div>
 
 @if (!Model.Chamados.Any())
 {
@@ -113,7 +114,8 @@
 }
 else
 {
-    <table class="table">
+    <div class="tmk-card p-0">
+    <table class="table mb-0">
         <thead>
             <tr>
                 <th>Id</th>
@@ -169,6 +171,7 @@ else
             }
         </tbody>
     </table>
+    </div>
 }
 
 <div class="modal fade" id="modalConfirmarExclusao" tabindex="-1" aria-hidden="true">

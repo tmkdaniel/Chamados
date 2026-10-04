@@ -13,9 +13,14 @@ else
 {
     var chamado = Model.Chamado;
 
+    <div class="tmk-eyebrow">Chamado #@chamado.Id</div>
     <h1>@chamado.Titulo</h1>
+    <p class="mb-3">
+        <span class="tmk-chip">@chamado.Status</span>
+        <span class="tmk-chip">@chamado.Prioridade</span>
+    </p>
 
-    <form method="post" asp-page-handler="Atualizar" class="mb-4">
+    <form method="post" asp-page-handler="Atualizar" class="tmk-card mb-4">
         <input type="hidden" asp-for="Id" />
         <div asp-validation-summary="All" class="text-danger"></div>
 
@@ -94,7 +99,7 @@ else
         <a href="/Chamados" class="btn btn-secondary">Voltar à listagem</a>
     </form>
 
-    <h2>Andamentos</h2>
+    <div class="tmk-eyebrow">Andamentos</div>
 
     @if (!Model.Andamentos.Any())
     {
@@ -105,10 +110,10 @@ else
         <ul class="list-group mb-4">
             @foreach (var andamento in Model.Andamentos)
             {
-                <li class="list-group-item">
+                <li class="list-group-item tmk-card mb-2">
                     <div class="d-flex justify-content-between">
                         <strong>@(Model.NomesPorId.TryGetValue(andamento.CriadoPorId, out var autorNome) ? autorNome : "-")</strong>
-                        <span class="text-muted">@andamento.DataCriacao.ToString("dd/MM/yyyy HH:mm")</span>
+                        <span class="small">@andamento.DataCriacao.ToString("dd/MM/yyyy HH:mm")</span>
                     </div>
                     <div>@andamento.Texto</div>
                 </li>
@@ -116,9 +121,9 @@ else
         </ul>
     }
 
-    <h3>Adicionar Andamento</h3>
+    <div class="tmk-eyebrow">Adicionar Andamento</div>
 
-    <form method="post" asp-page-handler="AdicionarAndamento">
+    <form method="post" asp-page-handler="AdicionarAndamento" class="tmk-card">
         <input type="hidden" asp-for="Id" />
         <div asp-validation-summary="All" class="text-danger"></div>
         <div class="mb-3">
