@@ -30,6 +30,8 @@ namespace TmkChamados.Pages
 
         public GraficoPrioridade GraficoPorPrioridade { get; private set; } = GraficoPrioridade.Vazio();
 
+        public GraficoDiasParaPrazo GraficoPorDiasParaPrazo { get; private set; } = GraficoDiasParaPrazo.Vazio();
+
         public async Task<IActionResult> OnGetAsync()
         {
             var tipoUsuario = User.ObterTipoUsuario();
@@ -73,6 +75,7 @@ namespace TmkChamados.Pages
             }
 
             GraficoPorPrioridade = ConstruirGraficoPorPrioridade(tipoUsuario.Value, usuarioId.Value, empresaId.Value);
+            GraficoPorDiasParaPrazo = ConstruirGraficoPorDiasParaPrazo(tipoUsuario.Value, usuarioId.Value, empresaId.Value);
 
             return Page();
         }
@@ -135,6 +138,50 @@ namespace TmkChamados.Pages
                 Valores = prioridades.Select(p => abertosOuEmAndamento.Count(c => c.Prioridade == p)).ToList()
             };
         }
+
+        private GraficoDiasParaPrazo ConstruirGraficoPorDiasParaPrazo(TipoUsuario tipoUsuario, int usuarioId, int empresaId)
+        {
+            var abertosOuEmAndamento = _chamadoService.Listar(
+                new FiltroChamados { StatusAbertoOuEmAndamento = true },
+                tipoUsuario, usuarioId, empresaId);
+
+            var hoje = DateTime.Now.Date;
+            var faixas = new[] { "Atrasado", "Hoje", "1-3 dias", "4-7 dias", "8-15 dias", "16+ dias", "Sem Prazo" };
+
+            var valoresPorFaixa = faixas.ToDictionary(f => f, _ => 0);
+
+            foreach (var chamado in abertosOuEmAndamento)
+            {
+                var faixa = ClassificarFaixaDeDiasParaPrazo(chamado.DataPrazo, hoje);
+                valoresPorFaixa[faixa]++;
+            }
+
+            return new GraficoDiasParaPrazo
+            {
+                Rotulos = faixas.ToList(),
+                Valores = faixas.Select(f => valoresPorFaixa[f]).ToList()
+            };
+        }
+
+        private static string ClassificarFaixaDeDiasParaPrazo(DateTime? dataPrazo, DateTime hoje)
+        {
+            if (!dataPrazo.HasValue)
+            {
+                return "Sem Prazo";
+            }
+
+            var dias = (dataPrazo.Value.Date - hoje).Days;
+
+            return dias switch
+            {
+                < 0 => "Atrasado",
+                0 => "Hoje",
+                >= 1 and <= 3 => "1-3 dias",
+                >= 4 and <= 7 => "4-7 dias",
+                >= 8 and <= 15 => "8-15 dias",
+                _ => "16+ dias"
+            };
+        }
     }
 
     public class ResumoChamados
@@ -172,5 +219,14 @@ namespace TmkChamados.Pages
         public List<int> Valores { get; set; } = new();
 
         public static GraficoPrioridade Vazio() => new();
+    }
+
+    public class GraficoDiasParaPrazo
+    {
+        public List<string> Rotulos { get; set; } = new();
+
+        public List<int> Valores { get; set; } = new();
+
+        public static GraficoDiasParaPrazo Vazio() => new();
     }
 }

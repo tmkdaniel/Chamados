@@ -30,6 +30,12 @@
             <canvas id="pizza-prioridade"></canvas>
         </div>
     </div>
+    <div class="col-12 col-lg-6">
+        <h2>Abertos e Em Andamento por Dias até o Prazo</h2>
+        <div class="mb-3" style="height: 250px;">
+            <canvas id="histograma-prazo"></canvas>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -84,11 +90,32 @@
             });
         }
 
+        function montarGraficoBarrasPorRotulos(elementId, dados, label) {
+            new Chart(document.getElementById(elementId), {
+                type: 'bar',
+                data: {
+                    labels: dados.rotulos,
+                    datasets: [{
+                        label: label,
+                        data: dados.valores,
+                        backgroundColor: '#0d6efd'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } }
+                    }
+                }
+            });
+        }
+
         montarGraficosResumo('secao', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Resumo, opcoesJson)));
         @if (Model.IsMaster)
         {
             @:montarGraficoPorRotulos('pizza-empresa', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoAbertosPorEmpresa, opcoesJson)));
         }
         montarGraficoPorRotulos('pizza-prioridade', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoPorPrioridade, opcoesJson)));
+        montarGraficoBarrasPorRotulos('histograma-prazo', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoPorDiasParaPrazo, opcoesJson)), 'Chamados');
     </script>
 }
