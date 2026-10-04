@@ -1,0 +1,87 @@
+@page
+@using TmkChamados.Models
+@model ChamadoViewModel
+@{
+    ViewData["Title"] = "Visualizar Chamado";
+}
+
+@if (Model.Chamado is null)
+{
+    <p>Chamado não encontrado.</p>
+}
+else
+{
+    var chamado = Model.Chamado;
+
+    <h1>Chamado #@chamado.Id</h1>
+
+    <dl class="row">
+        <dt class="col-sm-2">Título</dt>
+        <dd class="col-sm-10">@chamado.Titulo</dd>
+
+        <dt class="col-sm-2">Descrição</dt>
+        <dd class="col-sm-10">@chamado.Descricao</dd>
+
+        <dt class="col-sm-2">Status</dt>
+        <dd class="col-sm-10"><span class="badge @Model.ClasseCorStatus(chamado.Status)">@chamado.Status</span></dd>
+
+        <dt class="col-sm-2">Prioridade</dt>
+        <dd class="col-sm-10">@chamado.Prioridade</dd>
+
+        <dt class="col-sm-2">Criado por</dt>
+        <dd class="col-sm-10">@(Model.NomesPorId.TryGetValue(chamado.CriadoPorId, out var criadoPorNome) ? criadoPorNome : "-")</dd>
+
+        <dt class="col-sm-2">Responsável</dt>
+        <dd class="col-sm-10">@(chamado.ResponsavelId.HasValue && Model.NomesPorId.TryGetValue(chamado.ResponsavelId.Value, out var responsavelNome) ? responsavelNome : "Nenhum")</dd>
+
+        <dt class="col-sm-2">Criado em</dt>
+        <dd class="col-sm-10">@chamado.DataCriacao.ToString("dd/MM/yyyy HH:mm")</dd>
+
+        <dt class="col-sm-2">Última modificação</dt>
+        <dd class="col-sm-10">@chamado.DataUltimaModificacao.ToString("dd/MM/yyyy HH:mm")</dd>
+
+        <dt class="col-sm-2">Prazo</dt>
+        <dd class="col-sm-10">@(chamado.DataPrazo.HasValue ? chamado.DataPrazo.Value.ToString("dd/MM/yyyy") : "-")</dd>
+
+        <dt class="col-sm-2">Conclusão</dt>
+        <dd class="col-sm-10">@(chamado.DataConclusao.HasValue ? chamado.DataConclusao.Value.ToString("dd/MM/yyyy HH:mm") : "-")</dd>
+    </dl>
+
+    <p>
+        <a href="/Chamados" class="btn btn-secondary">Voltar à listagem</a>
+    </p>
+
+    <h2>Andamentos</h2>
+
+    @if (!Model.Andamentos.Any())
+    {
+        <p>Nenhum andamento registrado.</p>
+    }
+    else
+    {
+        <ul class="list-group mb-4">
+            @foreach (var andamento in Model.Andamentos)
+            {
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between">
+                        <strong>@(Model.NomesPorId.TryGetValue(andamento.CriadoPorId, out var autorNome) ? autorNome : "-")</strong>
+                        <span class="text-muted">@andamento.DataCriacao.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                    <div>@andamento.Texto</div>
+                </li>
+            }
+        </ul>
+    }
+
+    <h3>Adicionar Andamento</h3>
+
+    <form method="post" asp-page-handler="AdicionarAndamento">
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="mb-3">
+            <label asp-for="NovoAndamentoTexto" class="form-label">Texto</label>
+            <textarea asp-for="NovoAndamentoTexto" class="form-control" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Adicionar</button>
+    </form>
+}

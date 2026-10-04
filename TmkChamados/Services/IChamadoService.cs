@@ -10,6 +10,8 @@ namespace TmkChamados.Services
 
         Chamado? Obter(int id);
 
+        bool PodeAcessar(Chamado chamado, TipoUsuario tipoUsuario, int usuarioId, int empresaId);
+
         Chamado Criar(string titulo, string descricao, PrioridadeChamado prioridade, DateTime? dataPrazo, int criadoPorId);
 
         bool Atualizar(int id, string titulo, string descricao, StatusChamado status, PrioridadeChamado prioridade, DateTime? dataPrazo, int criadoPorId, int? responsavelId);

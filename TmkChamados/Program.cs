@@ -16,6 +16,7 @@ builder.Services.AddDbContext<TmkChamadosDbContext>(options =>
 builder.Services.AddScoped<IChamadoService, ChamadoService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IEmpresaService, EmpresaService>();
+builder.Services.AddScoped<IAndamentoService, AndamentoService>();
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

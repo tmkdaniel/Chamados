@@ -15,6 +15,8 @@ namespace TmkChamados.Data
 
         public DbSet<Empresa> Empresas => Set<Empresa>();
 
+        public DbSet<Andamento> Andamentos => Set<Andamento>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Usuario>()
@@ -37,6 +39,18 @@ namespace TmkChamados.Data
                 .HasOne<Usuario>()
                 .WithMany()
                 .HasForeignKey(c => c.ResponsavelId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Andamento>()
+                .HasOne<Chamado>()
+                .WithMany()
+                .HasForeignKey(a => a.ChamadoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Andamento>()
+                .HasOne<Usuario>()
+                .WithMany()
+                .HasForeignKey(a => a.CriadoPorId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

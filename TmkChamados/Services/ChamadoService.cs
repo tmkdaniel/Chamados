@@ -92,6 +92,17 @@ namespace TmkChamados.Services
             return _dbContext.Chamados.FirstOrDefault(c => c.Id == id);
         }
 
+        public bool PodeAcessar(Chamado chamado, TipoUsuario tipoUsuario, int usuarioId, int empresaId)
+        {
+            return tipoUsuario switch
+            {
+                TipoUsuario.Master => true,
+                TipoUsuario.Gerente => _dbContext.Usuarios.Any(u => u.Id == chamado.CriadoPorId && u.EmpresaId == empresaId),
+                TipoUsuario.Usuario => chamado.CriadoPorId == usuarioId,
+                _ => false
+            };
+        }
+
         public Chamado Criar(string titulo, string descricao, PrioridadeChamado prioridade, DateTime? dataPrazo, int criadoPorId)
         {
             var agora = DateTime.Now;
