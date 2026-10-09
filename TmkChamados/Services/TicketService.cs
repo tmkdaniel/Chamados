@@ -45,6 +45,11 @@ namespace TmkChamados.Services
                 query = query.Where(c => c.Prioridade == filtro.Prioridade.Value);
             }
 
+            if (filtro.Classificacao.HasValue)
+            {
+                query = query.Where(c => c.Classificacao == filtro.Classificacao.Value);
+            }
+
             if (filtro.CriadoPorId.HasValue)
             {
                 query = query.Where(c => c.CriadoPorId == filtro.CriadoPorId.Value);
@@ -103,11 +108,12 @@ namespace TmkChamados.Services
             };
         }
 
-        public Ticket Criar(string titulo, string descricao, PrioridadeTicket prioridade, DateTime? dataPrazo, int criadoPorId)
+        public Ticket Criar(ClassificacaoTicket classificacao, string titulo, string descricao, PrioridadeTicket prioridade, DateTime? dataPrazo, int criadoPorId)
         {
             var agora = DateTime.Now;
             var ticket = new Ticket
             {
+                Classificacao = classificacao,
                 Titulo = titulo,
                 Descricao = descricao,
                 Status = StatusTicket.Aberto,
@@ -124,7 +130,7 @@ namespace TmkChamados.Services
             return ticket;
         }
 
-        public bool Atualizar(int id, string titulo, string descricao, StatusTicket status, PrioridadeTicket prioridade, DateTime? dataPrazo, int criadoPorId, int? responsavelId)
+        public bool Atualizar(int id, ClassificacaoTicket classificacao, string titulo, string descricao, StatusTicket status, PrioridadeTicket prioridade, DateTime? dataPrazo, int criadoPorId, int? responsavelId)
         {
             var ticket = _dbContext.Tickets.FirstOrDefault(c => c.Id == id);
             if (ticket is null)
@@ -144,6 +150,7 @@ namespace TmkChamados.Services
                 ticket.DataConclusao = null;
             }
 
+            ticket.Classificacao = classificacao;
             ticket.Titulo = titulo;
             ticket.Descricao = descricao;
             ticket.Status = status;

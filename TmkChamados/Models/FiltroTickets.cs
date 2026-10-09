@@ -2,6 +2,8 @@ namespace TmkChamados.Models
 {
     public class FiltroTickets
     {
+        public ClassificacaoTicket? Classificacao { get; set; }
+
         public StatusTicket? Status { get; set; }
 
         public bool StatusAbertoOuEmAndamento { get; set; }

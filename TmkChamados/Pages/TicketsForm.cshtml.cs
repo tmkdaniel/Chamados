@@ -39,13 +39,16 @@ namespace TmkChamados.Pages
                 return RedirectToPage("/Login");
             }
 
-            _ticketService.Criar(Form.Titulo, Form.Descricao ?? string.Empty, PrioridadeTicket.Normal, null, usuarioAutenticado.Id);
+            _ticketService.Criar(Form.Classificacao!.Value, Form.Titulo, Form.Descricao ?? string.Empty, PrioridadeTicket.Normal, null, usuarioAutenticado.Id);
             return RedirectToPage("/Tickets");
         }
     }
 
     public class TicketFormModel
     {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "A classificação é obrigatória.")]
+        public ClassificacaoTicket? Classificacao { get; set; }
+
         [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "O título é obrigatório.")]
         public string Titulo { get; set; } = string.Empty;
 

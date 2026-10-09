@@ -17,9 +17,19 @@ namespace TmkChamados.Models
         Urgente
     }
 
+    public enum ClassificacaoTicket
+    {
+        Incidente,
+        Requisicao,
+        Problema,
+        Mudanca
+    }
+
     public class Ticket
     {
         public int Id { get; set; }
+
+        public ClassificacaoTicket Classificacao { get; set; } = ClassificacaoTicket.Incidente;
 
         [Required(ErrorMessage = "O título é obrigatório.")]
         public string Titulo { get; set; } = string.Empty;

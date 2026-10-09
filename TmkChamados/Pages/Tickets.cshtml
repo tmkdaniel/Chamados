@@ -17,6 +17,16 @@
 <form method="get" class="tmk-card mb-4">
     <div class="row g-2 align-items-end">
         <div class="col-auto">
+            <label asp-for="Filtro.Classificacao" class="form-label">Classificação</label>
+            <select asp-for="Filtro.Classificacao" class="form-select">
+                <option value="">Todas</option>
+                @foreach (var classificacao in ClassificacaoTicketInfo.Todas)
+                {
+                    <option value="@classificacao.Valor">@classificacao.Label</option>
+                }
+            </select>
+        </div>
+        <div class="col-auto">
             <label asp-for="Filtro.StatusFiltro" class="form-label">Status</label>
             <select asp-for="Filtro.StatusFiltro" class="form-select">
                 <option value="">Todos</option>
@@ -119,6 +129,7 @@ else
         <thead>
             <tr>
                 <th>Id</th>
+                <th>Classificação</th>
                 <th>Título</th>
                 <th>Descrição</th>
                 <th>Status</th>
@@ -141,6 +152,7 @@ else
             {
                 <tr>
                     <td>@ticket.Id</td>
+                    <td>@ClassificacaoTicketInfo.ObterLabel(ticket.Classificacao)</td>
                     <td>@ticket.Titulo</td>
                     <td>@ticket.Descricao</td>
                     <td><span class="badge @Model.ClasseCorStatus(ticket.Status)">@ticket.Status</span></td>

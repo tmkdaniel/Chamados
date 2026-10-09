@@ -30,6 +30,21 @@ else
         </div>
 
         <div class="mb-2">
+            <label asp-for="Form.Classificacao" class="form-label">
+                Classificação
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#ajudaClassificacaoModal" title="Ajuda sobre as classificações">?</button>
+            </label>
+            <select asp-for="Form.Classificacao" class="form-select">
+                <option value="">Selecione</option>
+                @foreach (var classificacao in ClassificacaoTicketInfo.Todas)
+                {
+                    <option value="@classificacao.Valor">@classificacao.Label</option>
+                }
+            </select>
+            <span asp-validation-for="Form.Classificacao" class="text-danger"></span>
+        </div>
+
+        <div class="mb-2">
             <label asp-for="Form.Titulo" class="form-label">Título</label>
             <input asp-for="Form.Titulo" class="form-control" />
             <span asp-validation-for="Form.Titulo" class="text-danger"></span>
@@ -147,4 +162,6 @@ else
         </div>
         <button type="submit" class="btn btn-primary">Adicionar</button>
     </form>
+
+    <partial name="_AjudaClassificacaoModal" />
 }

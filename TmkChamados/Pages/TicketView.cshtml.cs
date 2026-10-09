@@ -95,6 +95,12 @@ namespace TmkChamados.Pages
             {
                 Form.Prioridade = ticketExistente.Prioridade;
                 Form.DataPrazo = ticketExistente.DataPrazo;
+
+                // O campo Prioridade não é enviado no POST quando exibido como somente leitura
+                // (fora do Form vinculado), então o model binding o marca como ausente e o
+                // [Required] acima falha antes deste bloco rodar; removido aqui porque o valor
+                // já foi restaurado logo acima.
+                ModelState.Remove($"{nameof(Form)}.{nameof(Form.Prioridade)}");
             }
 
             ValidarResponsavelMaster();
@@ -105,7 +111,7 @@ namespace TmkChamados.Pages
                 return Page();
             }
 
-            _ticketService.Atualizar(Id, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, Form.Prioridade!.Value, Form.DataPrazo, ticketExistente.CriadoPorId, Form.ResponsavelId);
+            _ticketService.Atualizar(Id, Form.Classificacao!.Value, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, Form.Prioridade!.Value, Form.DataPrazo, ticketExistente.CriadoPorId, Form.ResponsavelId);
 
             return RedirectToPage(new { Id });
         }
@@ -164,6 +170,7 @@ namespace TmkChamados.Pages
 
             Form = new TicketEdicaoFormModel
             {
+                Classificacao = Ticket.Classificacao,
                 Titulo = Ticket.Titulo,
                 Descricao = Ticket.Descricao,
                 Status = Ticket.Status,
@@ -190,6 +197,9 @@ namespace TmkChamados.Pages
 
     public class TicketEdicaoFormModel
     {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "A classificação é obrigatória.")]
+        public ClassificacaoTicket? Classificacao { get; set; }
+
         [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "O título é obrigatório.")]
         public string Titulo { get; set; } = string.Empty;
 
