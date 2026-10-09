@@ -11,18 +11,18 @@ namespace TmkChamados.Pages
     {
         private const int DiasJanela = 30;
 
-        private readonly IChamadoService _chamadoService;
+        private readonly ITicketService _ticketService;
         private readonly IUsuarioService _usuarioService;
 
-        public IndexModel(IChamadoService chamadoService, IUsuarioService usuarioService)
+        public IndexModel(ITicketService ticketService, IUsuarioService usuarioService)
         {
-            _chamadoService = chamadoService;
+            _ticketService = ticketService;
             _usuarioService = usuarioService;
         }
 
         public string TituloSecao { get; private set; } = string.Empty;
 
-        public ResumoChamados Resumo { get; private set; } = ResumoChamados.Vazio();
+        public ResumoTickets Resumo { get; private set; } = ResumoTickets.Vazio();
 
         public bool IsMaster { get; private set; }
 
@@ -46,28 +46,28 @@ namespace TmkChamados.Pages
 
             IsMaster = tipoUsuario.Value == TipoUsuario.Master;
 
-            IReadOnlyList<Chamado> chamadosDaSecao;
+            IReadOnlyList<Ticket> ticketsDaSecao;
             switch (tipoUsuario.Value)
             {
                 case TipoUsuario.Master:
                     TituloSecao = "Como Responsável";
-                    chamadosDaSecao = _chamadoService.Listar(
-                        new FiltroChamados { ResponsavelId = usuarioId.Value },
+                    ticketsDaSecao = _ticketService.Listar(
+                        new FiltroTickets { ResponsavelId = usuarioId.Value },
                         TipoUsuario.Master, usuarioId.Value, empresaId.Value);
                     break;
                 case TipoUsuario.Gerente:
-                    TituloSecao = "Chamados da Empresa";
-                    chamadosDaSecao = _chamadoService.Listar(
-                        new FiltroChamados(), TipoUsuario.Gerente, usuarioId.Value, empresaId.Value);
+                    TituloSecao = "Tickets da Empresa";
+                    ticketsDaSecao = _ticketService.Listar(
+                        new FiltroTickets(), TipoUsuario.Gerente, usuarioId.Value, empresaId.Value);
                     break;
                 default:
                     TituloSecao = "Como Criador";
-                    chamadosDaSecao = _chamadoService.Listar(
-                        new FiltroChamados(), TipoUsuario.Usuario, usuarioId.Value, empresaId.Value);
+                    ticketsDaSecao = _ticketService.Listar(
+                        new FiltroTickets(), TipoUsuario.Usuario, usuarioId.Value, empresaId.Value);
                     break;
             }
 
-            Resumo = ConstruirResumo(chamadosDaSecao);
+            Resumo = ConstruirResumo(ticketsDaSecao);
 
             if (IsMaster)
             {
@@ -80,33 +80,33 @@ namespace TmkChamados.Pages
             return Page();
         }
 
-        private static ResumoChamados ConstruirResumo(IReadOnlyList<Chamado> chamados)
+        private static ResumoTickets ConstruirResumo(IReadOnlyList<Ticket> tickets)
         {
             var inicioJanela = DateTime.Now.Date.AddDays(-(DiasJanela - 1));
-            var chamadosNaJanela = chamados.Where(c => c.DataCriacao.Date >= inicioJanela).ToList();
+            var ticketsNaJanela = tickets.Where(c => c.DataCriacao.Date >= inicioJanela).ToList();
 
             var diasHistograma = Enumerable.Range(0, DiasJanela)
                 .Select(offset => inicioJanela.AddDays(offset))
                 .ToList();
 
-            return new ResumoChamados
+            return new ResumoTickets
             {
-                QuantidadeAbertos = chamados.Count(c => c.Status == StatusChamado.Aberto),
-                QuantidadeEmAndamento = chamados.Count(c => c.Status == StatusChamado.EmAndamento),
-                PizzaAbertos = chamadosNaJanela.Count(c => c.Status == StatusChamado.Aberto),
-                PizzaEmAndamento = chamadosNaJanela.Count(c => c.Status == StatusChamado.EmAndamento),
-                PizzaConcluidos = chamadosNaJanela.Count(c => c.Status == StatusChamado.Concluido),
+                QuantidadeAbertos = tickets.Count(c => c.Status == StatusTicket.Aberto),
+                QuantidadeEmAndamento = tickets.Count(c => c.Status == StatusTicket.EmAndamento),
+                PizzaAbertos = ticketsNaJanela.Count(c => c.Status == StatusTicket.Aberto),
+                PizzaEmAndamento = ticketsNaJanela.Count(c => c.Status == StatusTicket.EmAndamento),
+                PizzaConcluidos = ticketsNaJanela.Count(c => c.Status == StatusTicket.Concluido),
                 HistogramaRotulos = diasHistograma.Select(d => d.ToString("dd/MM")).ToList(),
                 HistogramaValores = diasHistograma
-                    .Select(dia => chamadosNaJanela.Count(c => c.DataCriacao.Date == dia))
+                    .Select(dia => ticketsNaJanela.Count(c => c.DataCriacao.Date == dia))
                     .ToList()
             };
         }
 
         private GraficoEmpresa ConstruirGraficoAbertosPorEmpresa(int usuarioId, int empresaId)
         {
-            var todosAbertos = _chamadoService.Listar(
-                new FiltroChamados { Status = StatusChamado.Aberto },
+            var todosAbertos = _ticketService.Listar(
+                new FiltroTickets { Status = StatusTicket.Aberto },
                 TipoUsuario.Master, usuarioId, empresaId);
 
             var empresaPorUsuarioId = _usuarioService.Listar()
@@ -126,11 +126,11 @@ namespace TmkChamados.Pages
 
         private GraficoPrioridade ConstruirGraficoPorPrioridade(TipoUsuario tipoUsuario, int usuarioId, int empresaId)
         {
-            var abertosOuEmAndamento = _chamadoService.Listar(
-                new FiltroChamados { StatusAbertoOuEmAndamento = true },
+            var abertosOuEmAndamento = _ticketService.Listar(
+                new FiltroTickets { StatusAbertoOuEmAndamento = true },
                 tipoUsuario, usuarioId, empresaId);
 
-            var prioridades = Enum.GetValues<PrioridadeChamado>();
+            var prioridades = Enum.GetValues<PrioridadeTicket>();
 
             return new GraficoPrioridade
             {
@@ -141,8 +141,8 @@ namespace TmkChamados.Pages
 
         private GraficoDiasParaPrazo ConstruirGraficoPorDiasParaPrazo(TipoUsuario tipoUsuario, int usuarioId, int empresaId)
         {
-            var abertosOuEmAndamento = _chamadoService.Listar(
-                new FiltroChamados { StatusAbertoOuEmAndamento = true },
+            var abertosOuEmAndamento = _ticketService.Listar(
+                new FiltroTickets { StatusAbertoOuEmAndamento = true },
                 tipoUsuario, usuarioId, empresaId);
 
             var hoje = DateTime.Now.Date;
@@ -150,9 +150,9 @@ namespace TmkChamados.Pages
 
             var valoresPorFaixa = faixas.ToDictionary(f => f, _ => 0);
 
-            foreach (var chamado in abertosOuEmAndamento)
+            foreach (var ticket in abertosOuEmAndamento)
             {
-                var faixa = ClassificarFaixaDeDiasParaPrazo(chamado.DataPrazo, hoje);
+                var faixa = ClassificarFaixaDeDiasParaPrazo(ticket.DataPrazo, hoje);
                 valoresPorFaixa[faixa]++;
             }
 
@@ -184,7 +184,7 @@ namespace TmkChamados.Pages
         }
     }
 
-    public class ResumoChamados
+    public class ResumoTickets
     {
         public int QuantidadeAbertos { get; set; }
 
@@ -200,7 +200,7 @@ namespace TmkChamados.Pages
 
         public List<int> HistogramaValores { get; set; } = new();
 
-        public static ResumoChamados Vazio() => new();
+        public static ResumoTickets Vazio() => new();
     }
 
     public class GraficoEmpresa

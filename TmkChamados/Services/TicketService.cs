@@ -4,23 +4,23 @@ using TmkChamados.Models;
 
 namespace TmkChamados.Services
 {
-    public class ChamadoService : IChamadoService
+    public class TicketService : ITicketService
     {
         private readonly TmkChamadosDbContext _dbContext;
 
-        public ChamadoService(TmkChamadosDbContext dbContext)
+        public TicketService(TmkChamadosDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
-        public IReadOnlyList<Chamado> Listar()
+        public IReadOnlyList<Ticket> Listar()
         {
-            return _dbContext.Chamados.OrderBy(c => c.Id).ToList();
+            return _dbContext.Tickets.OrderBy(c => c.Id).ToList();
         }
 
-        public IReadOnlyList<Chamado> Listar(FiltroChamados filtro, TipoUsuario tipoUsuario, int usuarioId, int empresaId)
+        public IReadOnlyList<Ticket> Listar(FiltroTickets filtro, TipoUsuario tipoUsuario, int usuarioId, int empresaId)
         {
-            IQueryable<Chamado> query = _dbContext.Chamados;
+            IQueryable<Ticket> query = _dbContext.Tickets;
 
             if (tipoUsuario == TipoUsuario.Gerente)
             {
@@ -33,7 +33,7 @@ namespace TmkChamados.Services
 
             if (filtro.StatusAbertoOuEmAndamento)
             {
-                query = query.Where(c => c.Status == StatusChamado.Aberto || c.Status == StatusChamado.EmAndamento);
+                query = query.Where(c => c.Status == StatusTicket.Aberto || c.Status == StatusTicket.EmAndamento);
             }
             else if (filtro.Status.HasValue)
             {
@@ -87,30 +87,30 @@ namespace TmkChamados.Services
             return query.OrderBy(c => c.Id).ToList();
         }
 
-        public Chamado? Obter(int id)
+        public Ticket? Obter(int id)
         {
-            return _dbContext.Chamados.FirstOrDefault(c => c.Id == id);
+            return _dbContext.Tickets.FirstOrDefault(c => c.Id == id);
         }
 
-        public bool PodeAcessar(Chamado chamado, TipoUsuario tipoUsuario, int usuarioId, int empresaId)
+        public bool PodeAcessar(Ticket ticket, TipoUsuario tipoUsuario, int usuarioId, int empresaId)
         {
             return tipoUsuario switch
             {
                 TipoUsuario.Master => true,
-                TipoUsuario.Gerente => _dbContext.Usuarios.Any(u => u.Id == chamado.CriadoPorId && u.EmpresaId == empresaId),
-                TipoUsuario.Usuario => chamado.CriadoPorId == usuarioId,
+                TipoUsuario.Gerente => _dbContext.Usuarios.Any(u => u.Id == ticket.CriadoPorId && u.EmpresaId == empresaId),
+                TipoUsuario.Usuario => ticket.CriadoPorId == usuarioId,
                 _ => false
             };
         }
 
-        public Chamado Criar(string titulo, string descricao, PrioridadeChamado prioridade, DateTime? dataPrazo, int criadoPorId)
+        public Ticket Criar(string titulo, string descricao, PrioridadeTicket prioridade, DateTime? dataPrazo, int criadoPorId)
         {
             var agora = DateTime.Now;
-            var chamado = new Chamado
+            var ticket = new Ticket
             {
                 Titulo = titulo,
                 Descricao = descricao,
-                Status = StatusChamado.Aberto,
+                Status = StatusTicket.Aberto,
                 Prioridade = prioridade,
                 DataPrazo = dataPrazo,
                 DataCriacao = agora,
@@ -119,58 +119,58 @@ namespace TmkChamados.Services
                 ResponsavelId = null
             };
 
-            _dbContext.Chamados.Add(chamado);
+            _dbContext.Tickets.Add(ticket);
             _dbContext.SaveChanges();
-            return chamado;
+            return ticket;
         }
 
-        public bool Atualizar(int id, string titulo, string descricao, StatusChamado status, PrioridadeChamado prioridade, DateTime? dataPrazo, int criadoPorId, int? responsavelId)
+        public bool Atualizar(int id, string titulo, string descricao, StatusTicket status, PrioridadeTicket prioridade, DateTime? dataPrazo, int criadoPorId, int? responsavelId)
         {
-            var chamado = _dbContext.Chamados.FirstOrDefault(c => c.Id == id);
-            if (chamado is null)
+            var ticket = _dbContext.Tickets.FirstOrDefault(c => c.Id == id);
+            if (ticket is null)
             {
                 return false;
             }
 
-            var eraTerminal = EhStatusTerminal(chamado.Status);
+            var eraTerminal = EhStatusTerminal(ticket.Status);
             var seraTerminal = EhStatusTerminal(status);
 
             if (seraTerminal && !eraTerminal)
             {
-                chamado.DataConclusao = DateTime.Now;
+                ticket.DataConclusao = DateTime.Now;
             }
             else if (!seraTerminal && eraTerminal)
             {
-                chamado.DataConclusao = null;
+                ticket.DataConclusao = null;
             }
 
-            chamado.Titulo = titulo;
-            chamado.Descricao = descricao;
-            chamado.Status = status;
-            chamado.Prioridade = prioridade;
-            chamado.DataPrazo = dataPrazo;
-            chamado.CriadoPorId = criadoPorId;
-            chamado.ResponsavelId = responsavelId;
-            chamado.DataUltimaModificacao = DateTime.Now;
+            ticket.Titulo = titulo;
+            ticket.Descricao = descricao;
+            ticket.Status = status;
+            ticket.Prioridade = prioridade;
+            ticket.DataPrazo = dataPrazo;
+            ticket.CriadoPorId = criadoPorId;
+            ticket.ResponsavelId = responsavelId;
+            ticket.DataUltimaModificacao = DateTime.Now;
 
             _dbContext.SaveChanges();
             return true;
         }
 
-        private static bool EhStatusTerminal(StatusChamado status)
+        private static bool EhStatusTerminal(StatusTicket status)
         {
-            return status == StatusChamado.Concluido || status == StatusChamado.Cancelado;
+            return status == StatusTicket.Concluido || status == StatusTicket.Cancelado;
         }
 
         public bool Excluir(int id)
         {
-            var chamado = _dbContext.Chamados.FirstOrDefault(c => c.Id == id);
-            if (chamado is null)
+            var ticket = _dbContext.Tickets.FirstOrDefault(c => c.Id == id);
+            if (ticket is null)
             {
                 return false;
             }
 
-            _dbContext.Chamados.Remove(chamado);
+            _dbContext.Tickets.Remove(ticket);
             _dbContext.SaveChanges();
             return true;
         }

@@ -7,15 +7,15 @@ using TmkChamados.Services;
 
 namespace TmkChamados.Pages
 {
-    public class ChamadoViewModel : PageModel
+    public class TicketViewModel : PageModel
     {
-        private readonly IChamadoService _chamadoService;
+        private readonly ITicketService _ticketService;
         private readonly IAndamentoService _andamentoService;
         private readonly IUsuarioService _usuarioService;
 
-        public ChamadoViewModel(IChamadoService chamadoService, IAndamentoService andamentoService, IUsuarioService usuarioService)
+        public TicketViewModel(ITicketService ticketService, IAndamentoService andamentoService, IUsuarioService usuarioService)
         {
-            _chamadoService = chamadoService;
+            _ticketService = ticketService;
             _andamentoService = andamentoService;
             _usuarioService = usuarioService;
         }
@@ -27,15 +27,17 @@ namespace TmkChamados.Pages
         public string? NovoAndamentoTexto { get; set; }
 
         [BindProperty]
-        public ChamadoEdicaoFormModel Form { get; set; } = new();
+        public TicketEdicaoFormModel Form { get; set; } = new();
 
-        public Chamado? Chamado { get; private set; }
+        public Ticket? Ticket { get; private set; }
 
         public IReadOnlyList<Andamento> Andamentos { get; private set; } = Array.Empty<Andamento>();
 
         public Dictionary<int, string> NomesPorId { get; private set; } = new();
 
         public IReadOnlyList<Usuario> UsuariosMaster { get; private set; } = Array.Empty<Usuario>();
+
+        public bool IsMaster { get; private set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -84,6 +86,17 @@ namespace TmkChamados.Pages
                 return acesso;
             }
 
+            var ticketExistente = _ticketService.Obter(Id)!;
+
+            // Prioridade e Data de Prazo só podem ser alteradas por Master (ver design.md -
+            // Decisão 3): para quem não é Master, o servidor ignora o que veio no post e
+            // preserva os valores atuais, em vez de confiar no campo estar oculto/desabilitado na UI.
+            if (!IsMaster)
+            {
+                Form.Prioridade = ticketExistente.Prioridade;
+                Form.DataPrazo = ticketExistente.DataPrazo;
+            }
+
             ValidarResponsavelMaster();
 
             if (!ModelState.IsValid)
@@ -92,20 +105,19 @@ namespace TmkChamados.Pages
                 return Page();
             }
 
-            var chamadoExistente = _chamadoService.Obter(Id)!;
-            _chamadoService.Atualizar(Id, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, Form.Prioridade!.Value, Form.DataPrazo, chamadoExistente.CriadoPorId, Form.ResponsavelId);
+            _ticketService.Atualizar(Id, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, Form.Prioridade!.Value, Form.DataPrazo, ticketExistente.CriadoPorId, Form.ResponsavelId);
 
             return RedirectToPage(new { Id });
         }
 
-        public string ClasseCorStatus(StatusChamado status)
+        public string ClasseCorStatus(StatusTicket status)
         {
             return status switch
             {
-                StatusChamado.Aberto => "bg-danger",
-                StatusChamado.EmAndamento => "bg-warning text-dark",
-                StatusChamado.Concluido => "bg-success",
-                StatusChamado.Cancelado => "bg-secondary",
+                StatusTicket.Aberto => "bg-danger",
+                StatusTicket.EmAndamento => "bg-warning text-dark",
+                StatusTicket.Concluido => "bg-success",
+                StatusTicket.Cancelado => "bg-secondary",
                 _ => "bg-light text-dark"
             };
         }
@@ -122,19 +134,21 @@ namespace TmkChamados.Pages
                 return RedirectToPage("/Login");
             }
 
-            var chamado = _chamadoService.Obter(Id);
-            if (chamado is null || !_chamadoService.PodeAcessar(chamado, tipoUsuario.Value, usuarioId.Value, empresaId.Value))
+            var ticket = _ticketService.Obter(Id);
+            if (ticket is null || !_ticketService.PodeAcessar(ticket, tipoUsuario.Value, usuarioId.Value, empresaId.Value))
             {
                 return Forbid();
             }
+
+            IsMaster = tipoUsuario.Value == TipoUsuario.Master;
 
             return null;
         }
 
         private void CarregarDados()
         {
-            Chamado = _chamadoService.Obter(Id);
-            Andamentos = _andamentoService.ListarPorChamado(Id);
+            Ticket = _ticketService.Obter(Id);
+            Andamentos = _andamentoService.ListarPorTicket(Id);
 
             var usuarios = _usuarioService.Listar();
             NomesPorId = usuarios.ToDictionary(u => u.Id, u => u.Nome);
@@ -143,19 +157,19 @@ namespace TmkChamados.Pages
 
         private void PreencherFormDeEdicao()
         {
-            if (Chamado is null)
+            if (Ticket is null)
             {
                 return;
             }
 
-            Form = new ChamadoEdicaoFormModel
+            Form = new TicketEdicaoFormModel
             {
-                Titulo = Chamado.Titulo,
-                Descricao = Chamado.Descricao,
-                Status = Chamado.Status,
-                Prioridade = Chamado.Prioridade,
-                DataPrazo = Chamado.DataPrazo,
-                ResponsavelId = Chamado.ResponsavelId
+                Titulo = Ticket.Titulo,
+                Descricao = Ticket.Descricao,
+                Status = Ticket.Status,
+                Prioridade = Ticket.Prioridade,
+                DataPrazo = Ticket.DataPrazo,
+                ResponsavelId = Ticket.ResponsavelId
             };
         }
 
@@ -174,17 +188,17 @@ namespace TmkChamados.Pages
         }
     }
 
-    public class ChamadoEdicaoFormModel
+    public class TicketEdicaoFormModel
     {
         [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "O título é obrigatório.")]
         public string Titulo { get; set; } = string.Empty;
 
         public string? Descricao { get; set; } = string.Empty;
 
-        public StatusChamado Status { get; set; } = StatusChamado.Aberto;
+        public StatusTicket Status { get; set; } = StatusTicket.Aberto;
 
         [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "A prioridade é obrigatória.")]
-        public PrioridadeChamado? Prioridade { get; set; }
+        public PrioridadeTicket? Prioridade { get; set; }
 
         [System.ComponentModel.DataAnnotations.DataType(System.ComponentModel.DataAnnotations.DataType.Date)]
         public DateTime? DataPrazo { get; set; }

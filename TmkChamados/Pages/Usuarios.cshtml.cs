@@ -8,12 +8,12 @@ namespace TmkChamados.Pages
     public class UsuariosModel : PageModel
     {
         private readonly IUsuarioService _usuarioService;
-        private readonly IChamadoService _chamadoService;
+        private readonly ITicketService _ticketService;
 
-        public UsuariosModel(IUsuarioService usuarioService, IChamadoService chamadoService)
+        public UsuariosModel(IUsuarioService usuarioService, ITicketService ticketService)
         {
             _usuarioService = usuarioService;
-            _chamadoService = chamadoService;
+            _ticketService = ticketService;
         }
 
         public IReadOnlyList<Usuario> Usuarios { get; private set; } = Array.Empty<Usuario>();
@@ -39,12 +39,12 @@ namespace TmkChamados.Pages
                 return Forbid();
             }
 
-            var emUso = _chamadoService.Listar().Any(c => c.CriadoPorId == id || c.ResponsavelId == id);
+            var emUso = _ticketService.Listar().Any(c => c.CriadoPorId == id || c.ResponsavelId == id);
             var ultimoUsuario = _usuarioService.Listar().Count <= 1;
 
             if (emUso)
             {
-                ErroExclusao = "Não é possível excluir este usuário: ele está em uso como Criado por ou Responsável em algum chamado.";
+                ErroExclusao = "Não é possível excluir este usuário: ele está em uso como Criado por ou Responsável em algum ticket.";
             }
             else if (ultimoUsuario)
             {

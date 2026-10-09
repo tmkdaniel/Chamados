@@ -13,7 +13,7 @@ builder.Host.UseWindowsService();
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<TmkChamadosDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("TmkChamados")));
-builder.Services.AddScoped<IChamadoService, ChamadoService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IEmpresaService, EmpresaService>();
 builder.Services.AddScoped<IAndamentoService, AndamentoService>();

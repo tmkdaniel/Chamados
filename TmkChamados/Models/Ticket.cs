@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TmkChamados.Models
 {
-    public enum StatusChamado
+    public enum StatusTicket
     {
         Aberto,
         EmAndamento,
@@ -10,14 +10,14 @@ namespace TmkChamados.Models
         Cancelado
     }
 
-    public enum PrioridadeChamado
+    public enum PrioridadeTicket
     {
         Normal,
         Alta,
         Urgente
     }
 
-    public class Chamado
+    public class Ticket
     {
         public int Id { get; set; }
 
@@ -26,9 +26,9 @@ namespace TmkChamados.Models
 
         public string Descricao { get; set; } = string.Empty;
 
-        public StatusChamado Status { get; set; } = StatusChamado.Aberto;
+        public StatusTicket Status { get; set; } = StatusTicket.Aberto;
 
-        public PrioridadeChamado Prioridade { get; set; } = PrioridadeChamado.Normal;
+        public PrioridadeTicket Prioridade { get; set; } = PrioridadeTicket.Normal;
 
         public DateTime DataCriacao { get; set; }
 

@@ -9,12 +9,12 @@
 }
 
 <div class="tmk-eyebrow">Dashboard</div>
-<h1>Resumo dos Chamados</h1>
+<h1>Resumo dos Tickets</h1>
 
 <div class="row g-4">
     <div class="col-12 col-lg-6">
         <div class="tmk-eyebrow">@Model.TituloSecao</div>
-        @await Html.PartialAsync("_ResumoChamadosSecao", Model.Resumo, new ViewDataDictionary(ViewData) { { "Prefixo", "secao" } })
+        @await Html.PartialAsync("_ResumoTicketsSecao", Model.Resumo, new ViewDataDictionary(ViewData) { { "Prefixo", "secao" } })
     </div>
     @if (Model.IsMaster)
     {
@@ -72,7 +72,7 @@
                 data: {
                     labels: dados.histogramaRotulos,
                     datasets: [{
-                        label: 'Chamados criados',
+                        label: 'Tickets criados',
                         data: dados.histogramaValores,
                         backgroundColor: '#F2C230'
                     }]
@@ -128,6 +128,6 @@
             @:montarGraficoPorRotulos('pizza-empresa', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoAbertosPorEmpresa, opcoesJson)));
         }
         montarGraficoPorRotulos('pizza-prioridade', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoPorPrioridade, opcoesJson)));
-        montarGraficoBarrasPorRotulos('histograma-prazo', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoPorDiasParaPrazo, opcoesJson)), 'Chamados');
+        montarGraficoBarrasPorRotulos('histograma-prazo', @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoPorDiasParaPrazo, opcoesJson)), 'Tickets');
     </script>
 }

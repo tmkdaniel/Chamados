@@ -7,19 +7,19 @@ using TmkChamados.Services;
 
 namespace TmkChamados.Pages
 {
-    public class ChamadosFormModel : PageModel
+    public class TicketsFormModel : PageModel
     {
-        private readonly IChamadoService _chamadoService;
+        private readonly ITicketService _ticketService;
         private readonly IUsuarioService _usuarioService;
 
-        public ChamadosFormModel(IChamadoService chamadoService, IUsuarioService usuarioService)
+        public TicketsFormModel(ITicketService ticketService, IUsuarioService usuarioService)
         {
-            _chamadoService = chamadoService;
+            _ticketService = ticketService;
             _usuarioService = usuarioService;
         }
 
         [BindProperty]
-        public ChamadoFormModel Form { get; set; } = new();
+        public TicketFormModel Form { get; set; } = new();
 
         public void OnGet()
         {
@@ -39,22 +39,16 @@ namespace TmkChamados.Pages
                 return RedirectToPage("/Login");
             }
 
-            _chamadoService.Criar(Form.Titulo, Form.Descricao ?? string.Empty, Form.Prioridade!.Value, Form.DataPrazo, usuarioAutenticado.Id);
-            return RedirectToPage("/Chamados");
+            _ticketService.Criar(Form.Titulo, Form.Descricao ?? string.Empty, PrioridadeTicket.Normal, null, usuarioAutenticado.Id);
+            return RedirectToPage("/Tickets");
         }
     }
 
-    public class ChamadoFormModel
+    public class TicketFormModel
     {
         [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "O título é obrigatório.")]
         public string Titulo { get; set; } = string.Empty;
 
         public string? Descricao { get; set; } = string.Empty;
-
-        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "A prioridade é obrigatória.")]
-        public PrioridadeChamado? Prioridade { get; set; }
-
-        [System.ComponentModel.DataAnnotations.DataType(System.ComponentModel.DataAnnotations.DataType.Date)]
-        public DateTime? DataPrazo { get; set; }
     }
 }

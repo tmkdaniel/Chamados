@@ -7,18 +7,18 @@ using TmkChamados.Services;
 
 namespace TmkChamados.Pages
 {
-    public class ChamadosModel : PageModel
+    public class TicketsModel : PageModel
     {
         private const string FiltroResponsavelSemResponsavel = "none";
         private const string FiltroStatusAbertoOuEmAndamento = "AbertoEmAndamento";
 
-        private readonly IChamadoService _chamadoService;
+        private readonly ITicketService _ticketService;
         private readonly IUsuarioService _usuarioService;
         private readonly IEmpresaService _empresaService;
 
-        public ChamadosModel(IChamadoService chamadoService, IUsuarioService usuarioService, IEmpresaService empresaService)
+        public TicketsModel(ITicketService ticketService, IUsuarioService usuarioService, IEmpresaService empresaService)
         {
-            _chamadoService = chamadoService;
+            _ticketService = ticketService;
             _usuarioService = usuarioService;
             _empresaService = empresaService;
         }
@@ -26,7 +26,7 @@ namespace TmkChamados.Pages
         [BindProperty(SupportsGet = true)]
         public FiltroFormModel Filtro { get; set; } = new();
 
-        public IReadOnlyList<Chamado> Chamados { get; private set; } = Array.Empty<Chamado>();
+        public IReadOnlyList<Ticket> Tickets { get; private set; } = Array.Empty<Ticket>();
 
         public IReadOnlyList<Usuario> Usuarios { get; private set; } = Array.Empty<Usuario>();
 
@@ -66,7 +66,7 @@ namespace TmkChamados.Pages
                 Filtro.StatusFiltro = FiltroStatusAbertoOuEmAndamento;
             }
 
-            Chamados = _chamadoService.Listar(ConstruirFiltro(), tipoUsuario.Value, usuarioId.Value, empresaId.Value);
+            Tickets = _ticketService.Listar(ConstruirFiltro(), tipoUsuario.Value, usuarioId.Value, empresaId.Value);
             Usuarios = _usuarioService.Listar();
             UsuariosMaster = Usuarios.Where(u => u.Tipo == TipoUsuario.Master).ToList();
             UsuariosDaEmpresa = Usuarios.Where(u => u.EmpresaId == empresaId.Value).ToList();
@@ -86,25 +86,25 @@ namespace TmkChamados.Pages
                 return Forbid();
             }
 
-            _chamadoService.Excluir(id);
+            _ticketService.Excluir(id);
             return RedirectToPage();
         }
 
-        public string ClasseCorStatus(StatusChamado status)
+        public string ClasseCorStatus(StatusTicket status)
         {
             return status switch
             {
-                StatusChamado.Aberto => "bg-danger",
-                StatusChamado.EmAndamento => "bg-warning text-dark",
-                StatusChamado.Concluido => "bg-success",
-                StatusChamado.Cancelado => "bg-secondary",
+                StatusTicket.Aberto => "bg-danger",
+                StatusTicket.EmAndamento => "bg-warning text-dark",
+                StatusTicket.Concluido => "bg-success",
+                StatusTicket.Cancelado => "bg-secondary",
                 _ => "bg-light text-dark"
             };
         }
 
-        private FiltroChamados ConstruirFiltro()
+        private FiltroTickets ConstruirFiltro()
         {
-            var filtro = new FiltroChamados
+            var filtro = new FiltroTickets
             {
                 Prioridade = Filtro.Prioridade,
                 CriadoPorId = Filtro.CriadoPorId,
@@ -119,7 +119,7 @@ namespace TmkChamados.Pages
             {
                 filtro.StatusAbertoOuEmAndamento = true;
             }
-            else if (!string.IsNullOrEmpty(Filtro.StatusFiltro) && Enum.TryParse<StatusChamado>(Filtro.StatusFiltro, out var status))
+            else if (!string.IsNullOrEmpty(Filtro.StatusFiltro) && Enum.TryParse<StatusTicket>(Filtro.StatusFiltro, out var status))
             {
                 filtro.Status = status;
             }
@@ -141,7 +141,7 @@ namespace TmkChamados.Pages
     {
         public string? StatusFiltro { get; set; }
 
-        public PrioridadeChamado? Prioridade { get; set; }
+        public PrioridadeTicket? Prioridade { get; set; }
 
         public int? CriadoPorId { get; set; }
 

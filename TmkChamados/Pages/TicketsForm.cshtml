@@ -1,0 +1,27 @@
+@page
+@using TmkChamados.Models
+@model TicketsFormModel
+@{
+    ViewData["Title"] = "Novo Ticket";
+}
+
+<div class="tmk-eyebrow">Tickets</div>
+<h1>Novo Ticket</h1>
+
+<form method="post" asp-page-handler="Adicionar" class="tmk-card mb-4">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="mb-2">
+        <label asp-for="Form.Titulo" class="form-label">Título</label>
+        <input asp-for="Form.Titulo" class="form-control" />
+        <span asp-validation-for="Form.Titulo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-2">
+        <label asp-for="Form.Descricao" class="form-label">Descrição</label>
+        <textarea asp-for="Form.Descricao" class="form-control"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Adicionar</button>
+    <a href="/Tickets" class="btn btn-secondary">Cancelar</a>
+</form>

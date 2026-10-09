@@ -1,23 +1,23 @@
 @page
 @using TmkChamados.Models
-@model ChamadoViewModel
+@model TicketViewModel
 @{
-    ViewData["Title"] = "Visualizar Chamado";
+    ViewData["Title"] = "Visualizar Ticket";
 }
 
-@if (Model.Chamado is null)
+@if (Model.Ticket is null)
 {
-    <p>Chamado não encontrado.</p>
+    <p>Ticket não encontrado.</p>
 }
 else
 {
-    var chamado = Model.Chamado;
+    var ticket = Model.Ticket;
 
-    <div class="tmk-eyebrow">Chamado #@chamado.Id</div>
-    <h1>@chamado.Titulo</h1>
+    <div class="tmk-eyebrow">Ticket #@ticket.Id</div>
+    <h1>@ticket.Titulo</h1>
     <p class="mb-3">
-        <span class="tmk-chip">@chamado.Status</span>
-        <span class="tmk-chip">@chamado.Prioridade</span>
+        <span class="tmk-chip">@ticket.Status</span>
+        <span class="tmk-chip">@ticket.Prioridade</span>
     </p>
 
     <form method="post" asp-page-handler="Atualizar" class="tmk-card mb-4">
@@ -26,7 +26,7 @@ else
 
         <div class="mb-2">
             <label class="form-label">Id</label>
-            <input type="text" value="@chamado.Id" class="form-control" readonly />
+            <input type="text" value="@ticket.Id" class="form-control" readonly />
         </div>
 
         <div class="mb-2">
@@ -43,25 +43,40 @@ else
         <div class="mb-2">
             <label asp-for="Form.Status" class="form-label">Status</label>
             <select asp-for="Form.Status" class="form-select"
-                    asp-items="Html.GetEnumSelectList<StatusChamado>()"></select>
+                    asp-items="Html.GetEnumSelectList<StatusTicket>()"></select>
         </div>
 
-        <div class="mb-2">
-            <label asp-for="Form.Prioridade" class="form-label">Prioridade</label>
-            <select asp-for="Form.Prioridade" class="form-select">
-                <option value="">Selecione</option>
-                <option value="Normal">Normal</option>
-                <option value="Alta">Alta</option>
-                <option value="Urgente">Urgente</option>
-            </select>
-            <span asp-validation-for="Form.Prioridade" class="text-danger"></span>
-        </div>
+        @if (Model.IsMaster)
+        {
+            <div class="mb-2">
+                <label asp-for="Form.Prioridade" class="form-label">Prioridade</label>
+                <select asp-for="Form.Prioridade" class="form-select">
+                    <option value="">Selecione</option>
+                    <option value="Normal">Normal</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Urgente">Urgente</option>
+                </select>
+                <span asp-validation-for="Form.Prioridade" class="text-danger"></span>
+            </div>
 
-        <div class="mb-2">
-            <label asp-for="Form.DataPrazo" class="form-label">Data de Prazo</label>
-            <input asp-for="Form.DataPrazo" type="date" class="form-control" />
-            <span asp-validation-for="Form.DataPrazo" class="text-danger"></span>
-        </div>
+            <div class="mb-2">
+                <label asp-for="Form.DataPrazo" class="form-label">Data de Prazo</label>
+                <input asp-for="Form.DataPrazo" type="date" class="form-control" />
+                <span asp-validation-for="Form.DataPrazo" class="text-danger"></span>
+            </div>
+        }
+        else
+        {
+            <div class="mb-2">
+                <label class="form-label">Prioridade</label>
+                <input type="text" value="@ticket.Prioridade" class="form-control" readonly />
+            </div>
+
+            <div class="mb-2">
+                <label class="form-label">Data de Prazo</label>
+                <input type="text" value="@(ticket.DataPrazo.HasValue ? ticket.DataPrazo.Value.ToString("dd/MM/yyyy") : "-")" class="form-control" readonly />
+            </div>
+        }
 
         <div class="mb-2">
             <label asp-for="Form.ResponsavelId" class="form-label">Responsável</label>
@@ -77,26 +92,26 @@ else
 
         <div class="mb-2">
             <label class="form-label">Criado por</label>
-            <input type="text" value="@(Model.NomesPorId.TryGetValue(chamado.CriadoPorId, out var criadoPorNome) ? criadoPorNome : "-")" class="form-control" readonly />
+            <input type="text" value="@(Model.NomesPorId.TryGetValue(ticket.CriadoPorId, out var criadoPorNome) ? criadoPorNome : "-")" class="form-control" readonly />
         </div>
 
         <div class="mb-2">
             <label class="form-label">Criado em</label>
-            <input type="text" value="@chamado.DataCriacao.ToString("dd/MM/yyyy HH:mm")" class="form-control" readonly />
+            <input type="text" value="@ticket.DataCriacao.ToString("dd/MM/yyyy HH:mm")" class="form-control" readonly />
         </div>
 
         <div class="mb-2">
             <label class="form-label">Última modificação</label>
-            <input type="text" value="@chamado.DataUltimaModificacao.ToString("dd/MM/yyyy HH:mm")" class="form-control" readonly />
+            <input type="text" value="@ticket.DataUltimaModificacao.ToString("dd/MM/yyyy HH:mm")" class="form-control" readonly />
         </div>
 
         <div class="mb-2">
             <label class="form-label">Conclusão</label>
-            <input type="text" value="@(chamado.DataConclusao.HasValue ? chamado.DataConclusao.Value.ToString("dd/MM/yyyy HH:mm") : "-")" class="form-control" readonly />
+            <input type="text" value="@(ticket.DataConclusao.HasValue ? ticket.DataConclusao.Value.ToString("dd/MM/yyyy HH:mm") : "-")" class="form-control" readonly />
         </div>
 
         <button type="submit" class="btn btn-primary">Salvar</button>
-        <a href="/Chamados" class="btn btn-secondary">Voltar à listagem</a>
+        <a href="/Tickets" class="btn btn-secondary">Voltar à listagem</a>
     </form>
 
     <div class="tmk-eyebrow">Andamentos</div>

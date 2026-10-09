@@ -1,18 +1,18 @@
 @page
 @using TmkChamados.Models
-@model ChamadosModel
+@model TicketsModel
 @{
-    ViewData["Title"] = "Chamados";
+    ViewData["Title"] = "Tickets";
 }
 
 <div class="tmk-eyebrow">Gestão</div>
-<h1>Chamados</h1>
+<h1>Tickets</h1>
 
 <p>
-    <a href="/ChamadosForm" class="btn btn-primary">Novo Chamado</a>
+    <a href="/TicketsForm" class="btn btn-primary">Novo Ticket</a>
 </p>
 
-<div class="tmk-eyebrow">Filtrar Chamados</div>
+<div class="tmk-eyebrow">Filtrar Tickets</div>
 
 <form method="get" class="tmk-card mb-4">
     <div class="row g-2 align-items-end">
@@ -101,16 +101,16 @@
         </div>
         <div class="col-auto">
             <button type="submit" class="btn btn-primary">Filtrar</button>
-            <a href="/Chamados" class="btn btn-secondary">Limpar filtros</a>
+            <a href="/Tickets" class="btn btn-secondary">Limpar filtros</a>
         </div>
     </div>
 </form>
 
-<div class="tmk-eyebrow">Lista de Chamados</div>
+<div class="tmk-eyebrow">Lista de Tickets</div>
 
-@if (!Model.Chamados.Any())
+@if (!Model.Tickets.Any())
 {
-    <p>Nenhum chamado cadastrado.</p>
+    <p>Nenhum ticket cadastrado.</p>
 }
 else
 {
@@ -137,32 +137,32 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var chamado in Model.Chamados)
+            @foreach (var ticket in Model.Tickets)
             {
                 <tr>
-                    <td>@chamado.Id</td>
-                    <td>@chamado.Titulo</td>
-                    <td>@chamado.Descricao</td>
-                    <td><span class="badge @Model.ClasseCorStatus(chamado.Status)">@chamado.Status</span></td>
-                    <td>@chamado.Prioridade</td>
-                    <td>@(Model.NomesPorId.TryGetValue(chamado.CriadoPorId, out var criadoPorNome) ? criadoPorNome : "-")</td>
+                    <td>@ticket.Id</td>
+                    <td>@ticket.Titulo</td>
+                    <td>@ticket.Descricao</td>
+                    <td><span class="badge @Model.ClasseCorStatus(ticket.Status)">@ticket.Status</span></td>
+                    <td>@ticket.Prioridade</td>
+                    <td>@(Model.NomesPorId.TryGetValue(ticket.CriadoPorId, out var criadoPorNome) ? criadoPorNome : "-")</td>
                     @if (Model.IsMaster)
                     {
-                        <td>@(Model.EmpresaPorUsuarioId.TryGetValue(chamado.CriadoPorId, out var empresaNome) ? empresaNome : "-")</td>
+                        <td>@(Model.EmpresaPorUsuarioId.TryGetValue(ticket.CriadoPorId, out var empresaNome) ? empresaNome : "-")</td>
                     }
-                    <td>@(chamado.ResponsavelId.HasValue && Model.NomesPorId.TryGetValue(chamado.ResponsavelId.Value, out var responsavelNome) ? responsavelNome : "Nenhum")</td>
-                    <td>@chamado.DataCriacao.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>@chamado.DataUltimaModificacao.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>@(chamado.DataPrazo.HasValue ? chamado.DataPrazo.Value.ToString("dd/MM/yyyy") : "-")</td>
-                    <td>@(chamado.DataConclusao.HasValue ? chamado.DataConclusao.Value.ToString("dd/MM/yyyy HH:mm") : "-")</td>
+                    <td>@(ticket.ResponsavelId.HasValue && Model.NomesPorId.TryGetValue(ticket.ResponsavelId.Value, out var responsavelNome) ? responsavelNome : "Nenhum")</td>
+                    <td>@ticket.DataCriacao.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@ticket.DataUltimaModificacao.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@(ticket.DataPrazo.HasValue ? ticket.DataPrazo.Value.ToString("dd/MM/yyyy") : "-")</td>
+                    <td>@(ticket.DataConclusao.HasValue ? ticket.DataConclusao.Value.ToString("dd/MM/yyyy HH:mm") : "-")</td>
                     <td>
-                        <a href="/ChamadoView?id=@chamado.Id" class="btn btn-sm btn-outline-primary">Visualizar</a>
+                        <a href="/TicketView?id=@ticket.Id" class="btn btn-sm btn-outline-primary">Visualizar</a>
                         @if (Model.IsMaster)
                         {
-                            <form method="post" asp-page-handler="Excluir" asp-route-id="@chamado.Id" id="excluir-chamado-@chamado.Id" class="d-inline"></form>
+                            <form method="post" asp-page-handler="Excluir" asp-route-id="@ticket.Id" id="excluir-ticket-@ticket.Id" class="d-inline"></form>
                             <button type="button" class="btn btn-sm btn-outline-danger"
                                     data-bs-toggle="modal" data-bs-target="#modalConfirmarExclusao"
-                                    onclick="document.getElementById('btnConfirmarExclusao').setAttribute('form', 'excluir-chamado-@chamado.Id')">
+                                    onclick="document.getElementById('btnConfirmarExclusao').setAttribute('form', 'excluir-ticket-@ticket.Id')">
                                 Excluir
                             </button>
                         }
@@ -182,7 +182,7 @@ else
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cancelar"></button>
             </div>
             <div class="modal-body">
-                Tem certeza que deseja excluir este chamado?
+                Tem certeza que deseja excluir este ticket?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>

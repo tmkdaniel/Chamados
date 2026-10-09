@@ -12,11 +12,11 @@ namespace TmkChamados.Services
             _dbContext = dbContext;
         }
 
-        public Andamento Criar(int chamadoId, string texto, int criadoPorId)
+        public Andamento Criar(int ticketId, string texto, int criadoPorId)
         {
             var andamento = new Andamento
             {
-                ChamadoId = chamadoId,
+                TicketId = ticketId,
                 Texto = texto,
                 DataCriacao = DateTime.Now,
                 CriadoPorId = criadoPorId
@@ -27,10 +27,10 @@ namespace TmkChamados.Services
             return andamento;
         }
 
-        public IReadOnlyList<Andamento> ListarPorChamado(int chamadoId)
+        public IReadOnlyList<Andamento> ListarPorTicket(int ticketId)
         {
             return _dbContext.Andamentos
-                .Where(a => a.ChamadoId == chamadoId)
+                .Where(a => a.TicketId == ticketId)
                 .OrderBy(a => a.DataCriacao)
                 .ToList();
         }

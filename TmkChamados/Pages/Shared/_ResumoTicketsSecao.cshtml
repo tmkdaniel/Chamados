@@ -1,4 +1,4 @@
-@model TmkChamados.Pages.ResumoChamados
+@model TmkChamados.Pages.ResumoTickets
 @{
     var prefixo = (string)ViewData["Prefixo"]!;
 }
@@ -18,7 +18,7 @@
     </div>
 </div>
 
-<p class="small">Gráficos considerando chamados criados nos últimos 30 dias</p>
+<p class="small">Gráficos considerando tickets criados nos últimos 30 dias</p>
 
 <div class="tmk-card mb-3" style="height: 250px;">
     <canvas id="pizza-@prefixo"></canvas>

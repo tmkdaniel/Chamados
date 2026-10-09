@@ -4,8 +4,8 @@ namespace TmkChamados.Services
 {
     public interface IAndamentoService
     {
-        Andamento Criar(int chamadoId, string texto, int criadoPorId);
+        Andamento Criar(int ticketId, string texto, int criadoPorId);
 
-        IReadOnlyList<Andamento> ListarPorChamado(int chamadoId);
+        IReadOnlyList<Andamento> ListarPorTicket(int ticketId);
     }
 }

@@ -11,7 +11,7 @@ namespace TmkChamados.Data
 
         public DbSet<Usuario> Usuarios => Set<Usuario>();
 
-        public DbSet<Chamado> Chamados => Set<Chamado>();
+        public DbSet<Ticket> Tickets => Set<Ticket>();
 
         public DbSet<Empresa> Empresas => Set<Empresa>();
 
@@ -29,22 +29,22 @@ namespace TmkChamados.Data
                 .HasForeignKey(u => u.EmpresaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Chamado>()
+            modelBuilder.Entity<Ticket>()
                 .HasOne<Usuario>()
                 .WithMany()
                 .HasForeignKey(c => c.CriadoPorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Chamado>()
+            modelBuilder.Entity<Ticket>()
                 .HasOne<Usuario>()
                 .WithMany()
                 .HasForeignKey(c => c.ResponsavelId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Andamento>()
-                .HasOne<Chamado>()
+                .HasOne<Ticket>()
                 .WithMany()
-                .HasForeignKey(a => a.ChamadoId)
+                .HasForeignKey(a => a.TicketId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Andamento>()

@@ -6,7 +6,7 @@ namespace TmkChamados.Models
     {
         public int Id { get; set; }
 
-        public int ChamadoId { get; set; }
+        public int TicketId { get; set; }
 
         [Required(ErrorMessage = "O texto do andamento é obrigatório.")]
         public string Texto { get; set; } = string.Empty;

@@ -1,12 +1,12 @@
 namespace TmkChamados.Models
 {
-    public class FiltroChamados
+    public class FiltroTickets
     {
-        public StatusChamado? Status { get; set; }
+        public StatusTicket? Status { get; set; }
 
         public bool StatusAbertoOuEmAndamento { get; set; }
 
-        public PrioridadeChamado? Prioridade { get; set; }
+        public PrioridadeTicket? Prioridade { get; set; }
 
         public int? CriadoPorId { get; set; }
 
