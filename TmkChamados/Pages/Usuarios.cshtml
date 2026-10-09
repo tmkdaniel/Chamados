@@ -32,6 +32,7 @@ else
                 <th>Nome</th>
                 <th>Tipo</th>
                 <th>Empresa</th>
+                <th>Email</th>
                 <th></th>
             </tr>
         </thead>
@@ -43,6 +44,7 @@ else
                     <td>@usuario.Nome</td>
                     <td>@usuario.Tipo</td>
                     <td>@(usuario.Empresa?.Nome ?? "-")</td>
+                    <td>@(string.IsNullOrEmpty(usuario.Email) ? "-" : usuario.Email)</td>
                     <td>
                         <a href="/UsuariosForm?editId=@usuario.Id" class="btn btn-sm btn-outline-primary">Editar</a>
                         <form method="post" asp-page-handler="Excluir" asp-route-id="@usuario.Id" id="excluir-usuario-@usuario.Id" class="d-inline"></form>

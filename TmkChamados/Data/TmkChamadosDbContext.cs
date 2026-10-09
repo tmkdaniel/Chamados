@@ -24,6 +24,10 @@ namespace TmkChamados.Data
                 .IsUnique();
 
             modelBuilder.Entity<Usuario>()
+                .Property(u => u.Email)
+                .HasMaxLength(255);
+
+            modelBuilder.Entity<Usuario>()
                 .HasOne(u => u.Empresa)
                 .WithMany()
                 .HasForeignKey(u => u.EmpresaId)

@@ -17,6 +17,9 @@ builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IEmpresaService, EmpresaService>();
 builder.Services.AddScoped<IAndamentoService, AndamentoService>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
+builder.Services.AddScoped<INotificacaoTicketEmailService, NotificacaoTicketEmailService>();
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

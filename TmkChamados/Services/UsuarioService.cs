@@ -32,13 +32,14 @@ namespace TmkChamados.Services
                 u.Nome.ToLower() == nome.ToLower());
         }
 
-        public Usuario Criar(string nome, string senha, TipoUsuario tipo, int empresaId)
+        public Usuario Criar(string nome, string senha, TipoUsuario tipo, int empresaId, string? email = null)
         {
             var usuario = new Usuario
             {
                 Nome = nome,
                 Tipo = tipo,
-                EmpresaId = empresaId
+                EmpresaId = empresaId,
+                Email = email
             };
             usuario.SenhaHash = _hasher.HashPassword(usuario, senha);
 
@@ -47,7 +48,7 @@ namespace TmkChamados.Services
             return usuario;
         }
 
-        public bool Atualizar(int id, string nome, string? senha, TipoUsuario tipo, int empresaId)
+        public bool Atualizar(int id, string nome, string? senha, TipoUsuario tipo, int empresaId, string? email = null)
         {
             var usuario = _dbContext.Usuarios.FirstOrDefault(u => u.Id == id);
             if (usuario is null)
@@ -58,6 +59,7 @@ namespace TmkChamados.Services
             usuario.Nome = nome;
             usuario.Tipo = tipo;
             usuario.EmpresaId = empresaId;
+            usuario.Email = email;
             if (!string.IsNullOrEmpty(senha))
             {
                 usuario.SenhaHash = _hasher.HashPassword(usuario, senha);

@@ -20,6 +20,8 @@ namespace TmkChamados.Models
 
         public TipoUsuario Tipo { get; set; } = TipoUsuario.Usuario;
 
+        public string? Email { get; set; }
+
         public int EmpresaId { get; set; }
 
         public Empresa? Empresa { get; set; }

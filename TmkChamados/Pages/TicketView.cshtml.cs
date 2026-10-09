@@ -111,7 +111,8 @@ namespace TmkChamados.Pages
                 return Page();
             }
 
-            _ticketService.Atualizar(Id, Form.Classificacao!.Value, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, Form.Prioridade!.Value, Form.DataPrazo, ticketExistente.CriadoPorId, Form.ResponsavelId);
+            var usuarioQueAlterouId = User.ObterUsuarioId()!.Value;
+            _ticketService.Atualizar(Id, Form.Classificacao!.Value, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, Form.Prioridade!.Value, Form.DataPrazo, ticketExistente.CriadoPorId, Form.ResponsavelId, usuarioQueAlterouId);
 
             return RedirectToPage(new { Id });
         }

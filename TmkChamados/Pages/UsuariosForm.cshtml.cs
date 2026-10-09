@@ -42,7 +42,8 @@ namespace TmkChamados.Pages
                         Id = usuario.Id,
                         Nome = usuario.Nome,
                         Tipo = usuario.Tipo,
-                        EmpresaId = usuario.EmpresaId
+                        EmpresaId = usuario.EmpresaId,
+                        Email = usuario.Email
                     };
                 }
             }
@@ -66,7 +67,7 @@ namespace TmkChamados.Pages
                 return Page();
             }
 
-            _usuarioService.Criar(Form.Nome, Form.Senha!, Form.Tipo!.Value, Form.EmpresaId!.Value);
+            _usuarioService.Criar(Form.Nome, Form.Senha!, Form.Tipo!.Value, Form.EmpresaId!.Value, Form.Email);
             return RedirectToPage("/Usuarios");
         }
 
@@ -87,7 +88,7 @@ namespace TmkChamados.Pages
 
             if (Form.Id.HasValue)
             {
-                _usuarioService.Atualizar(Form.Id.Value, Form.Nome, Form.Senha, Form.Tipo!.Value, Form.EmpresaId!.Value);
+                _usuarioService.Atualizar(Form.Id.Value, Form.Nome, Form.Senha, Form.Tipo!.Value, Form.EmpresaId!.Value, Form.Email);
             }
 
             return RedirectToPage("/Usuarios");
@@ -124,5 +125,8 @@ namespace TmkChamados.Pages
 
         [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "A empresa é obrigatória.")]
         public int? EmpresaId { get; set; }
+
+        [System.ComponentModel.DataAnnotations.EmailAddress(ErrorMessage = "Informe um e-mail em um formato válido.")]
+        public string? Email { get; set; }
     }
 }

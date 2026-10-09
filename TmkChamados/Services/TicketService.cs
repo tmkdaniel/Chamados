@@ -7,10 +7,12 @@ namespace TmkChamados.Services
     public class TicketService : ITicketService
     {
         private readonly TmkChamadosDbContext _dbContext;
+        private readonly INotificacaoTicketEmailService _notificacaoService;
 
-        public TicketService(TmkChamadosDbContext dbContext)
+        public TicketService(TmkChamadosDbContext dbContext, INotificacaoTicketEmailService notificacaoService)
         {
             _dbContext = dbContext;
+            _notificacaoService = notificacaoService;
         }
 
         public IReadOnlyList<Ticket> Listar()
@@ -130,13 +132,15 @@ namespace TmkChamados.Services
             return ticket;
         }
 
-        public bool Atualizar(int id, ClassificacaoTicket classificacao, string titulo, string descricao, StatusTicket status, PrioridadeTicket prioridade, DateTime? dataPrazo, int criadoPorId, int? responsavelId)
+        public bool Atualizar(int id, ClassificacaoTicket classificacao, string titulo, string descricao, StatusTicket status, PrioridadeTicket prioridade, DateTime? dataPrazo, int criadoPorId, int? responsavelId, int usuarioQueAlterouId)
         {
             var ticket = _dbContext.Tickets.FirstOrDefault(c => c.Id == id);
             if (ticket is null)
             {
                 return false;
             }
+
+            var snapshotAnterior = new TicketSnapshotNotificacao(ticket.Classificacao, ticket.Titulo, ticket.Descricao, ticket.Status, ticket.Prioridade, ticket.DataPrazo, ticket.ResponsavelId);
 
             var eraTerminal = EhStatusTerminal(ticket.Status);
             var seraTerminal = EhStatusTerminal(status);
@@ -161,6 +165,10 @@ namespace TmkChamados.Services
             ticket.DataUltimaModificacao = DateTime.Now;
 
             _dbContext.SaveChanges();
+
+            var snapshotNovo = new TicketSnapshotNotificacao(ticket.Classificacao, ticket.Titulo, ticket.Descricao, ticket.Status, ticket.Prioridade, ticket.DataPrazo, ticket.ResponsavelId);
+            _notificacaoService.NotificarAlteracao(ticket.Id, ticket.CriadoPorId, snapshotAnterior, snapshotNovo, usuarioQueAlterouId);
+
             return true;
         }
 
