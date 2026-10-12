@@ -52,6 +52,40 @@ namespace TmkChamados.Migrations
                     b.ToTable("Andamentos");
                 });
 
+            modelBuilder.Entity("TmkChamados.Models.AnexoAndamento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AndamentoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Conteudo")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("NomeArquivoOriginal")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("TamanhoBytes")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AndamentoId")
+                        .IsUnique();
+
+                    b.ToTable("AnexosAndamento");
+                });
+
             modelBuilder.Entity("TmkChamados.Models.Empresa", b =>
                 {
                     b.Property<int>("Id")
@@ -168,6 +202,15 @@ namespace TmkChamados.Migrations
                     b.HasOne("TmkChamados.Models.Ticket", null)
                         .WithMany()
                         .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TmkChamados.Models.AnexoAndamento", b =>
+                {
+                    b.HasOne("TmkChamados.Models.Andamento", null)
+                        .WithMany()
+                        .HasForeignKey("AndamentoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

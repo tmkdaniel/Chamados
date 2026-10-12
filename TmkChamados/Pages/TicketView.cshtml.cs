@@ -27,11 +27,16 @@ namespace TmkChamados.Pages
         public string? NovoAndamentoTexto { get; set; }
 
         [BindProperty]
+        public IFormFile? NovoAndamentoAnexo { get; set; }
+
+        [BindProperty]
         public TicketEdicaoFormModel Form { get; set; } = new();
 
         public Ticket? Ticket { get; private set; }
 
         public IReadOnlyList<Andamento> Andamentos { get; private set; } = Array.Empty<Andamento>();
+
+        public IReadOnlyDictionary<int, string> NomesAnexosPorAndamentoId { get; private set; } = new Dictionary<int, string>();
 
         public Dictionary<int, string> NomesPorId { get; private set; } = new();
 
@@ -69,13 +74,47 @@ namespace TmkChamados.Pages
             if (string.IsNullOrWhiteSpace(NovoAndamentoTexto))
             {
                 ModelState.AddModelError(nameof(NovoAndamentoTexto), "O texto do andamento é obrigatório.");
+            }
+
+            ValidarAnexo();
+
+            if (!ModelState.IsValid)
+            {
                 CarregarDados();
                 PreencherFormDeEdicao();
                 return Page();
             }
 
-            _andamentoService.Criar(Id, NovoAndamentoTexto, usuarioId);
+            byte[]? anexoConteudo = null;
+            if (NovoAndamentoAnexo is not null)
+            {
+                using var stream = new MemoryStream();
+                await NovoAndamentoAnexo.CopyToAsync(stream);
+                anexoConteudo = stream.ToArray();
+            }
+
+            _andamentoService.Criar(Id, NovoAndamentoTexto!, usuarioId, anexoConteudo, NovoAndamentoAnexo?.FileName, NovoAndamentoAnexo?.ContentType);
             return RedirectToPage(new { Id });
+        }
+
+        private void ValidarAnexo()
+        {
+            if (NovoAndamentoAnexo is null)
+            {
+                return;
+            }
+
+            var extensao = Path.GetExtension(NovoAndamentoAnexo.FileName);
+            if (string.IsNullOrEmpty(extensao) || !AnexoAndamentoRegras.ExtensoesAceitas.Contains(extensao))
+            {
+                ModelState.AddModelError(nameof(NovoAndamentoAnexo), "Tipo de arquivo não permitido. Tipos aceitos: PDF, JPEG, JPG, PNG, BMP.");
+                return;
+            }
+
+            if (NovoAndamentoAnexo.Length > AnexoAndamentoRegras.TamanhoMaximoBytes)
+            {
+                ModelState.AddModelError(nameof(NovoAndamentoAnexo), "O anexo excede o tamanho máximo permitido de 50MB.");
+            }
         }
 
         public async Task<IActionResult> OnPostAtualizarAsync()
@@ -156,6 +195,7 @@ namespace TmkChamados.Pages
         {
             Ticket = _ticketService.Obter(Id);
             Andamentos = _andamentoService.ListarPorTicket(Id);
+            NomesAnexosPorAndamentoId = _andamentoService.ObterNomesAnexosPorTicket(Id);
 
             var usuarios = _usuarioService.Listar();
             NomesPorId = usuarios.ToDictionary(u => u.Id, u => u.Nome);

@@ -17,6 +17,8 @@ namespace TmkChamados.Data
 
         public DbSet<Andamento> Andamentos => Set<Andamento>();
 
+        public DbSet<AnexoAndamento> AnexosAndamento => Set<AnexoAndamento>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Usuario>()
@@ -56,6 +58,16 @@ namespace TmkChamados.Data
                 .WithMany()
                 .HasForeignKey(a => a.CriadoPorId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AnexoAndamento>()
+                .HasIndex(a => a.AndamentoId)
+                .IsUnique();
+
+            modelBuilder.Entity<AnexoAndamento>()
+                .HasOne<Andamento>()
+                .WithMany()
+                .HasForeignKey(a => a.AndamentoId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

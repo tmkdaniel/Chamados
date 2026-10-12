@@ -146,6 +146,12 @@ else
                         <span class="small">@andamento.DataCriacao.ToString("dd/MM/yyyy HH:mm")</span>
                     </div>
                     <div>@andamento.Texto</div>
+                    @if (Model.NomesAnexosPorAndamentoId.TryGetValue(andamento.Id, out var nomeAnexo))
+                    {
+                        <div class="mt-1">
+                            <a href="/AnexoAndamento?andamentoId=@andamento.Id" class="small">Anexo: @nomeAnexo</a>
+                        </div>
+                    }
                 </li>
             }
         </ul>
@@ -153,12 +159,17 @@ else
 
     <div class="tmk-eyebrow">Adicionar Andamento</div>
 
-    <form method="post" asp-page-handler="AdicionarAndamento" class="tmk-card">
+    <form method="post" asp-page-handler="AdicionarAndamento" enctype="multipart/form-data" class="tmk-card">
         <input type="hidden" asp-for="Id" />
         <div asp-validation-summary="All" class="text-danger"></div>
         <div class="mb-3">
             <label asp-for="NovoAndamentoTexto" class="form-label">Texto</label>
             <textarea asp-for="NovoAndamentoTexto" class="form-control" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+            <label asp-for="NovoAndamentoAnexo" class="form-label">Anexo (opcional)</label>
+            <input asp-for="NovoAndamentoAnexo" type="file" class="form-control" accept=".pdf,.jpeg,.jpg,.png,.bmp" />
+            <div class="form-text">Tipos aceitos: PDF, JPEG, JPG, PNG, BMP. Tamanho máximo: 50MB.</div>
         </div>
         <button type="submit" class="btn btn-primary">Adicionar</button>
     </form>

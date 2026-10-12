@@ -20,6 +20,13 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Host.UseWindowsService();
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        // Anexos de Andamento aceitam até 50MB (ver AnexoAndamentoRegras); o padrão
+        // do Kestrel (~28.6MB) é menor que isso, então precisa ser elevado. A folga
+        // extra cobre o overhead do multipart/form-data (boundaries, outros campos).
+        options.Limits.MaxRequestBodySize = 60L * 1024 * 1024;
+    });
     builder.Host.UseSerilog((context, loggerConfiguration) =>
         loggerConfiguration
             .MinimumLevel.Information()
@@ -93,6 +100,12 @@ try
     }
 
     app.Run();
+}
+catch (Microsoft.Extensions.Hosting.HostAbortedException)
+{
+    // Lançada de propósito por ferramentas de design-time (ex.: `dotnet ef
+    // migrations add`) para resolver o DbContext sem rodar o host de verdade;
+    // não é uma falha real da aplicação, então não é logada como erro.
 }
 catch (Exception ex)
 {
