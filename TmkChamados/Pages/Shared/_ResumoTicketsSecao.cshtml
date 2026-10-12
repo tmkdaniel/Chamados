@@ -20,9 +20,32 @@
 
 <p class="small">Gráficos considerando tickets criados nos últimos 30 dias</p>
 
-<div class="tmk-card mb-3" style="height: 250px; overflow: hidden;">
+<div class="d-flex justify-content-between align-items-center">
+    <span class="small text-muted">Status</span>
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#ajudaGraficoStatusModal" title="Ajuda sobre este gráfico">?</button>
+</div>
+<div class="tmk-card mt-2 mb-3" style="height: 250px; overflow: hidden;">
     <canvas id="pizza-@prefixo"></canvas>
 </div>
-<div class="tmk-card mb-3" style="height: 250px; overflow: hidden;">
+<div class="d-flex justify-content-between align-items-center">
+    <span class="small text-muted">Criados por Dia</span>
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#ajudaGraficoCriadosPorDiaModal" title="Ajuda sobre este gráfico">?</button>
+</div>
+<div class="tmk-card mt-2 mb-3" style="height: 250px; overflow: hidden;">
     <canvas id="histograma-@prefixo"></canvas>
 </div>
+
+<partial name="_AjudaGraficoModal" model="@(new TmkChamados.Pages.Shared.AjudaGraficoViewModel
+{
+    Id = "ajudaGraficoStatusModal",
+    Titulo = "Status",
+    Explicacao = "Proporção de tickets Abertos, Em Andamento e Concluídos, considerando os criados nos últimos 30 dias, dentro desta seção.",
+    UsoPratico = "Use para ver rapidamente se a fila está represada (muitos Abertos) ou fluindo bem (muitos Concluídos)."
+})" />
+<partial name="_AjudaGraficoModal" model="@(new TmkChamados.Pages.Shared.AjudaGraficoViewModel
+{
+    Id = "ajudaGraficoCriadosPorDiaModal",
+    Titulo = "Criados por Dia",
+    Explicacao = "Quantidade de tickets criados por dia, nos últimos 30 dias, dentro desta seção.",
+    UsoPratico = "Use para identificar picos de demanda e se o volume de entrada está subindo ou caindo."
+})" />

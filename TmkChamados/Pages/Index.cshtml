@@ -19,25 +19,59 @@
     @if (Model.IsMaster)
     {
         <div class="col-12 col-lg-6">
-            <div class="tmk-eyebrow">Abertos por Empresa</div>
-            <div class="tmk-card mb-3" style="height: 250px; overflow: hidden;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="tmk-eyebrow mb-0">Abertos por Empresa</div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#ajudaGraficoEmpresaModal" title="Ajuda sobre este gráfico">?</button>
+            </div>
+            <div class="tmk-card mt-2 mb-3" style="height: 250px; overflow: hidden;">
                 <canvas id="pizza-empresa"></canvas>
             </div>
         </div>
     }
     <div class="col-12 col-lg-6">
-        <div class="tmk-eyebrow">Abertos e Em Andamento por Prioridade</div>
-        <div class="tmk-card mb-3" style="height: 250px; overflow: hidden;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="tmk-eyebrow mb-0">Abertos e Em Andamento por Prioridade</div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#ajudaGraficoPrioridadeModal" title="Ajuda sobre este gráfico">?</button>
+        </div>
+        <div class="tmk-card mt-2 mb-3" style="height: 250px; overflow: hidden;">
             <canvas id="pizza-prioridade"></canvas>
         </div>
     </div>
     <div class="col-12 col-lg-6">
-        <div class="tmk-eyebrow">Abertos e Em Andamento por Dias até o Prazo</div>
-        <div class="tmk-card mb-3" style="height: 250px; overflow: hidden;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="tmk-eyebrow mb-0">Abertos e Em Andamento por Dias até o Prazo</div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#ajudaGraficoPrazoModal" title="Ajuda sobre este gráfico">?</button>
+        </div>
+        <div class="tmk-card mt-2 mb-3" style="height: 250px; overflow: hidden;">
             <canvas id="histograma-prazo"></canvas>
         </div>
     </div>
 </div>
+
+@if (Model.IsMaster)
+{
+    <partial name="_AjudaGraficoModal" model="@(new TmkChamados.Pages.Shared.AjudaGraficoViewModel
+    {
+        Id = "ajudaGraficoEmpresaModal",
+        Titulo = "Abertos por Empresa",
+        Explicacao = "Quantidade de tickets com status Aberto, agrupados por Empresa cliente, considerando todas as empresas.",
+        UsoPratico = "Use para priorizar atenção para a empresa com mais tickets pendentes de atendimento."
+    })" />
+}
+<partial name="_AjudaGraficoModal" model="@(new TmkChamados.Pages.Shared.AjudaGraficoViewModel
+{
+    Id = "ajudaGraficoPrioridadeModal",
+    Titulo = "Abertos e Em Andamento por Prioridade",
+    Explicacao = "Quantidade de tickets com status Aberto ou Em Andamento, agrupados por Prioridade (Normal, Alta, Urgente).",
+    UsoPratico = "Use para identificar se há tickets de alta prioridade acumulados que precisam de atenção imediata."
+})" />
+<partial name="_AjudaGraficoModal" model="@(new TmkChamados.Pages.Shared.AjudaGraficoViewModel
+{
+    Id = "ajudaGraficoPrazoModal",
+    Titulo = "Abertos e Em Andamento por Dias até o Prazo",
+    Explicacao = "Quantidade de tickets com status Aberto ou Em Andamento, agrupados por faixa de dias restantes até o prazo (Atrasado, Hoje, 1-3 dias, 4-7 dias, 8-15 dias, 16+ dias ou Sem Prazo).",
+    UsoPratico = "Use para agir nos tickets atrasados ou perto do vencimento antes que o prazo se esgote."
+})" />
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
