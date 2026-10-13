@@ -52,8 +52,6 @@ namespace TmkChamados.Pages
             var usuarioId = User.ObterUsuarioId();
             var empresaId = User.ObterEmpresaId();
 
-            int a = int.Parse("a");
-
             if (tipoUsuario is null || usuarioId is null || empresaId is null)
             {
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -100,6 +98,17 @@ namespace TmkChamados.Pages
                 StatusTicket.EmAndamento => "bg-warning text-dark",
                 StatusTicket.Concluido => "bg-success",
                 StatusTicket.Cancelado => "bg-secondary",
+                _ => "bg-light text-dark"
+            };
+        }
+
+        public string ClasseCorPrioridade(PrioridadeTicket prioridade)
+        {
+            return prioridade switch
+            {
+                PrioridadeTicket.Normal => "bg-secondary",
+                PrioridadeTicket.Alta => "bg-warning text-dark",
+                PrioridadeTicket.Urgente => "bg-danger",
                 _ => "bg-light text-dark"
             };
         }

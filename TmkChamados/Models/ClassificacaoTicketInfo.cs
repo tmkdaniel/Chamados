@@ -3,6 +3,7 @@ namespace TmkChamados.Models
     public record ClassificacaoTicketInfo(
         ClassificacaoTicket Valor,
         string Label,
+        string Sigla,
         string OQueE,
         string Foco,
         string ExemploTitulo)
@@ -12,24 +13,28 @@ namespace TmkChamados.Models
             new ClassificacaoTicketInfo(
                 ClassificacaoTicket.Incidente,
                 "Incidente",
+                "INC",
                 "Qualquer interrupção não planejada ou redução na qualidade de um serviço de TI. Algo que funcionava e parou de funcionar.",
                 "Restabelecer a operação normal o mais rápido possível (apagar o fogo).",
                 "Erro ao acessar o sistema TMK"),
             new ClassificacaoTicketInfo(
                 ClassificacaoTicket.Requisicao,
                 "Requisição",
+                "REQ",
                 "Uma solicitação formal de um usuário para que algo seja fornecido. Não há uma falha ou quebra de serviço, apenas um pedido de rotina.",
                 "Atender à necessidade do usuário seguindo procedimentos padrão predefinidos.",
                 "Criação de novo usuário no Active Directory"),
             new ClassificacaoTicketInfo(
                 ClassificacaoTicket.Problema,
                 "Problema",
+                "PRB",
                 "A causa raiz de um ou mais incidentes recorrentes ou graves.",
                 "Investigar, identificar a causa e encontrar uma solução definitiva ou um contorno (workaround).",
                 "Instabilidade intermitente no servidor de banco de dados"),
             new ClassificacaoTicketInfo(
                 ClassificacaoTicket.Mudanca,
                 "Mudança",
+                "MUD",
                 "Qualquer adição, modificação ou remoção de algo que possa afetar os serviços de TI.",
                 "Controlar os riscos para que a alteração não cause novos incidentes.",
                 "Migração do servidor de arquivos para a nuvem"),
@@ -41,5 +46,7 @@ namespace TmkChamados.Models
         public static ClassificacaoTicketInfo Obter(ClassificacaoTicket valor) => PorValor[valor];
 
         public static string ObterLabel(ClassificacaoTicket valor) => PorValor[valor].Label;
+
+        public static string ObterSigla(ClassificacaoTicket valor) => PorValor[valor].Sigla;
     }
 }

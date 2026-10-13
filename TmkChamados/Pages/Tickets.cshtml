@@ -129,10 +129,8 @@ else
     <table class="table mb-0">
         <thead>
             <tr>
-                <th>Id</th>
-                <th>Classificação</th>
+                <th>Classifi-<br />cação</th>
                 <th>Título</th>
-                <th>Descrição</th>
                 <th>Status</th>
                 <th>Prioridade</th>
                 <th>Criado por</th>
@@ -141,10 +139,8 @@ else
                     <th>Empresa</th>
                 }
                 <th>Responsável</th>
-                <th>Criado em</th>
                 <th>Última modificação</th>
                 <th>Prazo</th>
-                <th>Conclusão</th>
                 <th></th>
             </tr>
         </thead>
@@ -152,22 +148,18 @@ else
             @foreach (var ticket in Model.Tickets)
             {
                 <tr>
-                    <td>@ticket.Id</td>
-                    <td>@ClassificacaoTicketInfo.ObterLabel(ticket.Classificacao)</td>
-                    <td>@ticket.Titulo</td>
-                    <td>@ticket.Descricao</td>
+                    <td><span class="badge bg-secondary" title="@ClassificacaoTicketInfo.ObterLabel(ticket.Classificacao)">@ClassificacaoTicketInfo.ObterSigla(ticket.Classificacao)</span></td>
+                    <td>#@ticket.Id - @ticket.Titulo</td>
                     <td><span class="badge @Model.ClasseCorStatus(ticket.Status)">@ticket.Status</span></td>
-                    <td>@ticket.Prioridade</td>
+                    <td><span class="badge @Model.ClasseCorPrioridade(ticket.Prioridade)">@ticket.Prioridade</span></td>
                     <td>@(Model.NomesPorId.TryGetValue(ticket.CriadoPorId, out var criadoPorNome) ? criadoPorNome : "-")</td>
                     @if (Model.IsMaster)
                     {
                         <td>@(Model.EmpresaPorUsuarioId.TryGetValue(ticket.CriadoPorId, out var empresaNome) ? empresaNome : "-")</td>
                     }
                     <td>@(ticket.ResponsavelId.HasValue && Model.NomesPorId.TryGetValue(ticket.ResponsavelId.Value, out var responsavelNome) ? responsavelNome : "Nenhum")</td>
-                    <td>@ticket.DataCriacao.ToString("dd/MM/yyyy HH:mm")</td>
                     <td>@ticket.DataUltimaModificacao.ToString("dd/MM/yyyy HH:mm")</td>
                     <td>@(ticket.DataPrazo.HasValue ? ticket.DataPrazo.Value.ToString("dd/MM/yyyy") : "-")</td>
-                    <td>@(ticket.DataConclusao.HasValue ? ticket.DataConclusao.Value.ToString("dd/MM/yyyy HH:mm") : "-")</td>
                     <td>
                         <a href="/TicketView?id=@ticket.Id" class="btn btn-sm btn-outline-primary">Visualizar</a>
                         @if (Model.IsMaster)
