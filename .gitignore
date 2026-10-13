@@ -25,7 +25,7 @@
 
 
 
-#Não Pastas
+#Nï¿½o Pastas
 **/[Dd]ebug/
 **/.vs/
 [Oo]bj/
@@ -37,3 +37,7 @@ v17/
 PublishProfiles/
 .claude/
 openspec/
+
+# Segredos locais - nunca versionar
+**/appsettings.Development.json
+**/appsettings.*.local.json
