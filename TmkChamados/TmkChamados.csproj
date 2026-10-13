@@ -7,6 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Nunca publicar appsettings.Development.json (tem segredos reais em texto puro,
+         gerenciado manualmente só para desenvolvimento local). CopyToPublishDirectory
+         (não Content Remove) para continuar sendo copiado para bin/Debug normalmente. -->
+    <Content Update="appsettings.Development.json">
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MailKit" Version="4.18.1" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">

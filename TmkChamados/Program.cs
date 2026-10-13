@@ -1,5 +1,8 @@
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using TmkChamados.Data;
@@ -17,7 +20,17 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    var builder = WebApplication.CreateBuilder(args);
+    // ContentRootPath, por padrão, é o diretório de trabalho de quem chamou o processo,
+    // não a pasta onde o executável está. Isso quebra a leitura de appsettings.json
+    // (e, antes, falhava silenciosamente - GetConnectionString vinha vazio) sempre que o
+    // .exe é chamado de outro diretório. UseWindowsService corrige isso quando o processo
+    // está rodando de verdade como Windows Service, mas não quando o .exe é executado
+    // diretamente (ex.: testando o publish antes de instalar o serviço).
+    var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+    {
+        Args = args,
+        ContentRootPath = AppContext.BaseDirectory
+    });
 
     builder.Host.UseWindowsService();
     builder.WebHost.ConfigureKestrel(options =>
@@ -38,10 +51,46 @@ try
                 retainedFileCountLimit: 30,
                 shared: true));
 
+    // Criptografia em repouso da connection string e da senha de e-mail em
+    // appsettings.json (ver openspec/changes/archive/.../criptografia-segredos-config).
+    // Só age quando o valor efetivo bate com o valor bruto do arquivo - se
+    // appsettings.{Ambiente}.json ou uma variável de ambiente estiver sobrescrevendo,
+    // usa esse valor como está, sem tocar em criptografia nem no arquivo.
+    var appSettingsPath = Path.Combine(builder.Environment.ContentRootPath, "appsettings.json");
+    var appSettingsRaiz = JsonNode.Parse(File.ReadAllText(appSettingsPath))!;
+
+    // Chave do Data Protection API fica num arquivo em disco (não há DI container ainda
+    // nesse ponto da inicialização, por isso usa DataProtectionProvider.Create em vez de
+    // builder.Services.AddDataProtection). Cross-platform de propósito - ver design.md.
+    var dataProtectionProvider = DataProtectionProvider.Create(new DirectoryInfo(Path.Combine(AppContext.BaseDirectory, "Keys")));
+    var protetorSegredos = dataProtectionProvider.CreateProtector("TmkChamados.SegredosConfiguracao");
+    var segredoResolver = new SegredoConfiguracaoResolver(protetorSegredos);
+
+    var connectionStringResolvida = segredoResolver.Resolver(
+        builder.Configuration.GetConnectionString("TmkChamados"),
+        appSettingsRaiz,
+        ["ConnectionStrings", "TmkChamados"],
+        ["ConnectionStringsCripto", "TmkChamados"],
+        out var connectionStringAlterada);
+
+    var emailPasswordResolvida = segredoResolver.Resolver(
+        builder.Configuration["Email:Password"],
+        appSettingsRaiz,
+        ["Email", "Password"],
+        ["Email", "PasswordCripto"],
+        out var emailPasswordAlterada);
+
+    if (connectionStringAlterada || emailPasswordAlterada)
+    {
+        File.WriteAllText(appSettingsPath, appSettingsRaiz.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
+    }
+
+    builder.Configuration["Email:Password"] = emailPasswordResolvida;
+
     // Add services to the container.
     builder.Services.AddRazorPages();
     builder.Services.AddDbContext<TmkChamadosDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("TmkChamados")));
+        options.UseSqlServer(connectionStringResolvida));
     builder.Services.AddScoped<ITicketService, TicketService>();
     builder.Services.AddScoped<IUsuarioService, UsuarioService>();
     builder.Services.AddScoped<IEmpresaService, EmpresaService>();
