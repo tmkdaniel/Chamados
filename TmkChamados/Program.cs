@@ -1,10 +1,13 @@
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Serilog.Context;
 using TmkChamados.Data;
 using TmkChamados.Models;
 using TmkChamados.Services;
@@ -40,16 +43,27 @@ try
         // extra cobre o overhead do multipart/form-data (boundaries, outros campos).
         options.Limits.MaxRequestBodySize = 60L * 1024 * 1024;
     });
+    // Liga/desliga o log de comandos SQL do EF Core (ver Diagnostico:LogarComandosSql em
+    // appsettings.json). Lido antes do UseSerilog porque o override precisa entrar na
+    // configuração do logger já na criação. Exige reiniciar o programa para ter efeito -
+    // não é um liga/desliga em tempo de execução. Não habilita EnableSensitiveDataLogging,
+    // então valores de parâmetro continuam mascarados ("?") mesmo com o SQL visível.
+    var logarComandosSql = builder.Configuration.GetValue<bool>("Diagnostico:LogarComandosSql");
+    var nivelLogSql = logarComandosSql ? Serilog.Events.LogEventLevel.Information : Serilog.Events.LogEventLevel.Warning;
+
     builder.Host.UseSerilog((context, loggerConfiguration) =>
         loggerConfiguration
             .MinimumLevel.Information()
             .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
-            .WriteTo.Console()
+            .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", nivelLogSql)
+            .Enrich.FromLogContext()
+            .WriteTo.Console(outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
             .WriteTo.File(
                 Path.Combine(AppContext.BaseDirectory, "Logs", "log-.txt"),
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 30,
-                shared: true));
+                shared: true,
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}"));
 
     // Criptografia em repouso da connection string e da senha de e-mail em
     // appsettings.json (ver openspec/changes/archive/.../criptografia-segredos-config).
@@ -115,6 +129,35 @@ try
     });
 
     var app = builder.Build();
+
+    var versaoPrograma = Assembly.GetExecutingAssembly().GetName().Version;
+    Log.Information("==========================");
+    Log.Information("TmkChamados iniciando - versão {Versao}", versaoPrograma);
+
+    // Expõe o usuário autenticado para o LogContext do Serilog durante toda a requisição,
+    // para que exceções não tratadas (logadas pelo UseExceptionHandler, abaixo) incluam
+    // quem estava logado. Precisa vir ANTES do UseExceptionHandler: o `using` abaixo é
+    // desfeito (Dispose) assim que a exceção atravessa esse ponto da pilha, então se esse
+    // middleware viesse depois do UseExceptionHandler (ex.: só depois de UseAuthentication,
+    // como de costume), a propriedade já teria sido removida quando o handler loga o erro.
+    // Por isso autentica aqui diretamente (AuthenticateAsync), sem depender do
+    // UseAuthentication() mais abaixo, que continua necessário para o resto do pipeline.
+    app.Use(async (context, next) =>
+    {
+        var resultadoAuth = await context.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        var nomeUsuario = resultadoAuth.Succeeded ? resultadoAuth.Principal?.Identity?.Name : null;
+        if (nomeUsuario is not null)
+        {
+            using (LogContext.PushProperty("Usuario", nomeUsuario))
+            {
+                await next();
+            }
+        }
+        else
+        {
+            await next();
+        }
+    });
 
     // Configure the HTTP request pipeline.
     if (!app.Environment.IsDevelopment())

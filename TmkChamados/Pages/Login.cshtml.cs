@@ -13,10 +13,12 @@ namespace TmkChamados.Pages
     public class LoginModel : PageModel
     {
         private readonly IUsuarioService _usuarioService;
+        private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(IUsuarioService usuarioService)
+        public LoginModel(IUsuarioService usuarioService, ILogger<LoginModel> logger)
         {
             _usuarioService = usuarioService;
+            _logger = logger;
         }
 
         [BindProperty]
@@ -41,9 +43,12 @@ namespace TmkChamados.Pages
             var usuario = _usuarioService.ValidarCredenciais(Form.Nome, Form.Senha);
             if (usuario is null)
             {
+                _logger.LogWarning("Tentativa de login falhou para {NomeInformado}", Form.Nome);
                 ErroLogin = "Nome ou senha inválidos.";
                 return Page();
             }
+
+            _logger.LogInformation("Login bem-sucedido para {Nome}", usuario.Nome);
 
             var claims = new List<Claim>
             {

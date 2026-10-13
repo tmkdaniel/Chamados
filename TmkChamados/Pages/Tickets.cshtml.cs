@@ -52,6 +52,8 @@ namespace TmkChamados.Pages
             var usuarioId = User.ObterUsuarioId();
             var empresaId = User.ObterEmpresaId();
 
+            int a = int.Parse("a");
+
             if (tipoUsuario is null || usuarioId is null || empresaId is null)
             {
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
