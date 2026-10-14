@@ -10,7 +10,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - TmkChamados</title>
+    <title>Login - TMK Tickets</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/tmk-theme.css" asp-append-version="true" />
@@ -18,8 +18,13 @@
 <body>
     <div class="container d-flex align-items-center justify-content-center" style="min-height: 100vh;">
         <div class="tmk-card" style="max-width: 400px; width: 100%;">
+            <div class="text-center mb-3">
+                <div class="tmk-logo-badge tmk-logo-badge-lg">
+                    <img src="~/img/tmk-logo.png" alt="TMK Tickets" />
+                </div>
+            </div>
             <div class="tmk-eyebrow">Acesso ao sistema</div>
-            <h1 class="mb-4" style="text-shadow: 0 0 18px rgba(242,194,48,0.4);">TmkChamados</h1>
+            <h1 class="mb-4" style="text-shadow: 0 0 18px rgba(242,194,48,0.4);">TMK Tickets</h1>
 
             @if (!string.IsNullOrEmpty(Model.ErroLogin))
             {

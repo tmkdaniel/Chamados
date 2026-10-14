@@ -9,7 +9,7 @@
 <h1>Tickets</h1>
 
 <p>
-    <a href="/TicketsForm" class="btn btn-primary">Novo Ticket</a>
+    <a href="/TicketsForm" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Novo Ticket</a>
 </p>
 
 <div class="tmk-eyebrow">Filtrar Tickets</div>
@@ -110,8 +110,8 @@
             <input asp-for="Filtro.ModificadoAte" type="date" class="form-control" />
         </div>
         <div class="col-auto">
-            <button type="submit" class="btn btn-primary">Filtrar</button>
-            <a href="/Tickets" class="btn btn-secondary">Limpar filtros</a>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filtrar</button>
+            <a href="/Tickets" class="btn btn-secondary"><i class="bi bi-x-lg"></i> Limpar filtros</a>
         </div>
     </div>
 </form>
@@ -149,7 +149,7 @@ else
             {
                 <tr>
                     <td><span class="badge bg-secondary" title="@ClassificacaoTicketInfo.ObterLabel(ticket.Classificacao)">@ClassificacaoTicketInfo.ObterSigla(ticket.Classificacao)</span></td>
-                    <td>#@ticket.Id - @ticket.Titulo</td>
+                    <td><span class="tmk-ticket-id">#@ticket.Id</span> - @ticket.Titulo</td>
                     <td><span class="badge @Model.ClasseCorStatus(ticket.Status)">@ticket.Status</span></td>
                     <td><span class="badge @Model.ClasseCorPrioridade(ticket.Prioridade)">@ticket.Prioridade</span></td>
                     <td>@(Model.NomesPorId.TryGetValue(ticket.CriadoPorId, out var criadoPorNome) ? criadoPorNome : "-")</td>
@@ -161,14 +161,14 @@ else
                     <td>@ticket.DataUltimaModificacao.ToString("dd/MM/yyyy HH:mm")</td>
                     <td>@(ticket.DataPrazo.HasValue ? ticket.DataPrazo.Value.ToString("dd/MM/yyyy") : "-")</td>
                     <td>
-                        <a href="/TicketView?id=@ticket.Id" class="btn btn-sm btn-outline-primary">Visualizar</a>
+                        <a href="/TicketView?id=@ticket.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> Visualizar</a>
                         @if (Model.IsMaster)
                         {
                             <form method="post" asp-page-handler="Excluir" asp-route-id="@ticket.Id" id="excluir-ticket-@ticket.Id" class="d-inline"></form>
                             <button type="button" class="btn btn-sm btn-outline-danger"
                                     data-bs-toggle="modal" data-bs-target="#modalConfirmarExclusao"
                                     onclick="document.getElementById('btnConfirmarExclusao').setAttribute('form', 'excluir-ticket-@ticket.Id')">
-                                Excluir
+                                <i class="bi bi-trash"></i> Excluir
                             </button>
                         }
                     </td>
@@ -192,7 +192,7 @@ else
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" id="btnConfirmarExclusao" class="btn btn-danger" data-bs-dismiss="modal">Confirmar exclusão</button>
+                <button type="submit" id="btnConfirmarExclusao" class="btn btn-danger" data-bs-dismiss="modal"><i class="bi bi-trash"></i> Confirmar exclusão</button>
             </div>
         </div>
     </div>

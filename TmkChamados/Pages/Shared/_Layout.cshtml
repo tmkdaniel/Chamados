@@ -3,8 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TmkChamados</title>
+    <title>@ViewData["Title"] - TMK Tickets</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/tmk-theme.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TmkChamados.styles.css" asp-append-version="true" />
@@ -13,7 +14,10 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">TmkChamados</a>
+                <a class="navbar-brand d-flex align-items-center gap-2" asp-area="" asp-page="/Index">
+                    <span class="tmk-logo-badge"><img src="~/img/tmk-logo.png" alt="" /></span>
+                    <span>TMK Tickets</span>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -21,22 +25,22 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-page="/Index"><i class="bi bi-house-door"></i> Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Tickets">Tickets</a>
+                            <a class="nav-link" asp-area="" asp-page="/Tickets"><i class="bi bi-ticket-perforated"></i> Tickets</a>
                         </li>
                         @if (User.EhMaster())
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-page="/Usuarios">Usuários</a>
+                                <a class="nav-link" asp-area="" asp-page="/Usuarios"><i class="bi bi-people"></i> Usuários</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-page="/Empresas">Empresas</a>
+                                <a class="nav-link" asp-area="" asp-page="/Empresas"><i class="bi bi-building"></i> Empresas</a>
                             </li>
                         }
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Privacy">Privacy</a>
+                            <a class="nav-link" asp-area="" asp-page="/Privacy"><i class="bi bi-shield-check"></i> Privacy</a>
                         </li>
                     </ul>
                     @if (User.Identity?.IsAuthenticated == true)
@@ -47,7 +51,7 @@
                             </li>
                             <li class="nav-item">
                                 <form method="post" asp-page="/Logout">
-                                    <button type="submit" class="btn btn-link nav-link">Sair</button>
+                                    <button type="submit" class="btn btn-link nav-link"><i class="bi bi-box-arrow-right"></i> Sair</button>
                                 </form>
                             </li>
                         </ul>
@@ -64,7 +68,7 @@
 
     <footer class="footer">
         <div class="container">
-            &copy; 2026 - TmkChamados - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            &copy; 2026 - TMK Tickets - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
     </footer>
 

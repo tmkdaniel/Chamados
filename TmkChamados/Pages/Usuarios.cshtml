@@ -13,7 +13,7 @@
 }
 
 <p>
-    <a href="/UsuariosForm" class="btn btn-primary">Novo Usuário</a>
+    <a href="/UsuariosForm" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Novo Usuário</a>
 </p>
 
 <div class="tmk-eyebrow">Lista de Usuários</div>
@@ -46,12 +46,12 @@ else
                     <td>@(usuario.Empresa?.Nome ?? "-")</td>
                     <td>@(string.IsNullOrEmpty(usuario.Email) ? "-" : usuario.Email)</td>
                     <td>
-                        <a href="/UsuariosForm?editId=@usuario.Id" class="btn btn-sm btn-outline-primary">Editar</a>
+                        <a href="/UsuariosForm?editId=@usuario.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i> Editar</a>
                         <form method="post" asp-page-handler="Excluir" asp-route-id="@usuario.Id" id="excluir-usuario-@usuario.Id" class="d-inline"></form>
                         <button type="button" class="btn btn-sm btn-outline-danger"
                                 data-bs-toggle="modal" data-bs-target="#modalConfirmarExclusao"
                                 onclick="document.getElementById('btnConfirmarExclusao').setAttribute('form', 'excluir-usuario-@usuario.Id')">
-                            Excluir
+                            <i class="bi bi-trash"></i> Excluir
                         </button>
                     </td>
                 </tr>
@@ -73,7 +73,7 @@ else
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" id="btnConfirmarExclusao" class="btn btn-danger" data-bs-dismiss="modal">Confirmar exclusão</button>
+                <button type="submit" id="btnConfirmarExclusao" class="btn btn-danger" data-bs-dismiss="modal"><i class="bi bi-trash"></i> Confirmar exclusão</button>
             </div>
         </div>
     </div>

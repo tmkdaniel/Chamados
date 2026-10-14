@@ -13,7 +13,7 @@
 }
 
 <p>
-    <a href="/EmpresasForm" class="btn btn-primary">Nova Empresa</a>
+    <a href="/EmpresasForm" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nova Empresa</a>
 </p>
 
 <div class="tmk-eyebrow">Lista de Empresas</div>
@@ -40,12 +40,12 @@ else
                     <td>@empresa.Id</td>
                     <td>@empresa.Nome</td>
                     <td>
-                        <a href="/EmpresasForm?editId=@empresa.Id" class="btn btn-sm btn-outline-primary">Editar</a>
+                        <a href="/EmpresasForm?editId=@empresa.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i> Editar</a>
                         <form method="post" asp-page-handler="Excluir" asp-route-id="@empresa.Id" id="excluir-empresa-@empresa.Id" class="d-inline"></form>
                         <button type="button" class="btn btn-sm btn-outline-danger"
                                 data-bs-toggle="modal" data-bs-target="#modalConfirmarExclusao"
                                 onclick="document.getElementById('btnConfirmarExclusao').setAttribute('form', 'excluir-empresa-@empresa.Id')">
-                            Excluir
+                            <i class="bi bi-trash"></i> Excluir
                         </button>
                     </td>
                 </tr>
@@ -67,7 +67,7 @@ else
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" id="btnConfirmarExclusao" class="btn btn-danger" data-bs-dismiss="modal">Confirmar exclusão</button>
+                <button type="submit" id="btnConfirmarExclusao" class="btn btn-danger" data-bs-dismiss="modal"><i class="bi bi-trash"></i> Confirmar exclusão</button>
             </div>
         </div>
     </div>

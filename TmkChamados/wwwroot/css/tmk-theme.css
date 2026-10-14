@@ -24,6 +24,7 @@
     --tmk-realce: rgba(var(--tmk-gold-rgb), 0.13);
 
     --tmk-fonte: "Segoe UI", system-ui, -apple-system, sans-serif;
+    --tmk-fonte-mono: "Cascadia Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
 
     /* Escala monocromática para gráficos (Chart.js) — grafite -> dourado */
     --tmk-chart-1: #2A2A2E;
@@ -89,6 +90,7 @@ p, label, .form-label, td, th {
 }
 
 .tmk-numero-destaque {
+    font-family: var(--tmk-fonte-mono);
     font-weight: 600;
     color: var(--tmk-gold-text);
     font-size: 1.75rem;
@@ -100,11 +102,41 @@ p, label, .form-label, td, th {
     color: var(--tmk-gold-text);
 }
 
+.tmk-ticket-id {
+    font-family: var(--tmk-fonte-mono);
+    font-weight: 600;
+}
+
 .tmk-card {
     background-color: var(--tmk-cartao-bg);
     border: 0.8px solid var(--tmk-cartao-borda);
     border-radius: 10px;
     padding: 1.25rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tmk-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--tmk-gold-rgb), 0.12);
+}
+
+.tmk-logo-badge {
+    display: inline-flex;
+    align-items: center;
+    background-color: #1A1A1E;
+    border-radius: 8px;
+    padding: 0.3rem 0.6rem;
+    line-height: 0;
+}
+
+.tmk-logo-badge img {
+    display: block;
+    height: 28px;
+    width: auto;
+}
+
+.tmk-logo-badge.tmk-logo-badge-lg img {
+    height: 72px;
 }
 
 .tmk-chip {
@@ -208,6 +240,12 @@ footer.footer a:hover {
     border: 0.8px solid var(--tmk-cartao-borda);
     border-radius: 10px;
     box-shadow: none;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--tmk-gold-rgb), 0.12);
 }
 
 .table {
