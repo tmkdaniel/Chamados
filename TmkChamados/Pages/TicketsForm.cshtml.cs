@@ -11,18 +11,24 @@ namespace TmkChamados.Pages
     {
         private readonly ITicketService _ticketService;
         private readonly IUsuarioService _usuarioService;
+        private readonly IProtecaoEnvioDuplicadoService _protecaoEnvioDuplicado;
 
-        public TicketsFormModel(ITicketService ticketService, IUsuarioService usuarioService)
+        public TicketsFormModel(ITicketService ticketService, IUsuarioService usuarioService, IProtecaoEnvioDuplicadoService protecaoEnvioDuplicado)
         {
             _ticketService = ticketService;
             _usuarioService = usuarioService;
+            _protecaoEnvioDuplicado = protecaoEnvioDuplicado;
         }
 
         [BindProperty]
         public TicketFormModel Form { get; set; } = new();
 
+        [BindProperty]
+        public string? TokenEnvio { get; set; }
+
         public void OnGet()
         {
+            TokenEnvio = _protecaoEnvioDuplicado.GerarToken();
         }
 
         public async Task<IActionResult> OnPostAdicionarAsync()
@@ -37,6 +43,13 @@ namespace TmkChamados.Pages
             {
                 await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
                 return RedirectToPage("/Login");
+            }
+
+            // Protege contra duplo clique: a segunda submissão com o mesmo token é ignorada
+            // silenciosamente (ver design.md - Decisão 3), em vez de criar um segundo ticket.
+            if (!_protecaoEnvioDuplicado.TentarRegistrar(TokenEnvio))
+            {
+                return RedirectToPage("/Tickets");
             }
 
             _ticketService.Criar(Form.Classificacao!.Value, Form.Titulo, Form.Descricao ?? string.Empty, PrioridadeTicket.Normal, null, usuarioAutenticado.Id);

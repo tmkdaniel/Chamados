@@ -181,6 +181,7 @@ else
 
     <form method="post" asp-page-handler="AdicionarAndamento" enctype="multipart/form-data" class="tmk-card">
         <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="TokenEnvioAndamento" />
         <div asp-validation-summary="All" class="text-danger"></div>
         <div class="mb-3">
             <label asp-for="NovoAndamentoTexto" class="form-label">Texto</label>

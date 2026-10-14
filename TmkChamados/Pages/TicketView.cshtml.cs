@@ -12,16 +12,21 @@ namespace TmkChamados.Pages
         private readonly ITicketService _ticketService;
         private readonly IAndamentoService _andamentoService;
         private readonly IUsuarioService _usuarioService;
+        private readonly IProtecaoEnvioDuplicadoService _protecaoEnvioDuplicado;
 
-        public TicketViewModel(ITicketService ticketService, IAndamentoService andamentoService, IUsuarioService usuarioService)
+        public TicketViewModel(ITicketService ticketService, IAndamentoService andamentoService, IUsuarioService usuarioService, IProtecaoEnvioDuplicadoService protecaoEnvioDuplicado)
         {
             _ticketService = ticketService;
             _andamentoService = andamentoService;
             _usuarioService = usuarioService;
+            _protecaoEnvioDuplicado = protecaoEnvioDuplicado;
         }
 
         [BindProperty(SupportsGet = true)]
         public int Id { get; set; }
+
+        [BindProperty]
+        public string? TokenEnvioAndamento { get; set; }
 
         [BindProperty]
         public string? NovoAndamentoTexto { get; set; }
@@ -52,6 +57,7 @@ namespace TmkChamados.Pages
                 return acesso;
             }
 
+            TokenEnvioAndamento = _protecaoEnvioDuplicado.GerarToken();
             CarregarDados();
             PreencherFormDeEdicao();
             return Page();
@@ -83,6 +89,13 @@ namespace TmkChamados.Pages
                 CarregarDados();
                 PreencherFormDeEdicao();
                 return Page();
+            }
+
+            // Protege contra duplo clique: a segunda submissão com o mesmo token é ignorada
+            // silenciosamente (ver design.md - Decisão 3), em vez de criar um segundo andamento.
+            if (!_protecaoEnvioDuplicado.TentarRegistrar(TokenEnvioAndamento))
+            {
+                return RedirectToPage(new { Id });
             }
 
             byte[]? anexoConteudo = null;

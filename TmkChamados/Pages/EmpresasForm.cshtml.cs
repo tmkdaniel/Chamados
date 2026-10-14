@@ -7,14 +7,19 @@ namespace TmkChamados.Pages
     public class EmpresasFormModel : PageModel
     {
         private readonly IEmpresaService _empresaService;
+        private readonly IProtecaoEnvioDuplicadoService _protecaoEnvioDuplicado;
 
-        public EmpresasFormModel(IEmpresaService empresaService)
+        public EmpresasFormModel(IEmpresaService empresaService, IProtecaoEnvioDuplicadoService protecaoEnvioDuplicado)
         {
             _empresaService = empresaService;
+            _protecaoEnvioDuplicado = protecaoEnvioDuplicado;
         }
 
         [BindProperty]
         public EmpresaFormModel Form { get; set; } = new();
+
+        [BindProperty]
+        public string? TokenEnvio { get; set; }
 
         public bool EmEdicao => Form.Id.HasValue;
 
@@ -24,6 +29,8 @@ namespace TmkChamados.Pages
             {
                 return Forbid();
             }
+
+            TokenEnvio = _protecaoEnvioDuplicado.GerarToken();
 
             if (editId.HasValue)
             {
@@ -53,6 +60,13 @@ namespace TmkChamados.Pages
             if (!ModelState.IsValid)
             {
                 return Page();
+            }
+
+            // Protege contra duplo clique: a segunda submissão com o mesmo token é ignorada
+            // silenciosamente (ver design.md - Decisão 3), em vez de criar uma segunda empresa.
+            if (!_protecaoEnvioDuplicado.TentarRegistrar(TokenEnvio))
+            {
+                return RedirectToPage("/Empresas");
             }
 
             _empresaService.Criar(Form.Nome);

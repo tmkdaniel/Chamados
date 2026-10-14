@@ -9,15 +9,20 @@ namespace TmkChamados.Pages
     {
         private readonly IUsuarioService _usuarioService;
         private readonly IEmpresaService _empresaService;
+        private readonly IProtecaoEnvioDuplicadoService _protecaoEnvioDuplicado;
 
-        public UsuariosFormModel(IUsuarioService usuarioService, IEmpresaService empresaService)
+        public UsuariosFormModel(IUsuarioService usuarioService, IEmpresaService empresaService, IProtecaoEnvioDuplicadoService protecaoEnvioDuplicado)
         {
             _usuarioService = usuarioService;
             _empresaService = empresaService;
+            _protecaoEnvioDuplicado = protecaoEnvioDuplicado;
         }
 
         [BindProperty]
         public UsuarioFormModel Form { get; set; } = new();
+
+        [BindProperty]
+        public string? TokenEnvio { get; set; }
 
         public IReadOnlyList<Empresa> Empresas { get; private set; } = Array.Empty<Empresa>();
 
@@ -30,6 +35,7 @@ namespace TmkChamados.Pages
                 return Forbid();
             }
 
+            TokenEnvio = _protecaoEnvioDuplicado.GerarToken();
             Empresas = _empresaService.Listar();
 
             if (editId.HasValue)
@@ -65,6 +71,13 @@ namespace TmkChamados.Pages
             {
                 Empresas = _empresaService.Listar();
                 return Page();
+            }
+
+            // Protege contra duplo clique: a segunda submissão com o mesmo token é ignorada
+            // silenciosamente (ver design.md - Decisão 3), em vez de criar um segundo usuário.
+            if (!_protecaoEnvioDuplicado.TentarRegistrar(TokenEnvio))
+            {
+                return RedirectToPage("/Usuarios");
             }
 
             _usuarioService.Criar(Form.Nome, Form.Senha!, Form.Tipo!.Value, Form.EmpresaId!.Value, Form.Email);

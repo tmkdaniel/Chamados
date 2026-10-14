@@ -9,6 +9,7 @@
 <h1>Novo Ticket</h1>
 
 <form method="post" asp-page-handler="Adicionar" class="tmk-card mb-4">
+    <input type="hidden" asp-for="TokenEnvio" />
     <div asp-validation-summary="All" class="text-danger"></div>
 
     <div class="mb-2">

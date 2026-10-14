@@ -112,6 +112,7 @@ try
     builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
     builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
     builder.Services.AddScoped<INotificacaoTicketEmailService, NotificacaoTicketEmailService>();
+    builder.Services.AddSingleton<IProtecaoEnvioDuplicadoService, ProtecaoEnvioDuplicadoService>();
 
     builder.Services
         .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
