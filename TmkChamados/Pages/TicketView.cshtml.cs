@@ -127,11 +127,15 @@ namespace TmkChamados.Pages
 
             var ticketExistente = _ticketService.Obter(Id)!;
 
-            // Prioridade e Data de Prazo só podem ser alteradas por Master (ver design.md -
-            // Decisão 3): para quem não é Master, o servidor ignora o que veio no post e
-            // preserva os valores atuais, em vez de confiar no campo estar oculto/desabilitado na UI.
+            // Status, Responsável, Prioridade e Data de Prazo só podem ser alterados por Master
+            // (ver design.md - Decisão 3 de renomear-chamado-para-ticket e Decisão 1 de
+            // restringir-status-responsavel-master): para quem não é Master, o servidor ignora o
+            // que veio no post e preserva os valores atuais, em vez de confiar no campo estar
+            // oculto/desabilitado na UI.
             if (!IsMaster)
             {
+                Form.Status = ticketExistente.Status;
+                Form.ResponsavelId = ticketExistente.ResponsavelId;
                 Form.Prioridade = ticketExistente.Prioridade;
                 Form.DataPrazo = ticketExistente.DataPrazo;
 

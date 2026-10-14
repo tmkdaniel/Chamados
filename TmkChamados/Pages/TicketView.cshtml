@@ -55,11 +55,21 @@ else
             <textarea asp-for="Form.Descricao" class="form-control"></textarea>
         </div>
 
-        <div class="mb-2">
-            <label asp-for="Form.Status" class="form-label">Status</label>
-            <select asp-for="Form.Status" class="form-select"
-                    asp-items="Html.GetEnumSelectList<StatusTicket>()"></select>
-        </div>
+        @if (Model.IsMaster)
+        {
+            <div class="mb-2">
+                <label asp-for="Form.Status" class="form-label">Status</label>
+                <select asp-for="Form.Status" class="form-select"
+                        asp-items="Html.GetEnumSelectList<StatusTicket>()"></select>
+            </div>
+        }
+        else
+        {
+            <div class="mb-2">
+                <label class="form-label">Status</label>
+                <input type="text" value="@ticket.Status" class="form-control" readonly />
+            </div>
+        }
 
         @if (Model.IsMaster)
         {
@@ -93,17 +103,27 @@ else
             </div>
         }
 
-        <div class="mb-2">
-            <label asp-for="Form.ResponsavelId" class="form-label">Responsável</label>
-            <select asp-for="Form.ResponsavelId" class="form-select">
-                <option value="">Nenhum</option>
-                @foreach (var usuario in Model.UsuariosMaster)
-                {
-                    <option value="@usuario.Id">@usuario.Nome</option>
-                }
-            </select>
-            <span asp-validation-for="Form.ResponsavelId" class="text-danger"></span>
-        </div>
+        @if (Model.IsMaster)
+        {
+            <div class="mb-2">
+                <label asp-for="Form.ResponsavelId" class="form-label">Responsável</label>
+                <select asp-for="Form.ResponsavelId" class="form-select">
+                    <option value="">Nenhum</option>
+                    @foreach (var usuario in Model.UsuariosMaster)
+                    {
+                        <option value="@usuario.Id">@usuario.Nome</option>
+                    }
+                </select>
+                <span asp-validation-for="Form.ResponsavelId" class="text-danger"></span>
+            </div>
+        }
+        else
+        {
+            <div class="mb-2">
+                <label class="form-label">Responsável</label>
+                <input type="text" value="@(ticket.ResponsavelId.HasValue && Model.NomesPorId.TryGetValue(ticket.ResponsavelId.Value, out var responsavelNome) ? responsavelNome : "Nenhum")" class="form-control" readonly />
+            </div>
+        }
 
         <div class="mb-2">
             <label class="form-label">Criado por</label>
