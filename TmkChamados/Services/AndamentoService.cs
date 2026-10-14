@@ -6,10 +6,14 @@ namespace TmkChamados.Services
     public class AndamentoService : IAndamentoService
     {
         private readonly TmkChamadosDbContext _dbContext;
+        private readonly ITicketService _ticketService;
+        private readonly INotificacaoTicketEmailService _notificacaoService;
 
-        public AndamentoService(TmkChamadosDbContext dbContext)
+        public AndamentoService(TmkChamadosDbContext dbContext, ITicketService ticketService, INotificacaoTicketEmailService notificacaoService)
         {
             _dbContext = dbContext;
+            _ticketService = ticketService;
+            _notificacaoService = notificacaoService;
         }
 
         public Andamento Criar(int ticketId, string texto, int criadoPorId, byte[]? anexoConteudo = null, string? anexoNomeArquivo = null, string? anexoContentType = null)
@@ -25,17 +29,24 @@ namespace TmkChamados.Services
             _dbContext.Andamentos.Add(andamento);
             _dbContext.SaveChanges();
 
-            if (anexoConteudo is not null && anexoNomeArquivo is not null && anexoContentType is not null)
+            var temAnexo = anexoConteudo is not null && anexoNomeArquivo is not null && anexoContentType is not null;
+            if (temAnexo)
             {
                 _dbContext.AnexosAndamento.Add(new AnexoAndamento
                 {
                     AndamentoId = andamento.Id,
-                    NomeArquivoOriginal = anexoNomeArquivo,
-                    ContentType = anexoContentType,
-                    TamanhoBytes = anexoConteudo.LongLength,
+                    NomeArquivoOriginal = anexoNomeArquivo!,
+                    ContentType = anexoContentType!,
+                    TamanhoBytes = anexoConteudo!.LongLength,
                     Conteudo = anexoConteudo
                 });
                 _dbContext.SaveChanges();
+            }
+
+            var ticket = _ticketService.Obter(ticketId);
+            if (ticket is not null)
+            {
+                _notificacaoService.NotificarNovoAndamento(ticket.Id, ticket.Titulo, ticket.CriadoPorId, ticket.ResponsavelId, criadoPorId, temAnexo);
             }
 
             return andamento;

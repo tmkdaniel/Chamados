@@ -21,18 +21,46 @@ namespace TmkChamados.Services
                 return;
             }
 
-            var destinatarioIds = new List<int> { criadoPorId };
-            if (novo.ResponsavelId.HasValue && novo.ResponsavelId.Value != criadoPorId)
-            {
-                destinatarioIds.Add(novo.ResponsavelId.Value);
-            }
-
+            var destinatarioIds = MontarDestinatarios(criadoPorId, novo.ResponsavelId);
             var assunto = $"Ticket #{ticketId} atualizado: {novo.Titulo}";
             var corpo = MontarCorpo(ticketId, novo.Titulo, alteracoes);
 
-            // Disparado fora do escopo de DI da requisição (ver design.md - Decisão 2 e Risco
-            // correspondente): a requisição original não espera o envio terminar, então é preciso
-            // um escopo novo para resolver serviços scoped (DbContext/IUsuarioService) com segurança.
+            EnviarParaDestinatarios(ticketId, destinatarioIds, usuarioQueAlterouId, assunto, _ => corpo);
+        }
+
+        public void NotificarNovoAndamento(int ticketId, string ticketTitulo, int criadoPorId, int? responsavelId, int autorAndamentoId, bool temAnexo)
+        {
+            var destinatarioIds = MontarDestinatarios(criadoPorId, responsavelId);
+            var assunto = $"Ticket #{ticketId} tem um novo andamento: {ticketTitulo}";
+
+            // O nome do autor só é conhecido dentro do escopo de DI criado por EnviarParaDestinatarios
+            // (precisa de IUsuarioService), por isso o corpo é montado via callback em vez de já pronto.
+            EnviarParaDestinatarios(ticketId, destinatarioIds, autorAndamentoId, assunto, usuarioService =>
+            {
+                var autor = usuarioService.Obter(autorAndamentoId);
+                return MontarCorpoNovoAndamento(ticketId, ticketTitulo, autor?.Nome ?? "um usuário", temAnexo);
+            });
+        }
+
+        private static List<int> MontarDestinatarios(int criadoPorId, int? responsavelId)
+        {
+            var destinatarioIds = new List<int> { criadoPorId };
+            if (responsavelId.HasValue && responsavelId.Value != criadoPorId)
+            {
+                destinatarioIds.Add(responsavelId.Value);
+            }
+
+            return destinatarioIds;
+        }
+
+        // Helper compartilhado por NotificarAlteracao e NotificarNovoAndamento: resolve destinatários
+        // (exclui quem agiu, exclui quem não tem e-mail) e envia, fora do escopo de DI da requisição
+        // (ver design.md - Decisão 2 e Risco correspondente: a requisição original não espera o envio
+        // terminar, então é preciso um escopo novo para resolver serviços scoped com segurança).
+        // `corpoFactory` recebe o IUsuarioService do escopo porque NotificarNovoAndamento precisa dele
+        // para resolver o nome do autor antes de montar o corpo do e-mail.
+        private void EnviarParaDestinatarios(int ticketId, List<int> destinatarioIds, int idQueAgiu, string assunto, Func<IUsuarioService, string> corpoFactory)
+        {
             _ = Task.Run(async () =>
             {
                 try
@@ -40,10 +68,11 @@ namespace TmkChamados.Services
                     using var scope = _scopeFactory.CreateScope();
                     var usuarioService = scope.ServiceProvider.GetRequiredService<IUsuarioService>();
                     var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
+                    var corpo = corpoFactory(usuarioService);
 
                     foreach (var destinatarioId in destinatarioIds)
                     {
-                        if (destinatarioId == usuarioQueAlterouId)
+                        if (destinatarioId == idQueAgiu)
                         {
                             continue;
                         }
@@ -120,6 +149,24 @@ namespace TmkChamados.Services
                 "Alterações:"
             };
             linhas.AddRange(alteracoes.Select(a => $"- {a}"));
+            return string.Join(Environment.NewLine, linhas);
+        }
+
+        // O texto do andamento propositalmente não entra no corpo do e-mail (ver design.md -
+        // Decisão 4), seguindo o mesmo padrão já usado para "Descrição foi alterada" em
+        // CalcularAlteracoes, que também não reproduz conteúdo livre no e-mail.
+        private static string MontarCorpoNovoAndamento(int ticketId, string titulo, string nomeAutor, bool temAnexo)
+        {
+            var linhas = new List<string>
+            {
+                $"Um novo andamento foi adicionado ao ticket #{ticketId} - {titulo} por {nomeAutor}."
+            };
+
+            if (temAnexo)
+            {
+                linhas.Add("Um anexo foi incluído.");
+            }
+
             return string.Join(Environment.NewLine, linhas);
         }
     }
