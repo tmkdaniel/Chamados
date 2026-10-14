@@ -74,6 +74,11 @@ namespace TmkChamados.Services
                 .ToDictionary(a => a.AndamentoId, a => a.NomeArquivoOriginal);
         }
 
+        public bool ExisteAndamentoDe(int usuarioId)
+        {
+            return _dbContext.Andamentos.Any(a => a.CriadoPorId == usuarioId);
+        }
+
         public Andamento? Obter(int id)
         {
             return _dbContext.Andamentos.FirstOrDefault(a => a.Id == id);

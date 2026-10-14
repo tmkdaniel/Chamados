@@ -9,11 +9,13 @@ namespace TmkChamados.Pages
     {
         private readonly IUsuarioService _usuarioService;
         private readonly ITicketService _ticketService;
+        private readonly IAndamentoService _andamentoService;
 
-        public UsuariosModel(IUsuarioService usuarioService, ITicketService ticketService)
+        public UsuariosModel(IUsuarioService usuarioService, ITicketService ticketService, IAndamentoService andamentoService)
         {
             _usuarioService = usuarioService;
             _ticketService = ticketService;
+            _andamentoService = andamentoService;
         }
 
         public IReadOnlyList<Usuario> Usuarios { get; private set; } = Array.Empty<Usuario>();
@@ -39,7 +41,8 @@ namespace TmkChamados.Pages
                 return Forbid();
             }
 
-            var emUso = _ticketService.Listar().Any(c => c.CriadoPorId == id || c.ResponsavelId == id);
+            var emUso = _ticketService.Listar().Any(c => c.CriadoPorId == id || c.ResponsavelId == id)
+                || _andamentoService.ExisteAndamentoDe(id);
             var ultimoUsuario = _usuarioService.Listar().Count <= 1;
 
             if (emUso)

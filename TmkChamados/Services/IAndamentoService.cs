@@ -10,6 +10,8 @@ namespace TmkChamados.Services
 
         IReadOnlyDictionary<int, string> ObterNomesAnexosPorTicket(int ticketId);
 
+        bool ExisteAndamentoDe(int usuarioId);
+
         Andamento? Obter(int id);
 
         AnexoAndamento? ObterAnexo(int andamentoId);
