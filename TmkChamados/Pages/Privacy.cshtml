@@ -1,9 +1,42 @@
 ﻿@page
 @model PrivacyModel
 @{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Privacidade";
 }
 <div class="tmk-eyebrow">Institucional</div>
-<h1>@ViewData["Title"]</h1>
+<h1>Privacidade</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<p>Esta página descreve, de forma direta, quais dados pessoais o TMK Tickets coleta, para que servem e por quanto tempo ficam guardados.</p>
+
+<div class="tmk-card mb-3">
+    <h2 class="h5">Dados de cadastro</h2>
+    <p>Ao criar seu usuário, guardamos: nome, senha (nunca em texto puro — fica armazenada como hash, que não pode ser revertido para a senha original), e-mail (opcional) e a empresa à qual você está vinculado.</p>
+    <p>O e-mail, quando informado, é usado apenas para enviar notificações sobre alterações nos tickets dos quais você é criador ou responsável.</p>
+</div>
+
+<div class="tmk-card mb-3">
+    <h2 class="h5">Conteúdo de tickets e anexos</h2>
+    <p>O título, a descrição e os andamentos de um ticket são texto livre: se você ou outra pessoa mencionar o nome, e-mail ou qualquer outro dado pessoal de terceiros ao descrever um problema, esse dado passa a fazer parte do ticket.</p>
+    <p>Arquivos anexados a um andamento (PDF, JPEG, PNG ou BMP, até 50MB) ficam armazenados no banco de dados do sistema.</p>
+</div>
+
+<div class="tmk-card mb-3">
+    <h2 class="h5">Notificação por e-mail</h2>
+    <p>Quando um ticket do qual você é criador ou responsável é alterado, enviamos um e-mail de notificação através do provedor de e-mail configurado pela TMK. Não compartilhamos seus dados com nenhum outro terceiro além desse provedor.</p>
+</div>
+
+<div class="tmk-card mb-3">
+    <h2 class="h5">Registros técnicos (logs)</h2>
+    <p>Para suporte e depuração, registramos tentativas de login (usuário informado e se o login teve sucesso) e, em caso de erro inesperado no sistema, qual usuário estava autenticado no momento. Esses registros ficam em arquivo de log local — não no banco de dados — e são mantidos por 30 dias, depois descartados automaticamente.</p>
+</div>
+
+<div class="tmk-card mb-3">
+    <h2 class="h5">O que não coletamos</h2>
+    <p>O TMK Tickets não usa cookies de rastreamento ou publicidade, não usa ferramentas de analytics de terceiros (como Google Analytics) e não registra seu endereço IP ou navegador. O único cookie usado é o de autenticação da sua sessão, necessário para você continuar logado.</p>
+</div>
+
+<div class="tmk-card mb-3">
+    <h2 class="h5">Seus direitos e contato</h2>
+    <p>Você pode solicitar acesso, correção ou exclusão dos seus dados pessoais.</p>
+    <p>Para dúvidas ou solicitações sobre dados pessoais, entre em contato: <a href="mailto:suporte@tmk.com.br">suporte@tmk.com.br</a>.</p>
+</div>
