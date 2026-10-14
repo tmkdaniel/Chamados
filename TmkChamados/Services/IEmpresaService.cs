@@ -8,6 +8,8 @@ namespace TmkChamados.Services
 
         Empresa? Obter(int id);
 
+        bool NomeEmUso(string nome, int? ignorarId = null);
+
         Empresa Criar(string nome);
 
         bool Atualizar(int id, string nome);

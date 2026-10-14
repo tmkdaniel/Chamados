@@ -25,6 +25,10 @@ namespace TmkChamados.Data
                 .HasIndex(u => u.Nome)
                 .IsUnique();
 
+            modelBuilder.Entity<Empresa>()
+                .HasIndex(e => e.Nome)
+                .IsUnique();
+
             modelBuilder.Entity<Usuario>()
                 .Property(u => u.Email)
                 .HasMaxLength(255);

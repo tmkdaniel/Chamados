@@ -48,6 +48,8 @@ namespace TmkChamados.Pages
                 return Forbid();
             }
 
+            ValidarNomeUnico(ignorarId: null);
+
             if (!ModelState.IsValid)
             {
                 return Page();
@@ -64,6 +66,8 @@ namespace TmkChamados.Pages
                 return Forbid();
             }
 
+            ValidarNomeUnico(ignorarId: Form.Id);
+
             if (!ModelState.IsValid)
             {
                 return Page();
@@ -75,6 +79,14 @@ namespace TmkChamados.Pages
             }
 
             return RedirectToPage("/Empresas");
+        }
+
+        private void ValidarNomeUnico(int? ignorarId)
+        {
+            if (!string.IsNullOrEmpty(Form.Nome) && _empresaService.NomeEmUso(Form.Nome, ignorarId))
+            {
+                ModelState.AddModelError(nameof(Form.Nome), "Esse nome já está em uso por outra empresa.");
+            }
         }
     }
 

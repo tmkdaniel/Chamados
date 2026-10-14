@@ -22,6 +22,13 @@ namespace TmkChamados.Services
             return _dbContext.Empresas.FirstOrDefault(e => e.Id == id);
         }
 
+        public bool NomeEmUso(string nome, int? ignorarId = null)
+        {
+            return _dbContext.Empresas.Any(e =>
+                e.Id != ignorarId &&
+                e.Nome.ToLower() == nome.ToLower());
+        }
+
         public Empresa Criar(string nome)
         {
             var empresa = new Empresa
