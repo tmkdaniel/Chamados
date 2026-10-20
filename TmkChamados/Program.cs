@@ -94,12 +94,20 @@ try
         ["Email", "PasswordCripto"],
         out var emailPasswordAlterada);
 
-    if (connectionStringAlterada || emailPasswordAlterada)
+    var importacaoEmailPasswordResolvida = segredoResolver.Resolver(
+        builder.Configuration["ImportacaoEmail:Password"],
+        appSettingsRaiz,
+        ["ImportacaoEmail", "Password"],
+        ["ImportacaoEmail", "PasswordCripto"],
+        out var importacaoEmailPasswordAlterada);
+
+    if (connectionStringAlterada || emailPasswordAlterada || importacaoEmailPasswordAlterada)
     {
         File.WriteAllText(appSettingsPath, appSettingsRaiz.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
     }
 
     builder.Configuration["Email:Password"] = emailPasswordResolvida;
+    builder.Configuration["ImportacaoEmail:Password"] = importacaoEmailPasswordResolvida;
 
     // Add services to the container.
     builder.Services.AddRazorPages();
@@ -113,6 +121,9 @@ try
     builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
     builder.Services.AddScoped<INotificacaoTicketEmailService, NotificacaoTicketEmailService>();
     builder.Services.AddSingleton<IProtecaoEnvioDuplicadoService, ProtecaoEnvioDuplicadoService>();
+    builder.Services.Configure<ImportacaoEmailSettings>(builder.Configuration.GetSection("ImportacaoEmail"));
+    builder.Services.AddScoped<IEmailTicketImportService, EmailTicketImportService>();
+    builder.Services.AddHostedService<EmailTicketImportBackgroundService>();
 
     builder.Services
         .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -185,7 +196,20 @@ try
 
         var usuarioService = scope.ServiceProvider.GetRequiredService<IUsuarioService>();
         var empresaService = scope.ServiceProvider.GetRequiredService<IEmpresaService>();
-        if (!usuarioService.Listar().Any())
+
+        // Usuário/Empresa de sistema (ver openspec/changes/.../importacao-email-tickets):
+        // sempre existem, nunca logam, nunca são excluídos. Criados antes da checagem do
+        // usuário "tmk" abaixo, que por isso precisa ignorá-los nessa contagem - senão, a
+        // partir da segunda execução, o usuário de sistema por si só faria o "tmk" nunca
+        // mais ser (re)criado em uma instalação nova.
+        var empresaSistema = empresaService.Listar().FirstOrDefault(e => e.Sistema)
+            ?? empresaService.Criar("Sistema", sistema: true);
+        if (!usuarioService.Listar().Any(u => u.Sistema))
+        {
+            usuarioService.Criar("Sistema", Guid.NewGuid().ToString("N"), TipoUsuario.Usuario, empresaSistema.Id, sistema: true);
+        }
+
+        if (!usuarioService.Listar().Any(u => !u.Sistema))
         {
             var empresaPadrao = empresaService.Criar("Padrão");
             usuarioService.Criar("tmk", "a", TipoUsuario.Master, empresaPadrao.Id);

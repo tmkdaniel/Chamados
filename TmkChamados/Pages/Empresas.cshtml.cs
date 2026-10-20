@@ -37,7 +37,12 @@ namespace TmkChamados.Pages
                 return Forbid();
             }
 
-            if (!_empresaService.Excluir(id))
+            var empresa = _empresaService.Obter(id);
+            if (empresa is not null && empresa.Sistema)
+            {
+                ErroExclusao = "Não é possível excluir esta empresa: ela é uma empresa de sistema.";
+            }
+            else if (!_empresaService.Excluir(id))
             {
                 ErroExclusao = "Não é possível excluir esta empresa: ela possui usuários associados.";
             }

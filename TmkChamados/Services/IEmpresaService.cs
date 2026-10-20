@@ -10,7 +10,7 @@ namespace TmkChamados.Services
 
         bool NomeEmUso(string nome, int? ignorarId = null);
 
-        Empresa Criar(string nome);
+        Empresa Criar(string nome, bool sistema = false);
 
         bool Atualizar(int id, string nome);
 

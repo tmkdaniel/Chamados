@@ -29,11 +29,12 @@ namespace TmkChamados.Services
                 e.Nome.ToLower() == nome.ToLower());
         }
 
-        public Empresa Criar(string nome)
+        public Empresa Criar(string nome, bool sistema = false)
         {
             var empresa = new Empresa
             {
-                Nome = nome
+                Nome = nome,
+                Sistema = sistema
             };
 
             _dbContext.Empresas.Add(empresa);
@@ -58,6 +59,11 @@ namespace TmkChamados.Services
         {
             var empresa = _dbContext.Empresas.FirstOrDefault(e => e.Id == id);
             if (empresa is null)
+            {
+                return false;
+            }
+
+            if (empresa.Sistema)
             {
                 return false;
             }

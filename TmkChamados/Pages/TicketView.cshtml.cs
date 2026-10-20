@@ -47,6 +47,8 @@ namespace TmkChamados.Pages
 
         public IReadOnlyList<Usuario> UsuariosMaster { get; private set; } = Array.Empty<Usuario>();
 
+        public IReadOnlyList<Usuario> UsuariosTodos { get; private set; } = Array.Empty<Usuario>();
+
         public bool IsMaster { get; private set; }
 
         public async Task<IActionResult> OnGetAsync()
@@ -151,15 +153,18 @@ namespace TmkChamados.Pages
                 Form.ResponsavelId = ticketExistente.ResponsavelId;
                 Form.Prioridade = ticketExistente.Prioridade;
                 Form.DataPrazo = ticketExistente.DataPrazo;
+                Form.CriadoPorId = ticketExistente.CriadoPorId;
 
-                // O campo Prioridade não é enviado no POST quando exibido como somente leitura
-                // (fora do Form vinculado), então o model binding o marca como ausente e o
-                // [Required] acima falha antes deste bloco rodar; removido aqui porque o valor
-                // já foi restaurado logo acima.
+                // Prioridade e Criado por não são enviados no POST quando exibidos como somente
+                // leitura (fora do Form vinculado), então o model binding os marca como ausentes
+                // e o [Required] acima falha antes deste bloco rodar; removidos aqui porque os
+                // valores já foram restaurados logo acima.
                 ModelState.Remove($"{nameof(Form)}.{nameof(Form.Prioridade)}");
+                ModelState.Remove($"{nameof(Form)}.{nameof(Form.CriadoPorId)}");
             }
 
             ValidarResponsavelMaster();
+            ValidarCriadoPor();
 
             if (!ModelState.IsValid)
             {
@@ -168,7 +173,7 @@ namespace TmkChamados.Pages
             }
 
             var usuarioQueAlterouId = User.ObterUsuarioId()!.Value;
-            _ticketService.Atualizar(Id, Form.Classificacao!.Value, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, Form.Prioridade!.Value, Form.DataPrazo, ticketExistente.CriadoPorId, Form.ResponsavelId, usuarioQueAlterouId);
+            _ticketService.Atualizar(Id, Form.Classificacao!.Value, Form.Titulo, Form.Descricao ?? string.Empty, Form.Status, Form.Prioridade!.Value, Form.DataPrazo, Form.CriadoPorId!.Value, Form.ResponsavelId, usuarioQueAlterouId);
 
             return RedirectToPage(new { Id });
         }
@@ -217,6 +222,7 @@ namespace TmkChamados.Pages
             var usuarios = _usuarioService.Listar();
             NomesPorId = usuarios.ToDictionary(u => u.Id, u => u.Nome);
             UsuariosMaster = usuarios.Where(u => u.Tipo == TipoUsuario.Master).ToList();
+            UsuariosTodos = usuarios;
         }
 
         private void PreencherFormDeEdicao()
@@ -234,7 +240,8 @@ namespace TmkChamados.Pages
                 Status = Ticket.Status,
                 Prioridade = Ticket.Prioridade,
                 DataPrazo = Ticket.DataPrazo,
-                ResponsavelId = Ticket.ResponsavelId
+                ResponsavelId = Ticket.ResponsavelId,
+                CriadoPorId = Ticket.CriadoPorId
             };
         }
 
@@ -249,6 +256,14 @@ namespace TmkChamados.Pages
             if (responsavel is null || responsavel.Tipo != TipoUsuario.Master)
             {
                 ModelState.AddModelError(nameof(Form.ResponsavelId), "O Responsável deve ser um usuário do tipo Master.");
+            }
+        }
+
+        private void ValidarCriadoPor()
+        {
+            if (!Form.CriadoPorId.HasValue || _usuarioService.Obter(Form.CriadoPorId.Value) is null)
+            {
+                ModelState.AddModelError(nameof(Form.CriadoPorId), "O Criado por deve ser um usuário cadastrado.");
             }
         }
     }
@@ -272,5 +287,8 @@ namespace TmkChamados.Pages
         public DateTime? DataPrazo { get; set; }
 
         public int? ResponsavelId { get; set; }
+
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "O Criado por é obrigatório.")]
+        public int? CriadoPorId { get; set; }
     }
 }

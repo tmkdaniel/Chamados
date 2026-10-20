@@ -32,14 +32,15 @@ namespace TmkChamados.Services
                 u.Nome.ToLower() == nome.ToLower());
         }
 
-        public Usuario Criar(string nome, string senha, TipoUsuario tipo, int empresaId, string? email = null)
+        public Usuario Criar(string nome, string senha, TipoUsuario tipo, int empresaId, string? email = null, bool sistema = false)
         {
             var usuario = new Usuario
             {
                 Nome = nome,
                 Tipo = tipo,
                 EmpresaId = empresaId,
-                Email = email
+                Email = email,
+                Sistema = sistema
             };
             usuario.SenhaHash = _hasher.HashPassword(usuario, senha);
 
@@ -85,7 +86,7 @@ namespace TmkChamados.Services
         public Usuario? ValidarCredenciais(string nome, string senha)
         {
             var usuario = _dbContext.Usuarios.FirstOrDefault(u => u.Nome.ToLower() == nome.ToLower());
-            if (usuario is null)
+            if (usuario is null || usuario.Sistema)
             {
                 return null;
             }

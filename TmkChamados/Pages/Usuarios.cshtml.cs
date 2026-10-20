@@ -41,11 +41,16 @@ namespace TmkChamados.Pages
                 return Forbid();
             }
 
+            var usuarioAlvo = _usuarioService.Obter(id);
             var emUso = _ticketService.Listar().Any(c => c.CriadoPorId == id || c.ResponsavelId == id)
                 || _andamentoService.ExisteAndamentoDe(id);
-            var ultimoUsuario = _usuarioService.Listar().Count <= 1;
+            var ultimoUsuario = _usuarioService.Listar().Count(u => !u.Sistema) <= 1;
 
-            if (emUso)
+            if (usuarioAlvo is not null && usuarioAlvo.Sistema)
+            {
+                ErroExclusao = "Não é possível excluir este usuário: ele é um usuário de sistema.";
+            }
+            else if (emUso)
             {
                 ErroExclusao = "Não é possível excluir este usuário: ele está em uso como Criado por ou Responsável em algum ticket.";
             }

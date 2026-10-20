@@ -98,6 +98,9 @@ namespace TmkChamados.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<bool>("Sistema")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Nome")
@@ -180,6 +183,9 @@ namespace TmkChamados.Migrations
                     b.Property<string>("SenhaHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Sistema")
+                        .HasColumnType("bit");
 
                     b.Property<int>("Tipo")
                         .HasColumnType("int");

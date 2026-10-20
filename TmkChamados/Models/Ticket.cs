@@ -22,7 +22,8 @@ namespace TmkChamados.Models
         Incidente,
         Requisicao,
         Problema,
-        Mudanca
+        Mudanca,
+        SemClassificacao
     }
 
     public class Ticket

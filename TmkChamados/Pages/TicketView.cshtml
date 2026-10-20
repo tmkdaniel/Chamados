@@ -125,10 +125,26 @@ else
             </div>
         }
 
-        <div class="mb-2">
-            <label class="form-label">Criado por</label>
-            <input type="text" value="@(Model.NomesPorId.TryGetValue(ticket.CriadoPorId, out var criadoPorNome) ? criadoPorNome : "-")" class="form-control" readonly />
-        </div>
+        @if (Model.IsMaster)
+        {
+            <div class="mb-2">
+                <label asp-for="Form.CriadoPorId" class="form-label">Criado por</label>
+                <select asp-for="Form.CriadoPorId" class="form-select">
+                    @foreach (var usuario in Model.UsuariosTodos)
+                    {
+                        <option value="@usuario.Id">@usuario.Nome</option>
+                    }
+                </select>
+                <span asp-validation-for="Form.CriadoPorId" class="text-danger"></span>
+            </div>
+        }
+        else
+        {
+            <div class="mb-2">
+                <label class="form-label">Criado por</label>
+                <input type="text" value="@(Model.NomesPorId.TryGetValue(ticket.CriadoPorId, out var criadoPorNome) ? criadoPorNome : "-")" class="form-control" readonly />
+            </div>
+        }
 
         <div class="mb-2">
             <label class="form-label">Criado em</label>
