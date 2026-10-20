@@ -17,7 +17,7 @@ namespace TmkChamados.Services
             _logger = logger;
         }
 
-        public async Task EnviarAsync(string destinatario, string assunto, string corpo)
+        public async Task<bool> EnviarAsync(string destinatario, string assunto, string corpo)
         {
             try
             {
@@ -38,10 +38,12 @@ namespace TmkChamados.Services
 
                 await cliente.SendAsync(mensagem);
                 await cliente.DisconnectAsync(true);
+                return true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Falha ao enviar e-mail de notificação para {Destinatario}.", destinatario);
+                return false;
             }
         }
     }

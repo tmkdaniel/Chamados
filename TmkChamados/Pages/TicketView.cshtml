@@ -13,6 +13,15 @@ else
 {
     var ticket = Model.Ticket;
 
+    @if (!string.IsNullOrEmpty(Model.MensagemEnvioEmail))
+    {
+        <div class="alert alert-success">@Model.MensagemEnvioEmail</div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErroEnvioEmail))
+    {
+        <div class="alert alert-danger">@Model.ErroEnvioEmail</div>
+    }
+
     <div class="tmk-eyebrow">Ticket <span class="tmk-ticket-id">#@ticket.Id</span></div>
     <h1>@ticket.Titulo</h1>
     <p class="mb-3">
@@ -128,7 +137,15 @@ else
         @if (Model.IsMaster)
         {
             <div class="mb-2">
-                <label asp-for="Form.CriadoPorId" class="form-label">Criado por</label>
+                <label asp-for="Form.CriadoPorId" class="form-label">
+                    Criado por
+                    @if (!string.IsNullOrEmpty(Model.EmailCriadoPor))
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEnviarEmail">
+                            <i class="bi bi-envelope"></i> Enviar e-mail
+                        </button>
+                    }
+                </label>
                 <select asp-for="Form.CriadoPorId" class="form-select">
                     @foreach (var usuario in Model.UsuariosTodos)
                     {
@@ -210,6 +227,30 @@ else
         </div>
         <button type="submit" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Adicionar</button>
     </form>
+
+    @if (Model.IsMaster && !string.IsNullOrEmpty(Model.EmailCriadoPor))
+    {
+        <div class="modal fade" id="modalEnviarEmail" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="post" asp-page-handler="EnviarEmail" class="modal-content">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="TokenEnvioEmail" />
+                    <div class="modal-header">
+                        <h5 class="modal-title">Enviar e-mail para @(Model.NomesPorId.TryGetValue(ticket.CriadoPorId, out var destinatarioNome) ? destinatarioNome : "o criador do ticket")</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cancelar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label asp-for="EmailCorpoTexto" class="form-label">Texto do e-mail</label>
+                        <textarea asp-for="EmailCorpoTexto" class="form-control" rows="5"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-envelope"></i> Enviar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
 
     <partial name="_AjudaClassificacaoModal" />
 }

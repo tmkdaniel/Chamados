@@ -83,7 +83,7 @@ namespace TmkChamados.Services
                             continue;
                         }
 
-                        await emailSender.EnviarAsync(destinatario.Email!, assunto, corpo);
+                        _ = await emailSender.EnviarAsync(destinatario.Email!, assunto, corpo);
                     }
                 }
                 catch (Exception ex)

@@ -16,7 +16,7 @@ namespace TmkChamados.Services
             _notificacaoService = notificacaoService;
         }
 
-        public Andamento Criar(int ticketId, string texto, int criadoPorId, byte[]? anexoConteudo = null, string? anexoNomeArquivo = null, string? anexoContentType = null)
+        public Andamento Criar(int ticketId, string texto, int criadoPorId, byte[]? anexoConteudo = null, string? anexoNomeArquivo = null, string? anexoContentType = null, bool notificar = true)
         {
             var andamento = new Andamento
             {
@@ -43,10 +43,13 @@ namespace TmkChamados.Services
                 _dbContext.SaveChanges();
             }
 
-            var ticket = _ticketService.Obter(ticketId);
-            if (ticket is not null)
+            if (notificar)
             {
-                _notificacaoService.NotificarNovoAndamento(ticket.Id, ticket.Titulo, ticket.CriadoPorId, ticket.ResponsavelId, criadoPorId, temAnexo);
+                var ticket = _ticketService.Obter(ticketId);
+                if (ticket is not null)
+                {
+                    _notificacaoService.NotificarNovoAndamento(ticket.Id, ticket.Titulo, ticket.CriadoPorId, ticket.ResponsavelId, criadoPorId, temAnexo);
+                }
             }
 
             return andamento;

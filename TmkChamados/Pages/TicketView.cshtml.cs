@@ -13,13 +13,15 @@ namespace TmkChamados.Pages
         private readonly IAndamentoService _andamentoService;
         private readonly IUsuarioService _usuarioService;
         private readonly IProtecaoEnvioDuplicadoService _protecaoEnvioDuplicado;
+        private readonly IEmailSender _emailSender;
 
-        public TicketViewModel(ITicketService ticketService, IAndamentoService andamentoService, IUsuarioService usuarioService, IProtecaoEnvioDuplicadoService protecaoEnvioDuplicado)
+        public TicketViewModel(ITicketService ticketService, IAndamentoService andamentoService, IUsuarioService usuarioService, IProtecaoEnvioDuplicadoService protecaoEnvioDuplicado, IEmailSender emailSender)
         {
             _ticketService = ticketService;
             _andamentoService = andamentoService;
             _usuarioService = usuarioService;
             _protecaoEnvioDuplicado = protecaoEnvioDuplicado;
+            _emailSender = emailSender;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -27,6 +29,18 @@ namespace TmkChamados.Pages
 
         [BindProperty]
         public string? TokenEnvioAndamento { get; set; }
+
+        [BindProperty]
+        public string? TokenEnvioEmail { get; set; }
+
+        [BindProperty]
+        public string? EmailCorpoTexto { get; set; }
+
+        [TempData]
+        public string? MensagemEnvioEmail { get; set; }
+
+        [TempData]
+        public string? ErroEnvioEmail { get; set; }
 
         [BindProperty]
         public string? NovoAndamentoTexto { get; set; }
@@ -51,6 +65,8 @@ namespace TmkChamados.Pages
 
         public bool IsMaster { get; private set; }
 
+        public string? EmailCriadoPor { get; private set; }
+
         public async Task<IActionResult> OnGetAsync()
         {
             var acesso = await VerificarAcessoAsync();
@@ -60,6 +76,7 @@ namespace TmkChamados.Pages
             }
 
             TokenEnvioAndamento = _protecaoEnvioDuplicado.GerarToken();
+            TokenEnvioEmail = _protecaoEnvioDuplicado.GerarToken();
             CarregarDados();
             PreencherFormDeEdicao();
             return Page();
@@ -178,6 +195,64 @@ namespace TmkChamados.Pages
             return RedirectToPage(new { Id });
         }
 
+        public async Task<IActionResult> OnPostEnviarEmailAsync()
+        {
+            var acesso = await VerificarAcessoAsync();
+            if (acesso is not null)
+            {
+                return acesso;
+            }
+
+            if (!IsMaster)
+            {
+                return Forbid();
+            }
+
+            var ticketAtual = _ticketService.Obter(Id);
+            if (ticketAtual is null)
+            {
+                return NotFound();
+            }
+
+            // Revalida no servidor mesmo que o botão só devesse aparecer quando há Email
+            // cadastrado (não confia que a UI estava realmente oculta).
+            var criadoPor = _usuarioService.Obter(ticketAtual.CriadoPorId);
+            if (criadoPor is null || string.IsNullOrWhiteSpace(criadoPor.Email))
+            {
+                ErroEnvioEmail = "Não é possível enviar e-mail: o Criado por deste ticket não tem Email cadastrado.";
+                return RedirectToPage(new { Id });
+            }
+
+            if (string.IsNullOrWhiteSpace(EmailCorpoTexto))
+            {
+                ErroEnvioEmail = "O corpo do e-mail é obrigatório.";
+                return RedirectToPage(new { Id });
+            }
+
+            // Protege contra duplo clique, mesmo padrão já usado para Andamento.
+            if (!_protecaoEnvioDuplicado.TentarRegistrar(TokenEnvioEmail))
+            {
+                return RedirectToPage(new { Id });
+            }
+
+            var usuarioQueEnviouId = User.ObterUsuarioId()!.Value;
+            var corpo = EmailCorpoTexto!.Trim();
+            var assunto = $"Ticket #{ticketAtual.Id} - {ticketAtual.Titulo}";
+
+            var enviado = await _emailSender.EnviarAsync(criadoPor.Email!, assunto, corpo);
+            if (enviado)
+            {
+                _andamentoService.Criar(Id, $"E-mail enviado ao criador do ticket:\n\n{corpo}", usuarioQueEnviouId, notificar: false);
+                MensagemEnvioEmail = "E-mail enviado com sucesso.";
+            }
+            else
+            {
+                ErroEnvioEmail = "Falha ao enviar o e-mail. Tente novamente.";
+            }
+
+            return RedirectToPage(new { Id });
+        }
+
         public string ClasseCorStatus(StatusTicket status)
         {
             return status switch
@@ -223,6 +298,7 @@ namespace TmkChamados.Pages
             NomesPorId = usuarios.ToDictionary(u => u.Id, u => u.Nome);
             UsuariosMaster = usuarios.Where(u => u.Tipo == TipoUsuario.Master).ToList();
             UsuariosTodos = usuarios;
+            EmailCriadoPor = Ticket is null ? null : usuarios.FirstOrDefault(u => u.Id == Ticket.CriadoPorId)?.Email;
         }
 
         private void PreencherFormDeEdicao()
