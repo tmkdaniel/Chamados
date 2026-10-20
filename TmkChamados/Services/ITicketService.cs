@@ -12,7 +12,9 @@ namespace TmkChamados.Services
 
         bool PodeAcessar(Ticket ticket, TipoUsuario tipoUsuario, int usuarioId, int empresaId);
 
-        Ticket Criar(ClassificacaoTicket classificacao, string titulo, string descricao, PrioridadeTicket prioridade, DateTime? dataPrazo, int criadoPorId);
+        Ticket Criar(ClassificacaoTicket classificacao, string titulo, string descricao, PrioridadeTicket prioridade, DateTime? dataPrazo, int criadoPorId, string? messageId = null);
+
+        Ticket? ObterPorMessageId(string messageId);
 
         bool Atualizar(int id, ClassificacaoTicket classificacao, string titulo, string descricao, StatusTicket status, PrioridadeTicket prioridade, DateTime? dataPrazo, int criadoPorId, int? responsavelId, int usuarioQueAlterouId);
 

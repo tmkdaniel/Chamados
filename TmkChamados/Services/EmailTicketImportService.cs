@@ -72,13 +72,20 @@ namespace TmkChamados.Services
 
         private void ProcessarMensagem(MimeMessage mensagem)
         {
+            var messageId = mensagem.MessageId;
+
+            if (!string.IsNullOrEmpty(messageId) && _ticketService.ObterPorMessageId(messageId) is not null)
+            {
+                return;
+            }
+
             var remetente = mensagem.From.Mailboxes.FirstOrDefault()?.Address;
             var criadoPorId = ResolverCriadoPorId(remetente);
 
             var titulo = mensagem.Subject ?? string.Empty;
             var descricao = ObterCorpoTextoPuro(mensagem);
 
-            var ticket = _ticketService.Criar(ClassificacaoTicket.SemClassificacao, titulo, descricao, PrioridadeTicket.Normal, null, criadoPorId);
+            var ticket = _ticketService.Criar(ClassificacaoTicket.SemClassificacao, titulo, descricao, PrioridadeTicket.Normal, null, criadoPorId, messageId);
 
             foreach (var anexo in mensagem.Attachments.OfType<MimePart>())
             {

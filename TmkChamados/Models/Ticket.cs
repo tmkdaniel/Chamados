@@ -52,5 +52,7 @@ namespace TmkChamados.Models
         public int CriadoPorId { get; set; }
 
         public int? ResponsavelId { get; set; }
+
+        public string? MessageId { get; set; }
     }
 }

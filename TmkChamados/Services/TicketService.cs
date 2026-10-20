@@ -110,7 +110,7 @@ namespace TmkChamados.Services
             };
         }
 
-        public Ticket Criar(ClassificacaoTicket classificacao, string titulo, string descricao, PrioridadeTicket prioridade, DateTime? dataPrazo, int criadoPorId)
+        public Ticket Criar(ClassificacaoTicket classificacao, string titulo, string descricao, PrioridadeTicket prioridade, DateTime? dataPrazo, int criadoPorId, string? messageId = null)
         {
             var agora = DateTime.Now;
             var ticket = new Ticket
@@ -124,12 +124,18 @@ namespace TmkChamados.Services
                 DataCriacao = agora,
                 DataUltimaModificacao = agora,
                 CriadoPorId = criadoPorId,
-                ResponsavelId = null
+                ResponsavelId = null,
+                MessageId = messageId
             };
 
             _dbContext.Tickets.Add(ticket);
             _dbContext.SaveChanges();
             return ticket;
+        }
+
+        public Ticket? ObterPorMessageId(string messageId)
+        {
+            return _dbContext.Tickets.FirstOrDefault(t => t.MessageId == messageId);
         }
 
         public bool Atualizar(int id, ClassificacaoTicket classificacao, string titulo, string descricao, StatusTicket status, PrioridadeTicket prioridade, DateTime? dataPrazo, int criadoPorId, int? responsavelId, int usuarioQueAlterouId)

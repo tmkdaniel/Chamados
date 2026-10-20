@@ -40,6 +40,13 @@ namespace TmkChamados.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Ticket>()
+                .Property(t => t.MessageId)
+                .HasMaxLength(998);
+
+            modelBuilder.Entity<Ticket>()
+                .HasIndex(t => t.MessageId);
+
+            modelBuilder.Entity<Ticket>()
                 .HasOne<Usuario>()
                 .WithMany()
                 .HasForeignKey(c => c.CriadoPorId)

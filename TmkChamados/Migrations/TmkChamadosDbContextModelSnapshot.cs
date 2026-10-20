@@ -139,6 +139,10 @@ namespace TmkChamados.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("MessageId")
+                        .HasMaxLength(998)
+                        .HasColumnType("nvarchar(998)");
+
                     b.Property<int>("Prioridade")
                         .HasColumnType("int");
 
@@ -155,6 +159,8 @@ namespace TmkChamados.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CriadoPorId");
+
+                    b.HasIndex("MessageId");
 
                     b.HasIndex("ResponsavelId");
 
