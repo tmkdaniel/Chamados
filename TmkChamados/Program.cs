@@ -117,9 +117,11 @@ try
     builder.Services.AddScoped<IUsuarioService, UsuarioService>();
     builder.Services.AddScoped<IEmpresaService, EmpresaService>();
     builder.Services.AddScoped<IAndamentoService, AndamentoService>();
+    builder.Services.AddScoped<IOrcamentoService, OrcamentoService>();
     builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
     builder.Services.AddTransient<IEmailSender, SmtpEmailSender>();
     builder.Services.AddScoped<INotificacaoTicketEmailService, NotificacaoTicketEmailService>();
+    builder.Services.AddScoped<INotificacaoOrcamentoEmailService, NotificacaoOrcamentoEmailService>();
     builder.Services.AddSingleton<IProtecaoEnvioDuplicadoService, ProtecaoEnvioDuplicadoService>();
     builder.Services.Configure<ImportacaoEmailSettings>(builder.Configuration.GetSection("ImportacaoEmail"));
     builder.Services.AddScoped<IEmailTicketImportService, EmailTicketImportService>();

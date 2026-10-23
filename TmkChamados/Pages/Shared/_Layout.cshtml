@@ -30,6 +30,12 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Tickets"><i class="bi bi-ticket-perforated"></i> Tickets</a>
                         </li>
+                        @if (User.EhMasterOuGerente())
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Orcamentos"><i class="bi bi-receipt"></i> Orçamentos</a>
+                            </li>
+                        }
                         @if (User.EhMaster())
                         {
                             <li class="nav-item">

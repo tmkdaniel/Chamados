@@ -1,0 +1,117 @@
+@page
+@using TmkChamados.Models
+@model OrcamentosModel
+@{
+    ViewData["Title"] = "Orçamentos";
+}
+
+<div class="tmk-eyebrow">Gestão</div>
+<h1>Orçamentos</h1>
+
+@if (Model.IsGerente)
+{
+    <p>
+        <a href="/OrcamentosForm" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Novo Orçamento</a>
+    </p>
+}
+
+<div class="tmk-eyebrow">Filtrar Orçamentos</div>
+
+<form method="get" class="tmk-card mb-4">
+    <div class="row g-2 align-items-end">
+        <div class="col-auto">
+            <label asp-for="Filtro.Situacao" class="form-label">Status</label>
+            <select asp-for="Filtro.Situacao" class="form-select">
+                <option value="">Todos</option>
+                @foreach (var status in Enum.GetValues<StatusOrcamento>())
+                {
+                    if (Model.IsMaster && status == StatusOrcamento.Rascunho)
+                    {
+                        continue;
+                    }
+                    <option value="@status">@StatusOrcamentoInfo.Label(status)</option>
+                }
+                <option value="Expirado">Expirado</option>
+            </select>
+        </div>
+        @if (Model.IsMaster)
+        {
+            <div class="col-auto">
+                <label asp-for="Filtro.EmpresaId" class="form-label">Empresa</label>
+                <select asp-for="Filtro.EmpresaId" class="form-select">
+                    <option value="">Todas</option>
+                    @foreach (var empresa in Model.Empresas)
+                    {
+                        <option value="@empresa.Id">@empresa.Nome</option>
+                    }
+                </select>
+            </div>
+        }
+        <div class="col-auto">
+            <label asp-for="Filtro.Titulo" class="form-label">Título contém</label>
+            <input asp-for="Filtro.Titulo" class="form-control" />
+        </div>
+        <div class="col-auto">
+            <label asp-for="Filtro.CriadoDe" class="form-label">Criado de</label>
+            <input asp-for="Filtro.CriadoDe" type="date" class="form-control" />
+        </div>
+        <div class="col-auto">
+            <label asp-for="Filtro.CriadoAte" class="form-label">Criado até</label>
+            <input asp-for="Filtro.CriadoAte" type="date" class="form-control" />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i> Filtrar</button>
+            <a href="/Orcamentos" class="btn btn-secondary"><i class="bi bi-x-lg"></i> Limpar filtros</a>
+        </div>
+    </div>
+</form>
+
+<div class="tmk-eyebrow">Lista de Orçamentos</div>
+
+@if (!Model.Orcamentos.Any())
+{
+    <p>Nenhum orçamento encontrado.</p>
+}
+else
+{
+    <div class="tmk-card p-0">
+    <div class="table-responsive">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Título</th>
+                <th>Empresa</th>
+                <th>Status</th>
+                <th>Valor</th>
+                <th>Autor</th>
+                <th>Criado em</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var orcamento in Model.Orcamentos)
+            {
+                <tr>
+                    <td><span class="tmk-ticket-id">#@orcamento.Id</span></td>
+                    <td>@orcamento.Titulo</td>
+                    <td>@(Model.EmpresaPorId.TryGetValue(orcamento.EmpresaId, out var empresaNome) ? empresaNome : "-")</td>
+                    <td><span class="badge @StatusOrcamentoInfo.ClasseCor(orcamento)">@StatusOrcamentoInfo.Label(orcamento)</span>
+                        @if (Model.PendentesPorId.TryGetValue(orcamento.Id, out var pendentes))
+                        {
+                            <span class="badge bg-warning text-dark" title="Perguntas pendentes"><i class="bi bi-question-circle"></i> @pendentes</span>
+                        }
+                    </td>
+                    <td>@(orcamento.ValorAtual.HasValue ? OrcamentoViewModel.FormatarValor(orcamento.ValorAtual.Value) : "-")</td>
+                    <td>@(Model.NomesPorId.TryGetValue(orcamento.CriadoPorId, out var autorNome) ? autorNome : "-")</td>
+                    <td>@orcamento.DataCriacao.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        <a href="/OrcamentoView?id=@orcamento.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i> Visualizar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    </div>
+    </div>
+}

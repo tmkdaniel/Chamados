@@ -1,0 +1,521 @@
+@page
+@using TmkChamados.Models
+@model OrcamentoViewModel
+@{
+    ViewData["Title"] = "Visualizar Orçamento";
+}
+
+@if (Model.Orcamento is null)
+{
+    <p>Orçamento não encontrado.</p>
+    <a href="/Orcamentos" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Voltar à listagem</a>
+}
+else
+{
+    var orcamento = Model.Orcamento;
+
+    @if (!string.IsNullOrEmpty(Model.Mensagem))
+    {
+        <div class="alert alert-success">@Model.Mensagem</div>
+    }
+    @if (!string.IsNullOrEmpty(Model.Erro))
+    {
+        <div class="alert alert-danger">@Model.Erro</div>
+    }
+
+    <div class="tmk-eyebrow">Orçamento <span class="tmk-ticket-id">#@orcamento.Id</span></div>
+    <h1>@orcamento.Titulo</h1>
+    <p class="mb-3">
+        <span class="badge @StatusOrcamentoInfo.ClasseCor(orcamento)">@StatusOrcamentoInfo.Label(orcamento)</span>
+        @if (orcamento.TicketId.HasValue)
+        {
+            <a href="/TicketView?id=@orcamento.TicketId" class="tmk-chip text-decoration-none"><i class="bi bi-ticket-detailed"></i> Ticket gerado #@orcamento.TicketId</a>
+        }
+    </p>
+
+    @if (Model.PodeEditar)
+    {
+        <form method="post" asp-page-handler="Atualizar" class="tmk-card mb-4">
+            <input type="hidden" name="Id" value="@orcamento.Id" />
+            @if (!string.IsNullOrEmpty(Model.ErroEdicao))
+            {
+                <div class="text-danger mb-2">@Model.ErroEdicao</div>
+            }
+            <div class="mb-2">
+                <label for="titulo" class="form-label">Título</label>
+                <input id="titulo" name="titulo" value="@Model.TituloEdicao" class="form-control" maxlength="200" />
+            </div>
+            <div class="mb-2">
+                <label for="descricao" class="form-label">Descrição</label>
+                <textarea id="descricao" name="descricao" class="form-control" rows="5">@Model.DescricaoEdicao</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Salvar</button>
+        </form>
+    }
+    else
+    {
+        <div class="tmk-card mb-4">
+            <div class="mb-2">
+                <label class="form-label">Descrição</label>
+                <div style="white-space: pre-wrap;">@orcamento.Descricao</div>
+            </div>
+        </div>
+    }
+
+    <div class="tmk-card mb-4">
+        <div class="row g-2">
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label">Empresa</label>
+                <div>@Model.NomeEmpresa</div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label">Autor</label>
+                <div>@Model.NomeAutor</div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label">Criado em</label>
+                <div>@orcamento.DataCriacao.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label">Enviado em</label>
+                <div>@(orcamento.DataEnvio.HasValue ? orcamento.DataEnvio.Value.ToString("dd/MM/yyyy HH:mm") : "-")</div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Versoes.Any())
+    {
+        var vigente = Model.Versoes.Last();
+        <div class="tmk-eyebrow">Cotação atual (@("V" + vigente.Numero))</div>
+        <div class="tmk-card mb-4">
+            <div class="row g-2">
+                <div class="col-sm-4">
+                    <label class="form-label">Valor</label>
+                    <div class="fs-5">@OrcamentoViewModel.FormatarValor(vigente.Valor)</div>
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label">Prazo</label>
+                    <div class="fs-5">@vigente.PrazoDias dia(s)</div>
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label">Validade</label>
+                    <div class="fs-5">
+                        @vigente.Validade.ToString("dd/MM/yyyy")
+                        @if (orcamento.Expirado)
+                        {
+                            <span class="badge bg-danger">Expirada</span>
+                        }
+                    </div>
+                </div>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(vigente.Observacao))
+            {
+                <div class="mt-2">
+                    <label class="form-label">Observação</label>
+                    <div style="white-space: pre-wrap;">@vigente.Observacao</div>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="tmk-eyebrow">Anexos</div>
+
+    @if (!Model.Anexos.Any())
+    {
+        <p>Nenhum anexo.</p>
+    }
+    else
+    {
+        <ul class="list-group mb-3">
+            @foreach (var anexo in Model.Anexos)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                        <a href="/AnexoOrcamento?anexoId=@anexo.Id">@anexo.NomeArquivoOriginal</a>
+                        <span class="small text-muted">(@OrcamentoViewModel.FormatarTamanho(anexo.TamanhoBytes))</span>
+                    </span>
+                    @if (Model.PodeEditar)
+                    {
+                        <form method="post" asp-page-handler="RemoverAnexo" class="d-inline">
+                            <input type="hidden" name="Id" value="@orcamento.Id" />
+                            <input type="hidden" name="anexoId" value="@anexo.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Remover</button>
+                        </form>
+                    }
+                </li>
+            }
+        </ul>
+    }
+
+    @if (Model.PodeEditar)
+    {
+        <form method="post" asp-page-handler="AdicionarAnexo" enctype="multipart/form-data" class="tmk-card mb-4">
+            <input type="hidden" name="Id" value="@orcamento.Id" />
+            <div class="mb-3">
+                <label for="arquivo" class="form-label">Adicionar anexo</label>
+                <input id="arquivo" name="arquivo" type="file" class="form-control" accept=".pdf,.jpeg,.jpg,.png,.bmp" />
+                <div class="form-text">Tipos aceitos: PDF, JPEG, JPG, PNG, BMP. Tamanho máximo: 50MB.</div>
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-paperclip"></i> Anexar</button>
+        </form>
+    }
+
+    <div class="mb-4">
+        @if (Model.PodeEditar)
+        {
+            <form method="post" asp-page-handler="Enviar" class="d-inline">
+                <input type="hidden" name="Id" value="@orcamento.Id" />
+                <button type="submit" class="btn btn-success"><i class="bi bi-send"></i> Enviar ao Master</button>
+            </form>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalExcluirOrcamento">
+                <i class="bi bi-trash"></i> Excluir
+            </button>
+        }
+        @if (Model.PodeCancelar)
+        {
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalCancelarOrcamento">
+                <i class="bi bi-x-circle"></i> Cancelar orçamento
+            </button>
+        }
+        @if (Model.PodeCotar)
+        {
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCotar">
+                <i class="bi bi-cash-coin"></i> @(orcamento.VersaoAtual.HasValue ? "Nova cotação" : "Cotar")
+            </button>
+        }
+        @if (Model.PodeAprovar)
+        {
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalAprovar">
+                <i class="bi bi-check-circle"></i> Aprovar
+            </button>
+        }
+        @if (Model.PodeDecidir)
+        {
+            <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#modalAjuste">
+                <i class="bi bi-arrow-repeat"></i> Solicitar ajuste
+            </button>
+            <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalRecusar">
+                <i class="bi bi-hand-thumbs-down"></i> Recusar
+            </button>
+        }
+        <a href="/Orcamentos" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Voltar à listagem</a>
+    </div>
+
+    @if (Model.Versoes.Count > 1)
+    {
+        <div class="tmk-eyebrow">Versões</div>
+        <div class="tmk-card p-0 mb-4">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr><th>Versão</th><th>Valor</th><th>Prazo</th><th>Validade</th><th>Autor</th><th>Emitida em</th><th>Observação</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var versao in Model.Versoes.OrderByDescending(v => v.Numero))
+                        {
+                            <tr>
+                                <td>@("V" + versao.Numero)</td>
+                                <td>@OrcamentoViewModel.FormatarValor(versao.Valor)</td>
+                                <td>@versao.PrazoDias dia(s)</td>
+                                <td>@versao.Validade.ToString("dd/MM/yyyy")</td>
+                                <td>@Model.NomeUsuario(versao.CriadoPorId)</td>
+                                <td>@versao.DataCriacao.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td style="white-space: pre-wrap;">@versao.Observacao</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <div class="tmk-eyebrow" id="perguntas">
+        Perguntas e respostas
+        @if (Model.PerguntasPendentes > 0)
+        {
+            <span class="badge bg-warning text-dark">@Model.PerguntasPendentes pendente(s)</span>
+        }
+    </div>
+    @if (!Model.Conversa.Any())
+    {
+        <p>Nenhuma pergunta registrada.</p>
+    }
+    @foreach (var conversa in Model.Conversa)
+    {
+        var pergunta = conversa.Pergunta;
+        var idTexto = "textoResposta" + pergunta.Id;
+        <div class="tmk-card mb-3">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <strong>@Model.NomeUsuario(pergunta.AutorId)</strong>
+                    <span class="badge bg-secondary">@(pergunta.AutorTipo == TipoUsuario.Master ? "Master" : "Cliente")</span>
+                    <span class="small text-muted">@pergunta.Data.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+                @if (conversa.Pendente)
+                {
+                    <span class="badge bg-warning text-dark">Pendente</span>
+                }
+                else
+                {
+                    <span class="badge bg-success">Respondida</span>
+                }
+            </div>
+            <div class="mt-1" style="white-space: pre-wrap;">@pergunta.Texto</div>
+
+            @foreach (var resposta in conversa.Respostas)
+            {
+                <div class="border-start ps-3 mt-3">
+                    <div>
+                        <strong>@Model.NomeUsuario(resposta.AutorId)</strong>
+                        <span class="badge bg-secondary">@(resposta.AutorTipo == TipoUsuario.Master ? "Master" : "Cliente")</span>
+                        <span class="small text-muted">@resposta.Data.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                    <div style="white-space: pre-wrap;">@resposta.Texto</div>
+                </div>
+            }
+
+            @if (Model.PodeConversar)
+            {
+                var reexibir = Model.RespostaPerguntaId == pergunta.Id;
+                <form method="post" asp-page-handler="Responder" class="mt-3">
+                    <input type="hidden" name="Id" value="@orcamento.Id" />
+                    <input type="hidden" name="perguntaId" value="@pergunta.Id" />
+                    <input type="hidden" name="tokenEnvio" value="@Model.TokensResposta[pergunta.Id]" />
+                    @if (reexibir && !string.IsNullOrEmpty(Model.ErroResposta))
+                    {
+                        <div class="text-danger mb-2">@Model.ErroResposta</div>
+                    }
+                    <label for="@idTexto" class="form-label">Responder</label>
+                    <textarea id="@idTexto" name="texto" class="form-control mb-2" rows="2" maxlength="2000">@(reexibir ? Model.TextoResposta : null)</textarea>
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-reply"></i> Responder</button>
+                </form>
+            }
+        </div>
+    }
+
+    @if (Model.PodeConversar)
+    {
+        <form method="post" asp-page-handler="Perguntar" class="tmk-card mb-4">
+            <input type="hidden" name="Id" value="@orcamento.Id" />
+            <input type="hidden" name="tokenEnvio" value="@Model.TokenPergunta" />
+            @if (!string.IsNullOrEmpty(Model.ErroPergunta))
+            {
+                <div class="text-danger mb-2">@Model.ErroPergunta</div>
+            }
+            <label for="textoPergunta" class="form-label">Nova pergunta</label>
+            <textarea id="textoPergunta" name="texto" class="form-control mb-2" rows="3" maxlength="2000">@Model.TextoPergunta</textarea>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-question-circle"></i> Enviar pergunta</button>
+        </form>
+    }
+
+    <div class="tmk-eyebrow">Histórico</div>
+    @if (!Model.Historico.Any())
+    {
+        <p>Nenhum evento registrado.</p>
+    }
+    else
+    {
+        <ul class="list-group mb-4">
+            @foreach (var evento in Model.Historico)
+            {
+                <li class="list-group-item">
+                    <div>
+                        <strong>@StatusOrcamentoInfo.Label(evento.Tipo)@(evento.VersaoNumero.HasValue ? $" (V{evento.VersaoNumero})" : "")</strong>
+                        <span class="small text-muted">por @Model.NomeUsuario(evento.UsuarioId) em @evento.Data.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(evento.Texto))
+                    {
+                        <div style="white-space: pre-wrap;">@evento.Texto</div>
+                    }
+                </li>
+            }
+        </ul>
+    }
+
+    @if (Model.PodeEditar)
+    {
+        <div class="modal fade" id="modalExcluirOrcamento" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="post" asp-page-handler="Excluir" class="modal-content">
+                    <input type="hidden" name="Id" value="@orcamento.Id" />
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar exclusão</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cancelar"></button>
+                    </div>
+                    <div class="modal-body">
+                        Tem certeza que deseja excluir este rascunho? O orçamento e seus anexos serão removidos definitivamente.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
+                        <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Confirmar exclusão</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+
+    @if (Model.PodeCancelar)
+    {
+        <div class="modal fade" id="modalCancelarOrcamento" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="post" asp-page-handler="Cancelar" class="modal-content">
+                    <input type="hidden" name="Id" value="@orcamento.Id" />
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cancelar orçamento</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        Tem certeza que deseja cancelar este orçamento? Esta ação não pode ser desfeita.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
+                        <button type="submit" class="btn btn-danger"><i class="bi bi-x-circle"></i> Confirmar cancelamento</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+    @if (Model.PodeCotar)
+    {
+        <div class="modal fade" id="modalCotar" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="post" asp-page-handler="Cotar" class="modal-content">
+                    <input type="hidden" name="Id" value="@orcamento.Id" />
+                    <input type="hidden" name="versaoVista" value="@orcamento.VersaoAtual" />
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cotação</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if (Model.PerguntasPendentes > 0)
+                        {
+                            <div class="alert alert-warning">
+                                Há @Model.PerguntasPendentes pergunta(s) pendente(s) neste orçamento. Você pode continuar mesmo assim.
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.ErroCotacao))
+                        {
+                            <div class="text-danger mb-2">@Model.ErroCotacao</div>
+                        }
+                        <div class="mb-2">
+                            <label for="valor" class="form-label">Valor (R$)</label>
+                            <input id="valor" name="valor" value="@Model.ValorCotacao" class="form-control" inputmode="decimal" placeholder="1.500,00" />
+                        </div>
+                        <div class="mb-2">
+                            <label for="prazo" class="form-label">Prazo (dias)</label>
+                            <input id="prazo" name="prazo" value="@Model.PrazoCotacao" class="form-control" inputmode="numeric" />
+                        </div>
+                        <div class="mb-2">
+                            <label for="validade" class="form-label">Validade da cotação</label>
+                            <input id="validade" name="validade" value="@Model.ValidadeCotacao" type="date" class="form-control" />
+                        </div>
+                        <div class="mb-2">
+                            <label for="observacao" class="form-label">Observação (opcional)</label>
+                            <textarea id="observacao" name="observacao" class="form-control" rows="3">@Model.ObservacaoCotacao</textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Enviar cotação</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+
+    @if (Model.PodeAprovar)
+    {
+        <div class="modal fade" id="modalAprovar" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="post" asp-page-handler="Aprovar" class="modal-content">
+                    <input type="hidden" name="Id" value="@orcamento.Id" />
+                    <input type="hidden" name="versaoVista" value="@orcamento.VersaoAtual" />
+                    <div class="modal-header">
+                        <h5 class="modal-title">Aprovar cotação</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if (Model.PerguntasPendentes > 0)
+                        {
+                            <div class="alert alert-warning">
+                                Há @Model.PerguntasPendentes pergunta(s) pendente(s) neste orçamento. Você pode continuar mesmo assim.
+                            </div>
+                        }
+                        <p>
+                            Aprovar a versão @("V" + orcamento.VersaoAtual) no valor de <strong>@(orcamento.ValorAtual.HasValue ? OrcamentoViewModel.FormatarValor(orcamento.ValorAtual.Value) : "-")</strong>?
+                            Esta decisão é final e trava a cotação.
+                        </p>
+                        <label for="comentarioAprovar" class="form-label">Comentário (opcional)</label>
+                        <textarea id="comentarioAprovar" name="comentario" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
+                        <button type="submit" class="btn btn-success"><i class="bi bi-check-circle"></i> Confirmar aprovação</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+
+    @if (Model.PodeDecidir)
+    {
+        <div class="modal fade" id="modalAjuste" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="post" asp-page-handler="SolicitarAjuste" class="modal-content">
+                    <input type="hidden" name="Id" value="@orcamento.Id" />
+                    <div class="modal-header">
+                        <h5 class="modal-title">Solicitar ajuste</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label for="motivoAjuste" class="form-label">O que precisa ser ajustado?</label>
+                        <textarea id="motivoAjuste" name="motivo" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
+                        <button type="submit" class="btn btn-warning"><i class="bi bi-arrow-repeat"></i> Solicitar ajuste</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalRecusar" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="post" asp-page-handler="Recusar" class="modal-content">
+                    <input type="hidden" name="Id" value="@orcamento.Id" />
+                    <div class="modal-header">
+                        <h5 class="modal-title">Recusar cotação</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>A recusa é final. Informe o motivo.</p>
+                        <textarea name="motivo" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
+                        <button type="submit" class="btn btn-danger"><i class="bi bi-hand-thumbs-down"></i> Confirmar recusa</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+}
+
+@section Scripts {
+    @if (!string.IsNullOrEmpty(Model.ErroPergunta) || !string.IsNullOrEmpty(Model.ErroResposta))
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document.getElementById('perguntas').scrollIntoView();
+            });
+        </script>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErroCotacao))
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                new bootstrap.Modal(document.getElementById('modalCotar')).show();
+            });
+        </script>
+    }
+}

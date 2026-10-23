@@ -13,9 +13,11 @@ namespace TmkChamados.Pages
 
         private readonly ITicketService _ticketService;
         private readonly IUsuarioService _usuarioService;
+        private readonly IOrcamentoService _orcamentoService;
 
-        public IndexModel(ITicketService ticketService, IUsuarioService usuarioService)
+        public IndexModel(ITicketService ticketService, IUsuarioService usuarioService, IOrcamentoService orcamentoService)
         {
+            _orcamentoService = orcamentoService;
             _ticketService = ticketService;
             _usuarioService = usuarioService;
         }
@@ -25,6 +27,9 @@ namespace TmkChamados.Pages
         public ResumoTickets Resumo { get; private set; } = ResumoTickets.Vazio();
 
         public bool IsMaster { get; private set; }
+
+        // Card de orçamentos: só para Master e Gerente (null para Usuario).
+        public ResumoOrcamentosDashboard? ResumoOrcamentos { get; private set; }
 
         public GraficoEmpresa GraficoAbertosPorEmpresa { get; private set; } = GraficoEmpresa.Vazio();
 
@@ -45,6 +50,11 @@ namespace TmkChamados.Pages
             }
 
             IsMaster = tipoUsuario.Value == TipoUsuario.Master;
+
+            if (tipoUsuario.Value is TipoUsuario.Master or TipoUsuario.Gerente)
+            {
+                ResumoOrcamentos = _orcamentoService.ObterResumoDashboard(tipoUsuario.Value, empresaId.Value);
+            }
 
             IReadOnlyList<Ticket> ticketsDaSecao;
             switch (tipoUsuario.Value)

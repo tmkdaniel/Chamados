@@ -10,12 +10,14 @@ namespace TmkChamados.Pages
         private readonly IUsuarioService _usuarioService;
         private readonly ITicketService _ticketService;
         private readonly IAndamentoService _andamentoService;
+        private readonly IOrcamentoService _orcamentoService;
 
-        public UsuariosModel(IUsuarioService usuarioService, ITicketService ticketService, IAndamentoService andamentoService)
+        public UsuariosModel(IUsuarioService usuarioService, ITicketService ticketService, IAndamentoService andamentoService, IOrcamentoService orcamentoService)
         {
             _usuarioService = usuarioService;
             _ticketService = ticketService;
             _andamentoService = andamentoService;
+            _orcamentoService = orcamentoService;
         }
 
         public IReadOnlyList<Usuario> Usuarios { get; private set; } = Array.Empty<Usuario>();
@@ -53,6 +55,10 @@ namespace TmkChamados.Pages
             else if (emUso)
             {
                 ErroExclusao = "Não é possível excluir este usuário: ele está em uso como Criado por ou Responsável em algum ticket.";
+            }
+            else if (_orcamentoService.ExisteOrcamentoDe(id))
+            {
+                ErroExclusao = "Não é possível excluir este usuário: ele é autor de algum orçamento, participou de alguma negociação de orçamento ou escreveu alguma pergunta ou resposta de orçamento.";
             }
             else if (ultimoUsuario)
             {

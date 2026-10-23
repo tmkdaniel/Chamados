@@ -8,10 +8,12 @@ namespace TmkChamados.Pages
     public class EmpresasModel : PageModel
     {
         private readonly IEmpresaService _empresaService;
+        private readonly IOrcamentoService _orcamentoService;
 
-        public EmpresasModel(IEmpresaService empresaService)
+        public EmpresasModel(IEmpresaService empresaService, IOrcamentoService orcamentoService)
         {
             _empresaService = empresaService;
+            _orcamentoService = orcamentoService;
         }
 
         public IReadOnlyList<Empresa> Empresas { get; private set; } = Array.Empty<Empresa>();
@@ -41,6 +43,10 @@ namespace TmkChamados.Pages
             if (empresa is not null && empresa.Sistema)
             {
                 ErroExclusao = "Não é possível excluir esta empresa: ela é uma empresa de sistema.";
+            }
+            else if (_orcamentoService.ExisteOrcamentoDaEmpresa(id))
+            {
+                ErroExclusao = "Não é possível excluir esta empresa: ela possui orçamentos.";
             }
             else if (!_empresaService.Excluir(id))
             {

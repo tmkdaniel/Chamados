@@ -16,6 +16,13 @@
         <div class="tmk-eyebrow">@Model.TituloSecao</div>
         @await Html.PartialAsync("_ResumoTicketsSecao", Model.Resumo, new ViewDataDictionary(ViewData) { { "Prefixo", "secao" } })
     </div>
+    @if (Model.ResumoOrcamentos is not null)
+    {
+        <div class="col-12 col-lg-6">
+            <div class="tmk-eyebrow">Orçamentos</div>
+            <partial name="_CardOrcamentos" model="Model.ResumoOrcamentos" />
+        </div>
+    }
     @if (Model.IsMaster)
     {
         <div class="col-12 col-lg-6">

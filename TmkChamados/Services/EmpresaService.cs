@@ -68,7 +68,8 @@ namespace TmkChamados.Services
                 return false;
             }
 
-            var emUso = _dbContext.Usuarios.Any(u => u.EmpresaId == id);
+            var emUso = _dbContext.Usuarios.Any(u => u.EmpresaId == id)
+                || _dbContext.Orcamentos.Any(o => o.EmpresaId == id);
             if (emUso)
             {
                 return false;

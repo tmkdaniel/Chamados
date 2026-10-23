@@ -86,6 +86,39 @@ namespace TmkChamados.Migrations
                     b.ToTable("AnexosAndamento");
                 });
 
+            modelBuilder.Entity("TmkChamados.Models.AnexoOrcamento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Conteudo")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("NomeArquivoOriginal")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OrcamentoId")
+                        .HasColumnType("int");
+
+                    b.Property<long>("TamanhoBytes")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrcamentoId");
+
+                    b.ToTable("AnexosOrcamento");
+                });
+
             modelBuilder.Entity("TmkChamados.Models.Empresa", b =>
                 {
                     b.Property<int>("Id")
@@ -107,6 +140,161 @@ namespace TmkChamados.Migrations
                         .IsUnique();
 
                     b.ToTable("Empresas");
+                });
+
+            modelBuilder.Entity("TmkChamados.Models.HistoricoOrcamento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Data")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("OrcamentoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Texto")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Tipo")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("VersaoNumero")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrcamentoId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("HistoricoOrcamento");
+                });
+
+            modelBuilder.Entity("TmkChamados.Models.Orcamento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CriadoPorId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DataEnvio")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EmpresaId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PrazoAtualDias")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TicketId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Titulo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("ValidadeAtual")
+                        .HasColumnType("date");
+
+                    b.Property<decimal?>("ValorAtual")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("VersaoAtual")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CriadoPorId");
+
+                    b.HasIndex("TicketId");
+
+                    b.HasIndex("EmpresaId", "Status");
+
+                    b.ToTable("Orcamentos");
+                });
+
+            modelBuilder.Entity("TmkChamados.Models.PerguntaOrcamento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AutorId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("OrcamentoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Texto")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AutorId");
+
+                    b.HasIndex("OrcamentoId");
+
+                    b.ToTable("PerguntasOrcamento");
+                });
+
+            modelBuilder.Entity("TmkChamados.Models.RespostaPergunta", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AutorId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PerguntaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Texto")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AutorId");
+
+                    b.HasIndex("PerguntaId");
+
+                    b.ToTable("RespostasPergunta");
                 });
 
             modelBuilder.Entity("TmkChamados.Models.Ticket", b =>
@@ -206,6 +394,48 @@ namespace TmkChamados.Migrations
                     b.ToTable("Usuarios");
                 });
 
+            modelBuilder.Entity("TmkChamados.Models.VersaoOrcamento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CriadoPorId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DataCriacao")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Numero")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Observacao")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OrcamentoId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PrazoDias")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Validade")
+                        .HasColumnType("date");
+
+                    b.Property<decimal>("Valor")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CriadoPorId");
+
+                    b.HasIndex("OrcamentoId", "Numero")
+                        .IsUnique();
+
+                    b.ToTable("VersoesOrcamento");
+                });
+
             modelBuilder.Entity("TmkChamados.Models.Andamento", b =>
                 {
                     b.HasOne("TmkChamados.Models.Usuario", null)
@@ -228,6 +458,84 @@ namespace TmkChamados.Migrations
                         .HasForeignKey("AndamentoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("TmkChamados.Models.AnexoOrcamento", b =>
+                {
+                    b.HasOne("TmkChamados.Models.Orcamento", null)
+                        .WithMany()
+                        .HasForeignKey("OrcamentoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TmkChamados.Models.HistoricoOrcamento", b =>
+                {
+                    b.HasOne("TmkChamados.Models.Orcamento", null)
+                        .WithMany()
+                        .HasForeignKey("OrcamentoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TmkChamados.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TmkChamados.Models.Orcamento", b =>
+                {
+                    b.HasOne("TmkChamados.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("CriadoPorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TmkChamados.Models.Empresa", null)
+                        .WithMany()
+                        .HasForeignKey("EmpresaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TmkChamados.Models.Ticket", null)
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("TmkChamados.Models.PerguntaOrcamento", b =>
+                {
+                    b.HasOne("TmkChamados.Models.Usuario", "Autor")
+                        .WithMany()
+                        .HasForeignKey("AutorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TmkChamados.Models.Orcamento", null)
+                        .WithMany()
+                        .HasForeignKey("OrcamentoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Autor");
+                });
+
+            modelBuilder.Entity("TmkChamados.Models.RespostaPergunta", b =>
+                {
+                    b.HasOne("TmkChamados.Models.Usuario", "Autor")
+                        .WithMany()
+                        .HasForeignKey("AutorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TmkChamados.Models.PerguntaOrcamento", null)
+                        .WithMany("Respostas")
+                        .HasForeignKey("PerguntaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Autor");
                 });
 
             modelBuilder.Entity("TmkChamados.Models.Ticket", b =>
@@ -253,6 +561,26 @@ namespace TmkChamados.Migrations
                         .IsRequired();
 
                     b.Navigation("Empresa");
+                });
+
+            modelBuilder.Entity("TmkChamados.Models.VersaoOrcamento", b =>
+                {
+                    b.HasOne("TmkChamados.Models.Usuario", null)
+                        .WithMany()
+                        .HasForeignKey("CriadoPorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TmkChamados.Models.Orcamento", null)
+                        .WithMany()
+                        .HasForeignKey("OrcamentoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TmkChamados.Models.PerguntaOrcamento", b =>
+                {
+                    b.Navigation("Respostas");
                 });
 #pragma warning restore 612, 618
         }

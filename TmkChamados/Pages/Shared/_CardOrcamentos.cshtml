@@ -1,0 +1,41 @@
+@model TmkChamados.Services.ResumoOrcamentosDashboard
+
+<div class="row g-2 mb-3">
+    <div class="col-6 col-md-3">
+        <a href="/Orcamentos?Filtro.Situacao=AguardandoCotacao" class="text-decoration-none text-reset">
+            <div class="tmk-card text-center">
+                <div class="tmk-numero-destaque">@Model.AguardandoCotacao</div>
+                <div>Aguardando cotação</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="/Orcamentos?Filtro.Situacao=Cotado" class="text-decoration-none text-reset">
+            <div class="tmk-card text-center">
+                <div class="tmk-numero-destaque">@Model.Cotados</div>
+                <div>Cotados</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="/Orcamentos?Filtro.Situacao=AjusteSolicitado" class="text-decoration-none text-reset">
+            <div class="tmk-card text-center">
+                <div class="tmk-numero-destaque">@Model.AjusteSolicitado</div>
+                <div>Ajuste solicitado</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="/Orcamentos?Filtro.Situacao=Expirado" class="text-decoration-none text-reset">
+            <div class="tmk-card text-center">
+                <div class="tmk-numero-destaque">@Model.Expirados</div>
+                <div>Expirados</div>
+            </div>
+        </a>
+    </div>
+</div>
+<p class="small">
+    <a href="/Orcamentos" class="text-decoration-none">
+        <i class="bi bi-question-circle"></i> @Model.PerguntasPendentes pergunta(s) pendente(s) em orçamentos em negociação
+    </a>
+</p>

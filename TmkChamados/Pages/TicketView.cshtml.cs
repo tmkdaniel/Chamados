@@ -14,9 +14,11 @@ namespace TmkChamados.Pages
         private readonly IUsuarioService _usuarioService;
         private readonly IProtecaoEnvioDuplicadoService _protecaoEnvioDuplicado;
         private readonly IEmailSender _emailSender;
+        private readonly IOrcamentoService _orcamentoService;
 
-        public TicketViewModel(ITicketService ticketService, IAndamentoService andamentoService, IUsuarioService usuarioService, IProtecaoEnvioDuplicadoService protecaoEnvioDuplicado, IEmailSender emailSender)
+        public TicketViewModel(ITicketService ticketService, IAndamentoService andamentoService, IUsuarioService usuarioService, IProtecaoEnvioDuplicadoService protecaoEnvioDuplicado, IEmailSender emailSender, IOrcamentoService orcamentoService)
         {
+            _orcamentoService = orcamentoService;
             _ticketService = ticketService;
             _andamentoService = andamentoService;
             _usuarioService = usuarioService;
@@ -66,6 +68,11 @@ namespace TmkChamados.Pages
         public bool IsMaster { get; private set; }
 
         public string? EmailCriadoPor { get; private set; }
+
+        // Orçamento que gerou este ticket; o link só é oferecido a quem pode abrir o orçamento.
+        public Orcamento? OrigemOrcamento { get; private set; }
+
+        public bool PodeAbrirOrigem { get; private set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -299,6 +306,13 @@ namespace TmkChamados.Pages
             UsuariosMaster = usuarios.Where(u => u.Tipo == TipoUsuario.Master).ToList();
             UsuariosTodos = usuarios;
             EmailCriadoPor = Ticket is null ? null : usuarios.FirstOrDefault(u => u.Id == Ticket.CriadoPorId)?.Email;
+
+            OrigemOrcamento = Ticket is null ? null : _orcamentoService.ObterOrigemDoTicket(Ticket.Id);
+            var tipoUsuario = User.ObterTipoUsuario();
+            var empresaId = User.ObterEmpresaId();
+            PodeAbrirOrigem = OrigemOrcamento is not null && tipoUsuario is not null && empresaId is not null
+                && User.EhMasterOuGerente()
+                && _orcamentoService.PodeAcessar(OrigemOrcamento, tipoUsuario.Value, empresaId.Value);
         }
 
         private void PreencherFormDeEdicao()

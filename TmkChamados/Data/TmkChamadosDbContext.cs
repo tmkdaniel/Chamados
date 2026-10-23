@@ -19,6 +19,18 @@ namespace TmkChamados.Data
 
         public DbSet<AnexoAndamento> AnexosAndamento => Set<AnexoAndamento>();
 
+        public DbSet<Orcamento> Orcamentos => Set<Orcamento>();
+
+        public DbSet<AnexoOrcamento> AnexosOrcamento => Set<AnexoOrcamento>();
+
+        public DbSet<VersaoOrcamento> VersoesOrcamento => Set<VersaoOrcamento>();
+
+        public DbSet<HistoricoOrcamento> HistoricoOrcamento => Set<HistoricoOrcamento>();
+
+        public DbSet<PerguntaOrcamento> PerguntasOrcamento => Set<PerguntaOrcamento>();
+
+        public DbSet<RespostaPergunta> RespostasPergunta => Set<RespostaPergunta>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Usuario>()
@@ -79,6 +91,130 @@ namespace TmkChamados.Data
                 .WithMany()
                 .HasForeignKey(a => a.AndamentoId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Orcamento>()
+                .Property(o => o.Titulo)
+                .HasMaxLength(200);
+
+            modelBuilder.Entity<Orcamento>()
+                .HasIndex(o => new { o.EmpresaId, o.Status });
+
+            modelBuilder.Entity<Orcamento>()
+                .HasOne<Empresa>()
+                .WithMany()
+                .HasForeignKey(o => o.EmpresaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Orcamento>()
+                .HasOne<Usuario>()
+                .WithMany()
+                .HasForeignKey(o => o.CriadoPorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Orcamento>()
+                .HasIndex(o => o.TicketId);
+
+            modelBuilder.Entity<Orcamento>()
+                .HasOne<Ticket>()
+                .WithMany()
+                .HasForeignKey(o => o.TicketId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<AnexoOrcamento>()
+                .HasIndex(a => a.OrcamentoId);
+
+            modelBuilder.Entity<AnexoOrcamento>()
+                .HasOne<Orcamento>()
+                .WithMany()
+                .HasForeignKey(a => a.OrcamentoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Orcamento>()
+                .Property(o => o.ValorAtual)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<Orcamento>()
+                .Property(o => o.ValidadeAtual)
+                .HasColumnType("date");
+
+            modelBuilder.Entity<VersaoOrcamento>()
+                .Property(v => v.Valor)
+                .HasColumnType("decimal(18,2)");
+
+            modelBuilder.Entity<VersaoOrcamento>()
+                .Property(v => v.Validade)
+                .HasColumnType("date");
+
+            modelBuilder.Entity<VersaoOrcamento>()
+                .HasIndex(v => new { v.OrcamentoId, v.Numero })
+                .IsUnique();
+
+            modelBuilder.Entity<VersaoOrcamento>()
+                .HasOne<Orcamento>()
+                .WithMany()
+                .HasForeignKey(v => v.OrcamentoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<VersaoOrcamento>()
+                .HasOne<Usuario>()
+                .WithMany()
+                .HasForeignKey(v => v.CriadoPorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<HistoricoOrcamento>()
+                .HasIndex(h => h.OrcamentoId);
+
+            modelBuilder.Entity<HistoricoOrcamento>()
+                .HasOne<Orcamento>()
+                .WithMany()
+                .HasForeignKey(h => h.OrcamentoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<HistoricoOrcamento>()
+                .HasOne<Usuario>()
+                .WithMany()
+                .HasForeignKey(h => h.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PerguntaOrcamento>()
+                .Property(p => p.Texto)
+                .IsRequired()
+                .HasMaxLength(PerguntaOrcamento.TamanhoMaximoTexto);
+
+            modelBuilder.Entity<PerguntaOrcamento>()
+                .HasIndex(p => p.OrcamentoId);
+
+            modelBuilder.Entity<PerguntaOrcamento>()
+                .HasOne<Orcamento>()
+                .WithMany()
+                .HasForeignKey(p => p.OrcamentoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PerguntaOrcamento>()
+                .HasOne(p => p.Autor)
+                .WithMany()
+                .HasForeignKey(p => p.AutorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RespostaPergunta>()
+                .Property(r => r.Texto)
+                .IsRequired()
+                .HasMaxLength(PerguntaOrcamento.TamanhoMaximoTexto);
+
+            modelBuilder.Entity<RespostaPergunta>()
+                .HasIndex(r => r.PerguntaId);
+
+            modelBuilder.Entity<RespostaPergunta>()
+                .HasOne<PerguntaOrcamento>()
+                .WithMany(p => p.Respostas)
+                .HasForeignKey(r => r.PerguntaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RespostaPergunta>()
+                .HasOne(r => r.Autor)
+                .WithMany()
+                .HasForeignKey(r => r.AutorId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

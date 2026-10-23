@@ -27,6 +27,17 @@ else
     <p class="mb-3">
         <span class="tmk-chip">@ticket.Status</span>
         <span class="tmk-chip">@ticket.Prioridade</span>
+        @if (Model.OrigemOrcamento is not null)
+        {
+            if (Model.PodeAbrirOrigem)
+            {
+                <a href="/OrcamentoView?id=@Model.OrigemOrcamento.Id" class="tmk-chip text-decoration-none"><i class="bi bi-cash-coin"></i> Gerado a partir do orçamento #@Model.OrigemOrcamento.Id</a>
+            }
+            else
+            {
+                <span class="tmk-chip"><i class="bi bi-cash-coin"></i> Gerado a partir do orçamento #@Model.OrigemOrcamento.Id</span>
+            }
+        }
     </p>
 
     <form method="post" asp-page-handler="Atualizar" class="tmk-card mb-4">

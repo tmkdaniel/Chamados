@@ -31,5 +31,11 @@ namespace TmkChamados.Services
         {
             return principal.ObterTipoUsuario() == TipoUsuario.Master;
         }
+
+        public static bool EhMasterOuGerente(this ClaimsPrincipal principal)
+        {
+            var tipo = principal.ObterTipoUsuario();
+            return tipo == TipoUsuario.Master || tipo == TipoUsuario.Gerente;
+        }
     }
 }
